@@ -16,9 +16,9 @@ class CreateResponseIdealsTable extends Migration
         Schema::create('response_ideals', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->foreignId('position_id');
+            $table->foreignId('position_id')->constrained();
             $table->json('response');
-            $table->foreignId('assessment_period_id');
+            $table->foreignId('assessment_period_id')->constrained();
             $table->timestamps();
         });
     }
