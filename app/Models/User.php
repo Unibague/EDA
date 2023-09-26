@@ -105,5 +105,9 @@ class User extends Authenticatable
 
     }
 
+    public function  positions (): \Illuminate\Database\Eloquent\Relations\BelongsToMany
+    {
+        return $this->belongsToMany(Position::class);
+    }
 }
 
