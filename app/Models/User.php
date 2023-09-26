@@ -98,4 +98,12 @@ class User extends Authenticatable
         return $this->role()->customId >= $roleNumber;
     }
 
+    public function  userProfile (): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+
+        return $this->hasMany(UserProfile::class);
+
+    }
+
 }
+
