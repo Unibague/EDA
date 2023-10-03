@@ -12,5 +12,10 @@ class Position extends Model
     {
         return $this->belongsToMany(User::class);
     }
+    public function responseIdeals (): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(ResponseIdeal::class);
+    }
+
     use HasFactory;
 }
