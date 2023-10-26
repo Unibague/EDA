@@ -57,7 +57,7 @@ export default {
         Link
     },
     data: () => ({
-        siteName: 'Evaluación de desempeño Administrativos',
+        siteName: 'EDA',
     }),
 
     methods: {
