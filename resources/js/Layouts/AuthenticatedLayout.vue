@@ -242,31 +242,55 @@ export default {
                 items: [
                     {
                         name: 'Periodos de evaluación',
-                        href: route('users.index'),
-                        role: 3,
-                        icon: 'mdi-account-cog'
-                    },
-                    {
-                        name: 'Cargos',
-                        href: route('users.index'),
-                        role: 3,
-                        icon: 'mdi-account-cog'
-                    },
-                    {
-                        name: 'Ideales de respuesta',
-                        href: route('users.index'),
+                        href: route('assessmentPeriods.index.view'),
                         role: 3,
                         icon: 'mdi-account-cog'
                     },
                     {
                         name: 'Dependencias',
-                        href: route('users.index'),
+                        href: route('dependencies.index.view'),
+                        role: 3,
+                        icon: 'mdi-account-cog'
+                    },
+                    {
+                        name: 'Funcionarios',
+                        href: route('functionaries.index.view'),
+                        role: 3,
+                        icon: 'mdi-account-cog'
+                    },
+                    {
+                        name: 'Posiciones',
+                        href: route('positions.index.view'),
+                        role: 3,
+                        icon: 'mdi-account-cog'
+                    },
+                    {
+                        name: 'Asignación de Cargos a Posiciones',
+                        href: route('positions.assignment.index.view'),
+                        role: 3,
+                        icon: 'mdi-account-cog'
+                    },
+                    {
+                        name: 'Clientes Externos',
+                        href: route('positions.index.view'),
+                        role: 3,
+                        icon: 'mdi-account-cog'
+                    },
+                    {
+                        name: 'Ideales de respuesta',
+                        href: route('responseIdeals.index.view'),
+                        role: 3,
+                        icon: 'mdi-account-cog'
+                    },
+                    {
+                        name: 'Competencias',
+                        href: route('competences.index.view'),
                         role: 3,
                         icon: 'mdi-account-cog'
                     },
                     {
                         name: 'Formularios',
-                        href: route('users.index'),
+                        href: route('forms.index.view'),
                         role: 3,
                         icon: 'mdi-account-cog'
                     },

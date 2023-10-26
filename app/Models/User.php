@@ -98,16 +98,45 @@ class User extends Authenticatable
         return $this->role()->customId >= $roleNumber;
     }
 
-    public function  userProfile (): \Illuminate\Database\Eloquent\Relations\HasMany
+    public function  functionaryProfiles(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
-
-        return $this->hasMany(UserProfile::class);
-
+        return $this->hasMany(FunctionaryProfile::class);
     }
 
-    public function  positions (): \Illuminate\Database\Eloquent\Relations\BelongsToMany
+    public function  positions(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
     {
         return $this->belongsToMany(Position::class);
     }
+
+    public function  commitments(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(Commitment::class);
+    }
+
+    public function dependencies(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
+    {
+        return $this->BelongsToMany(Dependency::class);
+    }
+
+    public function assessments(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(Assessment::class);
+    }
+
+    public function formAnswers(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(FormAnswer::class);
+    }
+
+    public function aggregateAssessmentResults(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(AggregateAssessmentResult::class);
+    }
+
+    public function isAdmin(): bool
+    {
+        return $this->hasRole('administrador');
+    }
+
 }
 

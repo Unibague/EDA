@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "36db7b7d1c97d1265068bcb55b6f68b8",
+    "content-hash": "5736a5a9aa69712970b137484f7182ba",
     "packages": [
         {
             "name": "asm89/stack-cors",
@@ -2495,6 +2495,43 @@
                 "source": "https://github.com/opis/closure/tree/3.6.3"
             },
             "time": "2022-01-27T09:35:39+00:00"
+        },
+        {
+            "name": "ospina/curlcobain",
+            "version": "1.0.2",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/JSebastianOspina/CurlCobain.git",
+                "reference": "1096d9b22881517956a32d8dce55f0fb9d101124"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/JSebastianOspina/CurlCobain/zipball/1096d9b22881517956a32d8dce55f0fb9d101124",
+                "reference": "1096d9b22881517956a32d8dce55f0fb9d101124",
+                "shasum": ""
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Ospina\\CurlCobain\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Sebastian Ospina",
+                    "email": "sebastianospinacontacto@gmail.com"
+                }
+            ],
+            "description": "Easy Curl for everybody, forget about manual long curl configuration",
+            "support": {
+                "issues": "https://github.com/JSebastianOspina/CurlCobain/issues",
+                "source": "https://github.com/JSebastianOspina/CurlCobain/tree/1.0.2"
+            },
+            "time": "2022-10-20T04:41:03+00:00"
         },
         {
             "name": "paragonie/constant_time_encoding",
@@ -8389,5 +8426,5 @@
         "php": "^7.3"
     },
     "platform-dev": [],
-    "plugin-api-version": "2.2.0"
+    "plugin-api-version": "2.3.0"
 }

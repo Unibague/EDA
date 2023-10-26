@@ -11,8 +11,6 @@ use Laravel\Socialite\Facades\Socialite;
 
 class AuthController extends Controller
 {
-    //
-
     public function logout(Request $request)
     {
         Auth::logout();
@@ -21,7 +19,6 @@ class AuthController extends Controller
         //return view('logout');
         return redirect('/');
     }
-
 
     public function handleAuthRedirect(): \Illuminate\Http\RedirectResponse
     {
@@ -40,7 +37,7 @@ class AuthController extends Controller
             return Inertia::render('Commitments/Index');
         }
 
-        if ($user->role()->name == "admin") {
+        if ($user->role()->name == "administrador") {
             return Inertia::render('Users/Index');
         }
 
@@ -76,7 +73,7 @@ class AuthController extends Controller
                 'password' => 'automatic_generate_password'
             ]);
 
-            //Assign the default role (student)
+            //Assign the default role (functionary)
             $role = Role::where('name', 'funcionario')->first();
             Role::assignRole($user->id, $role->id);
             session(['role' => $role->id]);

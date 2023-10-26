@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateUserProfilesTable extends Migration
+class CreateJobTitlePositionsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,13 +13,11 @@ class CreateUserProfilesTable extends Migration
      */
     public function up()
     {
-        Schema::create('user_profiles', function (Blueprint $table) {
+        Schema::create('job_title_positions', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained();
-            $table->string('identification_number');
-            $table->string('dependency_code');
             $table->string('job_title');
-            $table->date('hire_date');
+            $table->foreignId('position_id')->nullable()->constrained();
+            $table->foreignId('assessment_period_id')->nullable()->constrained();
             $table->timestamps();
         });
     }
@@ -31,6 +29,6 @@ class CreateUserProfilesTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('user_profiles');
+        Schema::dropIfExists('job_title_positions');
     }
 }

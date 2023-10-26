@@ -85,18 +85,6 @@
             </v-dialog>
             <!------------Seccion de dialogos ---------->
 
-            <!------------Seccion de Overlays ---------->
-
-            <!--            <v-overlay :value="isLoading"
-                                   absolute
-                                   opacity="1">
-                            <v-progress-circular
-                                indeterminate
-                                size="64"
-                            ></v-progress-circular>
-                        </v-overlay>-->
-            <!------------Seccion de Overlays ---------->
-
         </v-container>
 
     </AuthenticatedLayout>
