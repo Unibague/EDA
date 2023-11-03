@@ -17,6 +17,7 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 use SebastianBergmann\LinesOfCode\RuntimeException;
 
 class  ApiUserController extends Controller
@@ -26,7 +27,7 @@ class  ApiUserController extends Controller
  */
     public function index(GetAllUsersRequest $request)
     {
-        return User::with('roles')->orderBy('name', 'DESC')->get();
+        return User::with('roles')->orderBy('name', 'ASC')->get();
     }
 
     /**
@@ -74,9 +75,5 @@ class  ApiUserController extends Controller
         $user->roles()->sync($roles);
         return response()->json(['message' => 'Los roles del usuario han sido actualizado exitosamente']);
     }
-
-
-
-
 
 }

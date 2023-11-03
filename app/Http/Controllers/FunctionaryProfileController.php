@@ -4,11 +4,14 @@ namespace App\Http\Controllers;
 
 use App\Helpers\AtlanteProvider;
 use App\Models\AssessmentPeriod;
+use App\Models\Dependency;
 use App\Models\FunctionaryProfile;
 use App\Models\Position;
 use App\Models\TeacherProfile;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Inertia\Inertia;
 use Mockery\Undefined;
 use SebastianBergmann\LinesOfCode\RuntimeException;
 
@@ -21,15 +24,20 @@ class FunctionaryProfileController extends Controller
      */
     public function index(Request $request): JsonResponse
     {
-        $actualAssessmentPeriod = AssessmentPeriod::getActiveAssessmentPeriod();
+        $activeAssessmentPeriodId = AssessmentPeriod::getActiveAssessmentPeriod()->id;
         $dependency = $request->input('dependency');
+        $functionaryProfile = $request->input('functionaryProfile');
 
-        if ($dependency === null){
-            return response()->json(FunctionaryProfile::where('assessment_period_id', '=', $actualAssessmentPeriod->id)
+        if ($dependency !== null){
+            return response()->json(FunctionaryProfile::getFunctionariesAssessments($dependency['identifier']));
+        }
+
+        if ($functionaryProfile !== null){
+            return response()->json(FunctionaryProfile::where('assessment_period_id', '=', $activeAssessmentPeriodId)->where('user_id', '!=', $functionaryProfile['user_id'])
                 ->with('user')->get()->sortBy('user.name')->values()->all());
         }
 
-        return response()->json(FunctionaryProfile::where('assessment_period_id', '=', $actualAssessmentPeriod->id)->where('dependency_identifier', '=', $dependency['identifier'])
+        return response()->json(FunctionaryProfile::where('assessment_period_id', '=', $activeAssessmentPeriodId)
             ->with('user')->get()->sortBy('user.name')->values()->all());
 
     }
@@ -37,7 +45,6 @@ class FunctionaryProfileController extends Controller
     public function sync(): JsonResponse
     {
         try {
-
             $functionaries = AtlanteProvider::get('functionaries', [
                 'type_employee' => 'ADM',
             ], true);
@@ -103,9 +110,9 @@ class FunctionaryProfileController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function edit($id)
+    public function edit(Dependency $dependency, FunctionaryProfile $functionaryProfile)
     {
-        //
+        return Inertia::render('Functionaries/FunctionaryAssignment', ['functionary' => $functionaryProfile, 'dependency' => $dependency]);
     }
 
     /**
@@ -117,7 +124,7 @@ class FunctionaryProfileController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+
     }
 
     /**
@@ -128,6 +135,6 @@ class FunctionaryProfileController extends Controller
      */
     public function destroy($id)
     {
-        //
+
     }
 }

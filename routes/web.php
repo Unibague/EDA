@@ -16,15 +16,18 @@ use Laravel\Socialite\Facades\Socialite;
 */
 
 
+/* >>>>>>>>>>>>>>>>>>>>>>>  Assessments routes >>>>>>>><<<<<< */
+Route::resource('api/assessments', \App\Http\Controllers\AssessmentController::class, [
+    'as' => 'api'
+])->middleware('auth');
+
+
 /* >>>>>>>>>>>>>>>>>>>>>>>  Assessment Periods routes >>>>>>>><<<<<< */
 Route::inertia('/assessmentPeriods', 'AssessmentPeriods/Index')->middleware(['auth', 'isAdmin'])->name('assessmentPeriods.index.view');
 Route::resource('api/assessmentPeriods', \App\Http\Controllers\AssessmentPeriodController::class, [
     'as' => 'api'
 ])->middleware('auth');
 Route::post('/api/assessmentPeriods/{assessmentPeriod}/setActive', [\App\Http\Controllers\AssessmentPeriodController::class, 'setActive'])->middleware(['auth', 'isAdmin'])->name('api.assessmentPeriods.setActive');
-
-
-
 
 /* >>>>>Commitments routes <<<<<< */
 Route::inertia('/commitments', 'Commitments/Index')->name('commitments.index.view');
@@ -33,23 +36,30 @@ Route::inertia('/commitments', 'Commitments/Index')->name('commitments.index.vie
 //    'as' => 'api'
 //])->middleware('auth');
 
-
 /* >>>>>Competences routes <<<<<< */
-Route::inertia('/competences', 'Competences/Index')->name('competences.index.view');
+Route::inertia('/competences', 'Competences/Index')->middleware(['auth', 'isAdmin'])->name('competences.index.view');
 Route::resource('api/competences', \App\Http\Controllers\CompetenceController::class, [
     'as' => 'api'
 ])->middleware('auth');
 
-
 /* >>>>>Dependencies routes <<<<<< */
-Route::inertia('/dependencies', 'Dependencies/Index')->name('dependencies.index.view');
+Route::inertia('/dependencies', 'Dependencies/Index')->middleware(['auth', 'isAdmin'])->name('dependencies.index.view');
 Route::resource('api/dependencies', \App\Http\Controllers\DependencyController::class, [
     'as' => 'api'])->middleware('auth');
 Route::get('/api/dependencies/{dependency}', [\App\Http\Controllers\DependencyController::class, 'edit'])->middleware(['auth'])->name('api.dependencies.edit');
 Route::post('/api/dependencies/sync', [\App\Http\Controllers\DependencyController::class, 'sync'])->middleware(['auth'])->name('api.dependencies.sync');
 
-/* >>>>>>>>>>>>>>>>>>>>> Forms routes <<<<<<<<<<<<<<<<<<<< */
 
+/* >>>>>>>>>>>>>>>>>>>>>>>  ExternalClients routes >>>>>>>><<<<<< */
+Route::inertia('/externalClients', 'ExternalClients/Index')->middleware(['auth', 'isAdmin'])->name('externalClients.index.view');
+Route::resource('api/externalClients', \App\Http\Controllers\ExternalClientController::class, [
+    'as' => 'api'
+])->middleware('auth');
+Route::post('/api/externalClient/updatePassword', [\App\Http\Controllers\ExternalClientController::class, 'updatePassword'])->middleware(['auth'])
+    ->name('api.externalClients.updatePassword');
+
+
+/* >>>>>>>>>>>>>>>>>>>>> Forms routes <<<<<<<<<<<<<<<<<<<< */
 Route::get('api/forms/withoutQuestions', [\App\Http\Controllers\FormController::class, 'getWithoutQuestions'])->middleware(['auth', 'isAdmin'])->name('api.forms.withoutQuestions');
 Route::get('api/forms/copyFromPeriod/{assessmentPeriod}', [\App\Http\Controllers\FormController::class, 'copyFromPeriod'])->name('api.forms.copyFromPeriod')
     ->middleware(['auth', 'isAdmin']);
@@ -64,14 +74,22 @@ Route::patch('api/forms/{form}/formQuestions', [\App\Http\Controllers\FormQuesti
 Route::get('api/forms/{form}/formQuestions', [\App\Http\Controllers\FormQuestionController::class, 'getByFormId'])->name('api.forms.questions.show')->middleware(['auth']);
 
 
+/* >>>>>FunctionaryProfile routes <<<<<< */
+Route::inertia('/functionaries', 'Functionaries/Index')->middleware(['auth', 'isAdmin'])->name('functionaries.index.view');
+Route::post('/api/functionaryProfiles/sync', [\App\Http\Controllers\FunctionaryProfileController::class, 'sync'])->middleware(['auth'])->name('api.functionaryProfiles.sync');
+Route::resource('api/functionaries', \App\Http\Controllers\FunctionaryProfileController::class, [
+    'as' => 'api'
+])->middleware('auth');
+Route::get('/api/{dependency}/functionaryProfiles/{functionaryProfile}', [\App\Http\Controllers\FunctionaryProfileController::class, 'edit'])
+    ->middleware(['auth'])->name('api.functionaryProfiles.edit');
+
+
 /* >>>>>>>>>>>>>>>>>>>>>>>  Positions routes >>>>>>>><<<<<< */
 Route::inertia('/positions', 'Positions/Index')->middleware(['auth', 'isAdmin'])->name('positions.index.view');
 Route::get('api/positions/ableToAssign/', [\App\Http\Controllers\PositionController::class, 'ableToAssign'])->middleware(['auth', 'isAdmin'])->name('api.positions.ableToAssign');
 Route::resource('api/positions', \App\Http\Controllers\PositionController::class, [
     'as' => 'api'
 ])->middleware('auth');
-
-
 
 /* >>>>>>>>>>>>>>>>>>>>>>>  Positions Assignment routes >>>>>>>><<<<<< */
 Route::inertia('/positions/assignment', 'PositionAssignment/Index')->middleware(['auth', 'isAdmin'])->name('positions.assignment.index.view');
@@ -105,23 +123,19 @@ Route::get('/api/users/{user}/roles', [\App\Http\Controllers\Users\ApiUserContro
 Route::post('/api/roles/select', [\App\Http\Controllers\Users\ApiUserController::class, 'selectRole'])->middleware('auth')->name('api.roles.selectRole');
 
 
-/* >>>>>FunctionaryProfile routes <<<<<< */
-Route::inertia('/functionaries', 'Functionaries/Index')->middleware(['auth', 'isAdmin'])->name('functionaries.index.view');
-Route::post('/api/functionaries/sync', [\App\Http\Controllers\FunctionaryProfileController::class, 'sync'])->middleware(['auth'])->name('api.functionaries.sync');
-Route::resource('api/functionaries', \App\Http\Controllers\FunctionaryProfileController::class, [
-    'as' => 'api'
-])->middleware('auth');
-
-
-
-
 //Route::get('login', [\App\Http\Controllers\AuthController::class, 'redirectGoogleLogin'])->name('login');
 //Route::get('/google/callback', [\App\Http\Controllers\AuthController::class, 'handleGoogleCallback']);
 /* >>>>>>>>>>>>>>>>>>>>>>>>>>>> Auth routes <<<<<<<<<<<<<<<<<<<<<<<< */
-Route::inertia('/landing', 'Landing/Index')->name('landing.index.view');
+
+//Route::inertia('/login', 'Landing/Index')->name('landing.index.view');
+Route::get('/login', [\App\Http\Controllers\AuthController::class, 'landing'])->name('login');
+Route::post('/loginExternal', [\App\Http\Controllers\AuthController::class, 'externalClientLogin'])->name('externalClient.login');
 Route::get('/', [\App\Http\Controllers\AuthController::class, 'handleRoleRedirect'])->middleware(['auth'])->name('redirect');
-Route::get('/login', [\App\Http\Controllers\AuthController::class, 'redirectGoogleLogin'])->name('login');
+Route::get('/googleLogin', [\App\Http\Controllers\AuthController::class, 'redirectGoogleLogin'])->name('googleLogin');
 Route::post('/logout', [\App\Http\Controllers\AuthController::class, 'logout'])->name('logout');
 Route::get('/google/callback', [\App\Http\Controllers\AuthController::class, 'handleGoogleCallback']);
 Route::get('/pickRole', [\App\Http\Controllers\AuthController::class, 'pickRole'])->name('pickRole');
 
+
+Route::inertia('/assessmentStatus', 'Dependencies/AssessmentStatus')->middleware(['auth', 'isAdmin']);
+Route::post('/testWebService', [\App\Http\Controllers\AuthController::class, 'webService'])->name('webService.test');

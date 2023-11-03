@@ -10,9 +10,9 @@
                     <v-btn
                         color="primario"
                         class="grey--text text--lighten-4"
-                        @click="setPositionDialogToCreateOrEdit('create')"
+                        @click="test"
                     >
-                        Crear nueva posición
+                        Probar
                     </v-btn>
                 </div>
             </div>
@@ -259,6 +259,20 @@ export default {
             }
 
         },
+
+        async test(){
+
+            let data = {
+                invoiceId:1064092,
+                searchType: 2,
+                malparido: 3,
+                setentaHijueputa: 9,
+            }
+
+            let request = await axios.post(route('webService.test'), {data});
+
+
+        }
 
     },
 }
