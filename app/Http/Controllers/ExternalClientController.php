@@ -2,11 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Position;
+use App\Models\FunctionaryProfile;
+use App\Models\User;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 
-class PositionController extends Controller
+class ExternalClientController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -15,15 +17,8 @@ class PositionController extends Controller
      */
     public function index()
     {
-        return response()->json(Position::all());
+        return response()->json(User::where('is_external_client','=', 1)->get());
     }
-
-
-    public function ableToAssign()
-    {
-        return response()->json(Position::all());
-    }
-
 
     /**
      * Show the form for creating a new resource.
@@ -43,9 +38,14 @@ class PositionController extends Controller
      */
     public function store(Request $request)
     {
-        Position::create($request->all());
-        $position = Position::whereName($request->input('name'))->first();
-        return response()->json(['message' => 'Posición creada exitosamente']);
+        User::create([
+            'name' => $request->input(['name']),
+            'email' => $request->input(['email']),
+            'is_external_client' => true,
+            'password' => Hash::make($request->input(['password'])),
+        ]);
+
+        return response()->json(['message' => 'Cliente externo creado exitosamente']);
     }
 
     /**
@@ -77,11 +77,21 @@ class PositionController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Position $position)
+    public function update(Request $request, User $externalClient)
     {
-        $position->update($request->all());
-        return response()->json(['message' => 'Posición actualizada exitosamente']);
+        $externalClient->update($request->all());
+        return response()->json(['message' => 'Información actualizada exitosamente']);
     }
+
+    public function updatePassword(Request $request)
+    {
+        User::UpdateOrCreate(
+            ['id' => $request->input(['id'])],
+            ['password' => Hash::make($request->input(['password']))]);
+
+        return response()->json(['message' => 'Contraseña actualizada exitosamente']);
+    }
+
 
     /**
      * Remove the specified resource from storage.
@@ -89,13 +99,13 @@ class PositionController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Position $position)
+    public function destroy(User $externalClient)
     {
         try {
-            $position->delete();
+            $externalClient->delete();
         } catch (QueryException $e) {
-                return response()->json(['message' => 'No puedes eliminar una posición si ya está asociado a algún funcionario'], 400);
+            return response()->json(['message' => 'No puedes eliminar a un cliente externo si ya tiene alguna asignación'], 400);
         }
-        return response()->json(['message' => 'Posición eliminada exitosamente']);
+        return response()->json(['message' => 'Cliente externo eliminado exitosamente']);
     }
 }

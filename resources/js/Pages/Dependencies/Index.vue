@@ -233,7 +233,6 @@ export default {
     data: () => {
         return {
             //Table info
-
             functionaries: [],
             search:'',
             headers: [
@@ -268,7 +267,6 @@ export default {
     },
 
     computed:{
-
         filteredDependencies(){
             return this.dependencies.filter(dependency => {
                 return dependency.functionaries_from_dependency.length>0 || dependency.is_custom == 1;
@@ -284,12 +282,6 @@ export default {
 
     methods: {
 
-        // capitalize(){
-        //     this.units.forEach((unit) => {
-        //         unit.name = unit.name.toLowerCase().split(' ').map((word) => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
-        //     })
-        // },
-
         syncDependencies: async function () {
             try {
                 let request = await axios.post(route('api.dependencies.sync'));
@@ -301,26 +293,6 @@ export default {
                 showSnackbar(this.snackbar, prepareErrorText(e), 'alert');
             }
         },
-
-        check (item){
-
-            console.log(item);
-
-        },
-        // syncStaffMembers: async function () {
-        //
-        //     try {
-        //         let request = await axios.post(route('api.staffMembers.sync'));
-        //         /*console.log(request);*/
-        //         showSnackbar(this.snackbar, request.data.message, 'success');
-        //
-        //     } catch (e) {
-        //         showSnackbar(this.snackbar, prepareErrorText(e), 'alert');
-        //     }
-        //
-        //
-        // },
-
         confirmDeleteDependency: function (dependency) {
             this.deletedDependencyId = dependency.identifier;
             console.log(this.deletedDependencyId);
@@ -382,14 +354,12 @@ export default {
             }
         },
 
-
         getAllDependencies: async function () {
             let request = await axios.get(route('api.dependencies.index'));
             this.dependencies = request.data
             // await this.capitalize();
             console.log(this.dependencies)
         },
-
 
         setDependencyDialogToCreateOrEdit(which, item = null) {
             if (which === 'create') {

@@ -3,6 +3,8 @@
 namespace App\Http\Middleware;
 
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken as Middleware;
+use Closure;
+use Illuminate\Support\Facades\Auth;
 
 class VerifyCsrfToken extends Middleware
 {
@@ -11,7 +13,7 @@ class VerifyCsrfToken extends Middleware
      *
      * @var array
      */
-    protected $except = [
-        //
-    ];
+    protected $except = ['logout'];
+
+
 }

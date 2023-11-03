@@ -10,13 +10,13 @@
                                         Si eres funcionario de la Universidad, por favor ingresa con tu correo en el siguiente botón
                                     </p>
                                     <v-card-actions class="justify-center">
+                                    <a :href="route('googleLogin')">
                                         <v-btn
-                                            color="primario"
-                                            class="grey--text text--lighten-4"
-                                            @click="googleRedirect"
+                                            class="mr-2 primario--text"
                                         >
-                                            Ingresar
+                                            INGRESAR
                                         </v-btn>
+                                    </a>
                                     </v-card-actions>
                                 </v-card>
                             </v-flex>
@@ -39,9 +39,13 @@
                                                 name="username"
                                                 label="Usuario"
                                                 type="text"
-                                                placeholder="Usuario"
+                                                placeholder="Correo ingresado en formulario de registro"
                                                 required
                                             ></v-text-field>
+
+                                            <div v-if="form.errors.email" class="text-red-500 text-xs mt-1" style="color: red">
+                                                Por favor ingresa una dirección de correo válida.
+                                            </div>
 
                                             <v-text-field
                                                 v-model="form.password"
@@ -60,9 +64,6 @@
                     </v-col>
                 </v-row>
             </div>
-
-
-
     </GeneralLayout>
 </template>
 
@@ -88,7 +89,6 @@ export default {
                 password: '',
                 remember: true
             }),
-
             showDialog: false,
             // username: "",
             // password: "",
@@ -96,22 +96,9 @@ export default {
     },
 
     methods: {
+
         submit() {
-            this.form
-                .transform(data => ({
-                    ... data,
-                    remember: this.form.remember ? 'on' : ''
-                }))
-                .post(this.route('login'), {
-                    onFinish: () => this.form.reset('password'),
-                })
-        },
-
-        async googleRedirect(){
-
-            await axios.get(route('login'));
-
-
+            this.form.post(route('externalClient.login'));
         }
     }
 }

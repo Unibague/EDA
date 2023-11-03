@@ -8,12 +8,16 @@
             right
         >
             {{ snackbar.text }}
-
         </v-snackbar>
+
+        <form :action="route('logout')" method="post" ref="logoutform">
+            <input type="hidden" name="_token" :value="csrf">
+        </form>
 
         <template v-slot:custom-v-app-bar-icon>
             <v-app-bar-nav-icon @click="drawer = true" class="white--text"></v-app-bar-nav-icon>
         </template>
+
         <template v-slot:app-bar-content>
             <template v-for="menuItem in menu"
                       v-if="$page.props.user.customRoleId >= menuItem.role">
@@ -77,7 +81,6 @@
                 </v-menu>
             </template>
 
-
             <v-menu left bottom>
                 <template v-slot:activator="{ on, attrs }">
                     <v-avatar
@@ -96,12 +99,13 @@
                             {{ $page.props.user.name }}
                         </v-list-item-title>
                     </v-list-item>
-                    <v-list-item @click="logout">
+                    <v-list-item class="cursor-pointer" @click="logout">
                         <v-list-item-title>Cerrar sesion</v-list-item-title>
                     </v-list-item>
                 </v-list>
             </v-menu>
         </template>
+
         <!--Barra lateral-->
         <template v-slot:custom-navigation-drawer>
             <v-navigation-drawer
@@ -225,6 +229,8 @@ export default {
             timeout: 3000
         },
 
+        csrf: document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+
         drawer: false,
         menu:
             [{
@@ -272,7 +278,7 @@ export default {
                     },
                     {
                         name: 'Clientes Externos',
-                        href: route('positions.index.view'),
+                        href: route('externalClients.index.view'),
                         role: 3,
                         icon: 'mdi-account-cog'
                     },
@@ -335,10 +341,20 @@ export default {
         group: null,
         initials: '',
     }),
+
+    props: {
+        token: String
+    },
+
     methods: {
+
         logout() {
-            this.$inertia.post(route('logout'));
+            this.$refs.logoutform.submit();
         },
+
+        // logout() {
+        //     this.$inertia.post(route('logout'));
+        // },
 
         triggerFunction(functionName) {
             this[functionName]();

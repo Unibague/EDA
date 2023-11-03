@@ -75,8 +75,6 @@ class PositionAssignmentController extends Controller
      */
     public function update(Request $request, JobTitlePosition $assignment)
     {
-
-        dd($assignment);
     }
 
     public function createAssignment(Request $request)

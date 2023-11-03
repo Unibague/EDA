@@ -1,31 +1,28 @@
 <template>
     <AuthenticatedLayout>
         <!--Snackbars-->
-        <v-snackbar
-            v-model="snackbar.status"
-            :timeout="snackbar.timeout"
-            color="red accent-2"
-            top
-            right
-        >
-            {{ snackbar.text }}
-
-        </v-snackbar>
+        <Snackbar :timeout="snackbar.timeout" :text="snackbar.text" :type="snackbar.type"
+                  :show="snackbar.status" @closeSnackbar="snackbar.status = false"></Snackbar>
 
         <v-container>
             <div class="dd-flex flex-column align-end mb-8">
                 <h2 class="align-self-start">Gestionar usuarios</h2>
             </div>
-
             <!--Inicia tabla-->
             <v-data-table
                 loading-text="Cargando, por favor espere..."
                 :loading="isLoading"
                 :headers="headers"
                 :items="users"
-                :items-per-page="5"
-                class="elevation-1"
-            >
+                :items-per-page="35"
+                class="elevation-1">
+
+                <template v-slot:item.roles="{ item }">
+                       <span v-for="(role,key) in item.roles" :key="item.id">
+                           {{ key !== (item.roles.length - 1) ? `${role.name},` : role.name }}
+                       </span>
+                </template>
+
                 <template v-slot:item.actions="{ item }">
                     <v-icon
                         class="mr-2 primario--text"
@@ -48,22 +45,18 @@
                     <v-card-title>
                         <span class="text-h5 text-center">Cambiar el rol de {{ editedUser.name }}</span>
                     </v-card-title>
-                    <v-card-text>
-                        <v-container>
-                            <v-row>
-                                <v-col cols="12">
-                                    <v-select
-                                        color="primario"
-                                        v-model="selectedRoleId"
-                                        :items="roles"
-                                        label="Selecciona un rol"
-                                        :item-value="(role)=>role.id"
-                                        :item-text="(role)=>role.name"
-                                    ></v-select>
-                                </v-col>
-                            </v-row>
-                        </v-container>
-                    </v-card-text>
+                    <v-col cols="12">
+                        <span class="subtitle-1">
+                            Por favor seleccione los roles que desee asignar al usuario
+                        </span>
+
+                        <v-checkbox v-for="role in roles" :key="role.name"
+                                    :label="role.name"
+                                    :value="role.id"
+                                    v-model="editedUser.customRoles"
+                        >
+                        </v-checkbox>
+                    </v-col>
                     <v-card-actions>
                         <v-spacer></v-spacer>
                         <v-btn
@@ -76,7 +69,7 @@
                         <v-btn
                             color="primario"
                             text
-                            @click="editUserRoleRequest"
+                            @click="changeUserRoles"
                         >
                             Guardar cambios
                         </v-btn>
@@ -84,9 +77,7 @@
                 </v-card>
             </v-dialog>
             <!------------Seccion de dialogos ---------->
-
         </v-container>
-
     </AuthenticatedLayout>
 </template>
 
@@ -95,12 +86,14 @@ import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 import {InertiaLink} from "@inertiajs/inertia-vue";
 import {prepareErrorText} from "@/HelperFunctions"
 import ConfirmDialog from "@/Components/ConfirmDialog";
+import Snackbar from "@/Components/Snackbar";
 
 export default {
     components: {
         ConfirmDialog,
         AuthenticatedLayout,
         InertiaLink,
+        Snackbar
     },
     data: () => {
         return {
@@ -109,7 +102,7 @@ export default {
                 {text: 'ID', value: 'id'},
                 {text: 'Nombre', value: 'name'},
                 {text: 'Correo electrónico', value: 'email'},
-                {text: 'Rol', value: 'role.name'},
+                {text: 'Roles', value: 'roles', filterable: true},
                 {text: 'Acciones', value: 'actions', sortable: false},
             ],
             users: [],
@@ -127,14 +120,13 @@ export default {
                 name: ''
             },
             selectedRoleId: 0,
-
             //overlays
             isLoading: true
         }
     },
     async created() {
         await this.getAllUsers();
-        await this.getAllRoles();
+        // await this.getAllRoles();
         this.isLoading = false;
     },
     methods: {
@@ -142,32 +134,39 @@ export default {
             this.editedUser = {...user};
             this.editUserDialog = true;
         },
-        editUserRoleRequest: async function () {
-            //Verify request
-            if (this.selectedRoleId === 0) {
-                this.snackbar.text = 'Por favor, selecciona un rol para el usuario';
-                this.snackbar.status = true;
-                return;
-            }
+
+        formatRoles: function () {
+            const users = this.users;
+            users.forEach((user) => {
+                user.customRoles = [];
+                user.roles.forEach((role) => {
+                    user.customRoles.push(role.id)
+                })
+
+            })
+        },
+
+        changeUserRoles: async function () {
             //Recollect information
             let data = {
-                roleId: this.selectedRoleId,
+                roles: this.editedUser.customRoles
             }
 
-            console.log('entre aca');
             let url = route('api.users.roles.update', {'user': this.editedUser.id});
             try {
                 let request = await axios.patch(url, data);
+
+                showSnackbar(this.snackbar, request.data.message);
                 this.editUserDialog = false;
-                this.snackbar.text = request.data.message;
-                this.snackbar.status = true;
-                this.getAllUsers();
+                await this.getAllUsers();
 
                 //Clear role information
                 this.editedUser = {
                     name: ''
                 };
             } catch (e) {
+                showSnackbar(this.snackbar, prepareErrorText(e), 'alert');
+
                 this.snackbar.text = prepareErrorText(e);
                 this.snackbar.status = true;
             }
@@ -175,10 +174,14 @@ export default {
 
         getAllUsers: async function () {
             let request = await axios.get(route('api.users.index'));
+            console.log(request.data);
             this.users = request.data;
+            this.formatRoles();
         },
+
         getAllRoles: async function () {
             let request = await axios.get(route('api.roles.index'));
+            console.log(request.data);
             this.roles = request.data;
         },
 

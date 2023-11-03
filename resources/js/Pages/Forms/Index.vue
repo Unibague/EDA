@@ -482,7 +482,6 @@ export default {
             } catch (e) {
                 showSnackbar(this.snackbar, e.response.data.message, 'red', 3000);
             }
-
         },
 
         getRoles() {
@@ -499,7 +498,6 @@ export default {
 
         getAssessmentPeriods: async function () {
             let request = await axios.get(route('api.assessmentPeriods.index'));
-            console.log("malparidos todos");
             this.assessmentPeriods = request.data;
             this.assessmentPeriods.unshift({
                 id: null,
@@ -544,13 +542,11 @@ export default {
     },
 
     watch: {
-
         'othersForm.assessmentPeriodId'(newAssessmentPeriodId, oldAssessmentPeriodId) {
             if (newAssessmentPeriodId === null) {
                 this.othersForm.dependencyRole = null;
             }
         },
-
         'othersForm.position'(newPosition, oldAcademicPeriod) {
             if (newPosition === null) {
                 this.othersForm.dependencies = [null]

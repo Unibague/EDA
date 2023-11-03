@@ -22,7 +22,6 @@ class AtlanteProvider
             'http://integra.unibague.edu.co/' : 'http://a-t-l-a-n-t-e.test/';
         $this->endpoint = $endpoint;
         $apiToken = env('APP_ENV') === 'production' ? env('MIDDLEWARE_API_TOKEN') : env('MIDDLEWARE_API_TOKEN_TEST');
-
         if ($queryParams !== null) {
             $this->queryParams = array_merge(['api_token' => $apiToken], $queryParams);
         } else {
