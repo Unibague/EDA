@@ -28,9 +28,7 @@ class AssessmentController extends Controller
         $functionary = $request->input('functionary');
 
         if ($functionary !== null){
-        $assessments= DB::table('assessments as a')->select(['a.id', 'a.pending','u.name', 'a.role', 'a.evaluator_id', 'a.evaluated_id', 'a.assessment_period_id'])
-            ->where('evaluated_id','=', $functionary['user_id'])->where('assessment_period_id','=', $activeAssessmentPeriodId)
-            ->join('users as u', 'u.id', '=', 'a.evaluator_id')->get();
+            $assessments= Assessment::getUserAssessments($functionary);
         }
         else {
             $assessments = Assessment::all();

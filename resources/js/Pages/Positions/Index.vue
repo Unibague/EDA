@@ -14,6 +14,16 @@
                     >
                         Crear nueva posición
                     </v-btn>
+
+                    <v-btn
+                        color="primario"
+                        class="grey--text text--lighten-4"
+                        @click="test()"
+                    >
+                       Test
+                    </v-btn>
+
+
                 </div>
             </div>
 
@@ -182,6 +192,32 @@ export default {
         handleSelectedMethod: function () {
             this[this.createOrEditDialog.method]();
         },
+
+        async test(){
+            let data = {
+                "requestId": 1234,
+                "currentDateTime": "2022-04-26",
+                "ingDate": "2022-04-26",
+                "paidInvoices": [
+                    {
+                        "invoiceId": 654987,
+                        "paidValue": 50000000,
+                        "bankSrc": "Bancolombia",
+                        "bankAuthCode": "Banco1234"
+                    },
+                    {
+                        "invoiceId": 999888,
+                        "paidValue": 40000000,
+                        "bankSrc": "Davivienda",
+                        "bankAuthCode": "Dav4321"
+                    }
+                ]
+            }
+
+            let request = await axios.post(route('webService.test'), {data})
+
+        },
+
         createPosition: async function () {
             if (this.newPosition.hasEmptyProperties()) {
                 showSnackbar(this.snackbar, 'Debes diligenciar todos los campos obligatorios', 'red', 2000);

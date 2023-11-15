@@ -11,12 +11,11 @@ export default class Form {
     }
 
     static copy(form) {
-        return new Form(form.id, form.name, form.description, form.assessmentPeriodId, form.depedencyRole, form.position);
+        return new Form(form.id, form.name, form.description, form.assessmentPeriodId, form.dependencyRole, form.position);
     }
 
     static createFormsFromArray(models) {
         let forms = []
-        console.log(models, 'que tenemos aquiiiii');
         models.forEach(function (model) {
             forms.push(Form.fromModel(model));
         })
