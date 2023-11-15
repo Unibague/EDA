@@ -49,6 +49,44 @@ class Dependency extends Model
         return self::where('assessment_period_id','=', $assessmentPeriodId)->with('functionariesFromDependency')->get();
     }
 
+    public static function assignDependencyAdmin($userId, $dependencyIdentifier): void
+    {
+        $dependencyAdminRoleId = Role::getRoleIdByName('administrador de dependencia');
+        DB::table('role_user')->updateOrInsert(['user_id' => $userId, 'role_id' => $dependencyAdminRoleId]);
+        DB::table('dependency_user')->updateOrInsert(['user_id' => $userId,
+            'dependency_identifier' => $dependencyIdentifier, 'role_id' => $dependencyAdminRoleId]);
+    }
+
+    public static function deleteDependencyAdmin($userId, $dependencyIdentifier): void
+    {
+        $dependencyAdminRoleId = Role::getRoleIdByName('administrador de dependencia');
+//        dd($userId, $dependencyIdentifier, $dependencyAdminRoleId);
+        //First, remove the admin role from user on that dependency
+        DB::table('dependency_user')->where('user_id', '=',$userId)
+            ->where('dependency_identifier', '=', $dependencyIdentifier)->where('role_id', '=', $dependencyAdminRoleId)->delete();
+        //Check if user is still admin on any other dependency
+        $userStillAdmin =  DB::table('role_user')->where('user_id', '=', $userId)
+           ->where('role_id', '=',$dependencyAdminRoleId)->first();
+
+        if($userStillAdmin){
+            DB::table('role_user')->where('user_id', '=', $userId)->where('role_id','=', $dependencyAdminRoleId)->delete();
+        }
+    }
+
+    public static function getDependencyAdmins($dependency)
+    {
+        return self::where('identifier', '=', $dependency->identifier)->with('adminsFromDependency')->first();
+    }
+
+    public function adminsFromDependency(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
+    {
+        $dependencyAdminRoleId= Role::getRoleIdByName('administrador de dependencia');
+
+        return $this->belongsToMany(User::class,'dependency_user','dependency_identifier','user_id', 'identifier', 'id')->
+        wherePivot('role_id', $dependencyAdminRoleId);
+    }
+
+
     public function functionariesFromDependency(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
     {
         $functionaryRoleId= Role::getRoleIdByName('funcionario');

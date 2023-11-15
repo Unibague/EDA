@@ -33,7 +33,7 @@ class FunctionaryProfile extends Model
             $functionaryAssessments = (object) ['id' => $functionaryFromDependency->id, 'functionary_profile_id' => $functionaryFromDependency->functionary_profile_id,
                 'name' => $functionaryFromDependency->name, 'job_title' => $functionaryFromDependency->job_title];
 
-            $assessmentsFromFunctionary = DB::table('assessments as a')->select(['u.name as name', 'a.role as role'])
+            $assessmentsFromFunctionary = DB::table('assessments as a')->select(['u.name as name', 'a.role as role', 'a.pending'])
                 ->where('a.evaluated_id', '=', $functionaryFromDependency->id)
                 ->where('a.assessment_period_id', '=', $activeAssessmentPeriodId)
                 ->join('users as u','a.evaluator_id', '=', 'u.id')->get();
@@ -41,12 +41,18 @@ class FunctionaryProfile extends Model
             foreach($assessmentsFromFunctionary as $assessmentFromFunctionary){
                 if($assessmentFromFunctionary->role === "jefe"){
                     $functionaryAssessments->boss = $assessmentFromFunctionary->name;
+                    $functionaryAssessments->bossPending = $assessmentFromFunctionary->pending;
                 }
                 if($assessmentFromFunctionary->role === "par"){
                     $functionaryAssessments->peer = $assessmentFromFunctionary->name;
+                    $functionaryAssessments->peerPending = $assessmentFromFunctionary->pending;
                 }
                 if($assessmentFromFunctionary->role === "cliente interno" || $assessmentFromFunctionary->role === "cliente externo"){
                     $functionaryAssessments->client = $assessmentFromFunctionary->name;
+                    $functionaryAssessments->clientPending = $assessmentFromFunctionary->pending;
+                }
+                if($assessmentFromFunctionary->role === "autoevaluación"){
+                    $functionaryAssessments->autoPending = $assessmentFromFunctionary->pending;
                 }
             }
             $dataFromFunctionaries [] = $functionaryAssessments;

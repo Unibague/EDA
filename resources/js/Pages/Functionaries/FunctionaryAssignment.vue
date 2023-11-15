@@ -190,7 +190,7 @@ export default {
             roles:[],
             headers: [
                 {text: 'Asignación', value: 'role'},
-                {text: 'Nombre del funcionario', value: 'name'},
+                {text: 'Nombre', value: 'name'},
                 {text: 'Realizado', value: 'done', width: '10%', sortable: false},
                 {text: 'Acciones', value: 'actions', width: '20%', sortable: false},
             ],

@@ -97,7 +97,7 @@
                             {{ item.dependencyRole != null ? item.dependencyRole : 'Todos' }}
                         </td>
                         <td>
-                            {{ item.position != null ? item.position : 'Todos' }}
+                            {{ item.position != null ? item.position : 'Todas' }}
                         </td>
                         <td>
                             {{ item.description === '' ? 'No proporcionada' : item.description }}
@@ -221,8 +221,8 @@
                                         v-model="othersForm.position"
                                         :items="positions"
                                         label="Posición"
-                                        :item-text="(position)=> this.othersForm.dependencyRole === null ? 'Todos' :position.name"
-                                        :item-value="(position)=> this.othersForm.dependencyRole === null ? null: position.value"
+                                        :item-text="(position)=> this.othersForm.dependencyRole === null ? 'Todas' : position.name"
+                                        :item-value="(position)=> this.othersForm.dependencyRole === null ? null : position.name"
                                         :disabled="othersForm.dependencyRole === null"
                                     ></v-select>
                                 </v-col>
@@ -384,8 +384,8 @@ export default {
     async created() {
         await this.getAllForms();
         await this.getAssessmentPeriods();
-        await this.getPositions();
         this.getRoles();
+        await this.getPositions();
         this.isLoading = false;
     },
 
@@ -393,7 +393,6 @@ export default {
 
         async getFormsWithoutQuestions () {
             let request = await axios.get(route('api.forms.withoutQuestions'));
-            console.log(request.data, 'ESTOS SON LOS FORMSS');
             this.forms = Form.createFormsFromArray(request.data);
             this.formatForms();
             showSnackbar(this.snackbar, 'Se han cargado los formularios sin preguntas', 'success');
@@ -451,6 +450,7 @@ export default {
                 this.createStudentFormDialog = true;
             }
             if (model === 'othersForm') {
+                console.log(this.othersForm);
                 this.createOthersFormDialog = true;
             }
         },
@@ -468,6 +468,7 @@ export default {
 
         getAllForms: async function (notify = false) {
             let request = await axios.get(route('api.forms.index'));
+            console.log(request.data);
             this.forms = Form.createFormsFromArray(request.data);
             this.formatForms();
             if (notify) {
@@ -486,6 +487,7 @@ export default {
 
         getRoles() {
             this.roles = Form.getPossibleRoles();
+            console.log(this.roles,'roles')
         },
         async getPositions() {
             let request = await axios.get(route('api.positions.index'))
@@ -494,6 +496,7 @@ export default {
                 id: null,
                 name: "Todas"
             });
+            console.log(this.positions, 'positions');
         },
 
         getAssessmentPeriods: async function () {
@@ -503,6 +506,7 @@ export default {
                 id: null,
                 name: "Todos"
             });
+            console.log(this.assessmentPeriods, 'assessment periods');
         },
 
         formatForms: function () {

@@ -7,6 +7,7 @@ use App\Models\Role;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Laravel\Socialite\Facades\Socialite;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -19,16 +20,17 @@ class AuthController extends Controller
         return Inertia::render('Landing/Index');
     }
 
-    public function webService(Request $request): JsonResponse
+    public function webService(Request $request)
     {
-        $dependencies = AtlanteProvider::get('avVillas/transactionStatus', $request->input('data'));
-        dd($dependencies);
 
-//        $response = AtlanteProvider::get('functionaries', [
-//            'type_employee' => 'ADM',
-//        ], true);
+        $data = $request->input('data');
+
+        $response = AtlanteProvider::post('avVillas/registerStatus', $data);
+
+        dd($response);
+
+
     }
-
 
     public function logout(Request $request)
     {
@@ -60,6 +62,28 @@ class AuthController extends Controller
         if ($user->role()->name == "administrador") {
             return Inertia::render('Users/Index');
         }
+
+        if ($user->role()->name == "administrador de dependencia") {
+
+            //Check in what dependencies is the user an admin
+//            dd($user);
+            $dependencyAdminRoleId = Role::getRoleIdByName($user->role()->name);
+            $userDependencies = DB::table('dependency_user')->where('user_id', '=', $user['id'])
+                ->where('role_id','=', $dependencyAdminRoleId)->get()->toArray();
+            $userDependenciesId = array_unique(array_column($userDependencies, 'dependency_identifier'));
+//            dd($dependenciesId);
+            $dependencies = DB::table('dependencies')->whereIn('identifier', $userDependenciesId)->get();
+//            dd($dependencies);
+
+            if(count($dependencies) > 1){
+                return Inertia::render('Dependencies/LandingMultipleDependenciesAdmin', ['dependencies' => $dependencies]);
+            }
+
+//            $dependency =
+
+            return Inertia::render('Dependencies/AssessmentStatus', ['dependency' => $dependencies[0]]);
+        }
+
     }
 
     public function externalClientLogin(Request $request)

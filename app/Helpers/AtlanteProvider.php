@@ -46,4 +46,15 @@ class AtlanteProvider
         return json_decode($request, $asArray, 512, JSON_THROW_ON_ERROR);
     }
 
+    public static function post($endpoint, $queryParams = null, $asArray = false)
+    {
+        $self = new self($endpoint);
+        $self->curl->setQueryParamsAsArray($self->queryParams);
+        $self->curl->data=$queryParams;
+        $self->curl->setDataAsJson($queryParams);
+        $self->curl->method = "POST";
+        $request = $self->curl->makeRequest();
+        return json_decode($request, $asArray, 512, JSON_THROW_ON_ERROR);
+    }
+
 }

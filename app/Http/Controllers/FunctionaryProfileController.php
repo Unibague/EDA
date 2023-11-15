@@ -48,9 +48,7 @@ class FunctionaryProfileController extends Controller
             $functionaries = AtlanteProvider::get('functionaries', [
                 'type_employee' => 'ADM',
             ], true);
-
             $finalFunctionaries = [];
-
             foreach ($functionaries as $functionary){
                 //Traerse a los funcionarios que no tengan position = "PROFESOR" || position = "DOCENTE TIEMPO COMPLETO"
 

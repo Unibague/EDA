@@ -9,7 +9,18 @@
                 <h2 class="align-self-start">Gestionar usuarios</h2>
             </div>
             <!--Inicia tabla-->
+            <v-card>
+                <v-card-title>
+                    <v-text-field
+                        v-model="search"
+                        append-icon="mdi-magnify"
+                        label="Filtrar por nombre o correo"
+                        single-line
+                        hide-details
+                    ></v-text-field>
+                </v-card-title>
             <v-data-table
+                :search="search"
                 loading-text="Cargando, por favor espere..."
                 :loading="isLoading"
                 :headers="headers"
@@ -30,8 +41,16 @@
                     >
                         mdi-pencil
                     </v-icon>
+
+                    <v-icon
+                        class="mr-2 primario--text"
+                        @click="impersonateUser(item.id)"
+                    >
+                        mdi-account-arrow-right
+                    </v-icon>
                 </template>
             </v-data-table>
+            </v-card>
             <!--Acaba tabla-->
 
             <!------------Seccion de dialogos ---------->
@@ -47,9 +66,8 @@
                     </v-card-title>
                     <v-col cols="12">
                         <span class="subtitle-1">
-                            Por favor seleccione los roles que desee asignar al usuario
+                            Por favor selecciona los roles que deseas asignar al usuario
                         </span>
-
                         <v-checkbox v-for="role in roles" :key="role.name"
                                     :label="role.name"
                                     :value="role.id"
@@ -84,7 +102,7 @@
 <script>
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 import {InertiaLink} from "@inertiajs/inertia-vue";
-import {prepareErrorText} from "@/HelperFunctions"
+import {prepareErrorText, showSnackbar} from "@/HelperFunctions"
 import ConfirmDialog from "@/Components/ConfirmDialog";
 import Snackbar from "@/Components/Snackbar";
 
@@ -98,8 +116,8 @@ export default {
     data: () => {
         return {
             //Table info
+            search: '',
             headers: [
-                {text: 'ID', value: 'id'},
                 {text: 'Nombre', value: 'name'},
                 {text: 'Correo electrónico', value: 'email'},
                 {text: 'Roles', value: 'roles', filterable: true},
@@ -109,27 +127,41 @@ export default {
             roles: [],
             //Snackbars
             snackbar: {
-                text: '...',
+                text: "",
+                type: 'alert',
                 status: false,
-                timeout: 3000
+                timeout: 2000,
             },
             //Dialogs
             editUserDialog: false,
             //User models
             editedUser: {
-                name: ''
+                name: '',
+                roles: [],
+                customRoles: []
             },
-            selectedRoleId: 0,
-            //overlays
-            isLoading: true
+            isLoading: true,
         }
     },
     async created() {
         await this.getAllUsers();
-        // await this.getAllRoles();
+        await this.getAllRoles();
         this.isLoading = false;
     },
     methods: {
+        getAllUsers: async function () {
+            let request = await axios.get(route('api.users.index'));
+            console.log(request.data);
+            this.users = request.data;
+            this.formatRoles();
+        },
+
+        getAllRoles: async function () {
+            let request = await axios.get(route('api.roles.index'));
+            console.log(request.data);
+            this.roles = request.data;
+        },
+
         openEditRoleModal: function (user) {
             this.editedUser = {...user};
             this.editUserDialog = true;
@@ -151,38 +183,35 @@ export default {
             let data = {
                 roles: this.editedUser.customRoles
             }
-
             let url = route('api.users.roles.update', {'user': this.editedUser.id});
             try {
                 let request = await axios.patch(url, data);
-
                 showSnackbar(this.snackbar, request.data.message);
                 this.editUserDialog = false;
                 await this.getAllUsers();
-
                 //Clear role information
                 this.editedUser = {
                     name: ''
                 };
             } catch (e) {
                 showSnackbar(this.snackbar, prepareErrorText(e), 'alert');
-
                 this.snackbar.text = prepareErrorText(e);
                 this.snackbar.status = true;
             }
         },
 
-        getAllUsers: async function () {
-            let request = await axios.get(route('api.users.index'));
-            console.log(request.data);
-            this.users = request.data;
-            this.formatRoles();
-        },
-
-        getAllRoles: async function () {
-            let request = await axios.get(route('api.roles.index'));
-            console.log(request.data);
-            this.roles = request.data;
+        impersonateUser: async function (userId) {
+            const url = route('users.impersonate', {userId: userId});
+            try {
+                await axios.post(url);
+                showSnackbar(this.snackbar, 'Te has autentificado como el usuario seleccionado');
+                setTimeout(function () {
+                        window.location.href = route('pickRole');
+                    },
+                    3000);
+            } catch (e) {
+                showSnackbar(this.snackbar, prepareErrorText(e), 'alert');
+            }
         },
 
     },

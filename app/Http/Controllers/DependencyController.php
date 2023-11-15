@@ -28,18 +28,23 @@ class DependencyController extends Controller
 
     public function sync(): JsonResponse
     {
+        $data = [];
         try {
-            $dependencies = AtlanteProvider::get('units');
+            $dependencies = AtlanteProvider::post('units', $data);
             Dependency::createOrUpdateFromArray($dependencies);
         } catch (\JsonException $e) {
             return response()->json(['message' => 'Ha ocurrido un error con la fuente de datos']);
         } catch (\Exception $e) {
             return response()->json(['message' => 'Ha ocurrido el siguiente error: ' . $e->getMessage()], 500);
         }
-
         return response()->json(['message' => 'Las dependencias se han sincronizado exitosamente']);
     }
 
+
+    public function getAdmins(Dependency $dependency): JsonResponse
+    {
+        return response()->json(Dependency::getDependencyAdmins($dependency));
+    }
 
     /**
      * Show the form for creating a new resource.
@@ -94,6 +99,10 @@ class DependencyController extends Controller
         return Inertia::render('Dependencies/ManageDependency', ['dependency' => $dependency]);
     }
 
+    public function assessmentStatus(Dependency $dependency)
+    {
+        return Inertia::render('Dependencies/AssessmentStatus', ['dependency' => $dependency]);
+    }
     /**
      * Update the specified resource in storage.
      *

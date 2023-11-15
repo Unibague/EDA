@@ -47,8 +47,16 @@ Route::inertia('/dependencies', 'Dependencies/Index')->middleware(['auth', 'isAd
 Route::resource('api/dependencies', \App\Http\Controllers\DependencyController::class, [
     'as' => 'api'])->middleware('auth');
 Route::get('/api/dependencies/{dependency}', [\App\Http\Controllers\DependencyController::class, 'edit'])->middleware(['auth'])->name('api.dependencies.edit');
+Route::get('/api/dependencies/{dependency}/assessmentStatus', [\App\Http\Controllers\DependencyController::class, 'assessmentStatus'])
+    ->middleware(['auth', 'isAdminOrDependencyAdmin'])->name('api.dependencies.assessmentStatus');
 Route::post('/api/dependencies/sync', [\App\Http\Controllers\DependencyController::class, 'sync'])->middleware(['auth'])->name('api.dependencies.sync');
+Route::get('/api/dependencies/{dependency}/admins', [\App\Http\Controllers\DependencyController::class, 'getAdmins'])->middleware(['auth'])->name('api.dependencies.admins');
+Route::inertia('/dependencies/admin/landing', 'Dependencies/LandingMultipleDependenciesAdmin')->middleware(['auth'])->name('dependencies.landing');
 
+
+/* >>>>>DependencyAdmin routes <<<<<< */
+Route::resource('api/{dependency}/dependencyAdmins', \App\Http\Controllers\DependencyAdminController::class, [
+    'as' => 'api'])->middleware('auth');
 
 /* >>>>>>>>>>>>>>>>>>>>>>>  ExternalClients routes >>>>>>>><<<<<< */
 Route::inertia('/externalClients', 'ExternalClients/Index')->middleware(['auth', 'isAdmin'])->name('externalClients.index.view');
@@ -76,7 +84,8 @@ Route::get('api/forms/{form}/formQuestions', [\App\Http\Controllers\FormQuestion
 
 /* >>>>>FunctionaryProfile routes <<<<<< */
 Route::inertia('/functionaries', 'Functionaries/Index')->middleware(['auth', 'isAdmin'])->name('functionaries.index.view');
-Route::post('/api/functionaryProfiles/sync', [\App\Http\Controllers\FunctionaryProfileController::class, 'sync'])->middleware(['auth'])->name('api.functionaryProfiles.sync');
+Route::post('/api/functionaryProfiles/sync', [\App\Http\Controllers\FunctionaryProfileController::class, 'sync'])->middleware(['auth'])
+    ->name('api.functionaryProfiles.sync');
 Route::resource('api/functionaries', \App\Http\Controllers\FunctionaryProfileController::class, [
     'as' => 'api'
 ])->middleware('auth');
@@ -111,6 +120,16 @@ Route::resource('api/roles', \App\Http\Controllers\Roles\ApiRoleController::clas
     'as' => 'api'
 ])->middleware('auth');
 
+
+/* >>>>>>>>>>>>>>>>>>>>>>>>>>>> Test routes <<<<<<<<<<<<<<<<<<<<<<<<<<< */
+Route::get('/tests', [\App\Http\Controllers\TestController::class, 'indexView'])->middleware(['auth'])->name('tests.index.view');
+Route::post('/tests/{testId}', [\App\Http\Controllers\TestController::class, 'startTest'])->middleware(['auth'])->name('tests.startTest');
+Route::get('/tests/{testId}/preview', [\App\Http\Controllers\TestController::class, 'preview'])->middleware(['auth'])->name('tests.preview');
+//Change teacher status
+Route::resource('api/tests', \App\Http\Controllers\TestController::class, [
+    'as' => 'api'])->middleware('auth');
+
+
 /* >>>>>User routes <<<<<< */
 Route::get('/users', [\App\Http\Controllers\Users\UserController::class, 'index'])->middleware(['auth', 'isAdmin'])->name('users.index');
 Route::get('api/users/sync', [\App\Http\Controllers\UserController::class, 'getWithoutQuestions'])->middleware(['auth', 'isAdmin'])->name('api.forms.withoutQuestions');
@@ -118,16 +137,13 @@ Route::resource('api/users', \App\Http\Controllers\Users\ApiUserController::clas
     'as' => 'api'
 ])->middleware('auth');
 //Update user role
-Route::patch('/api/users/{user}/roles', [\App\Http\Controllers\Users\ApiUserController::class, 'updateUserRole'])->middleware('auth')->name('api.users.roles.update');
+Route::patch('/api/users/{user}/roles', [\App\Http\Controllers\Users\ApiUserController::class, 'updateUserRoles'])->middleware('auth')->name('api.users.roles.update');
 Route::get('/api/users/{user}/roles', [\App\Http\Controllers\Users\ApiUserController::class, 'getUserRoles'])->middleware('auth')->name('api.users.roles.show');
 Route::post('/api/roles/select', [\App\Http\Controllers\Users\ApiUserController::class, 'selectRole'])->middleware('auth')->name('api.roles.selectRole');
+Route::post('/users/{userId}/impersonate', [\App\Http\Controllers\Users\UserController::class, 'impersonate'])->middleware(['auth', 'isAdmin'])->name('users.impersonate');
 
 
-//Route::get('login', [\App\Http\Controllers\AuthController::class, 'redirectGoogleLogin'])->name('login');
-//Route::get('/google/callback', [\App\Http\Controllers\AuthController::class, 'handleGoogleCallback']);
 /* >>>>>>>>>>>>>>>>>>>>>>>>>>>> Auth routes <<<<<<<<<<<<<<<<<<<<<<<< */
-
-//Route::inertia('/login', 'Landing/Index')->name('landing.index.view');
 Route::get('/login', [\App\Http\Controllers\AuthController::class, 'landing'])->name('login');
 Route::post('/loginExternal', [\App\Http\Controllers\AuthController::class, 'externalClientLogin'])->name('externalClient.login');
 Route::get('/', [\App\Http\Controllers\AuthController::class, 'handleRoleRedirect'])->middleware(['auth'])->name('redirect');

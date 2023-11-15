@@ -120,7 +120,7 @@ export default {
         syncFunctionaries: async function () {
             try {
                 this.isSync= true;
-                let request = await axios.post(route('api.functionaries.sync'));
+                let request = await axios.post(route('api.functionaryProfiles.sync'));
                 showSnackbar(this.snackbar, request.data.message, 'success');
                 await this.getAllFunctionaries();
                 this.isSync = false;
