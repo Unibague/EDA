@@ -30,7 +30,7 @@ class DependencyController extends Controller
     {
         $data = [];
         try {
-            $dependencies = AtlanteProvider::post('units', $data);
+            $dependencies = AtlanteProvider::get('units', $data);
             Dependency::createOrUpdateFromArray($dependencies);
         } catch (\JsonException $e) {
             return response()->json(['message' => 'Ha ocurrido un error con la fuente de datos']);

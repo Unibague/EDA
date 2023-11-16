@@ -12,15 +12,6 @@
                     >
                         Sincronizar dependencias
                     </v-btn>
-
-<!--                    <v-btn
-                        color="primario"
-                        class="grey&#45;&#45;text text&#45;&#45;lighten-4 ml-4"
-                        @click="syncStaffMembers"
-                    >
-                        Sincronizar Funcionarios
-                    </v-btn>-->
-
                     <v-btn
                         color="primario"
                         class="grey--text text--lighten-4 ml-4"
@@ -104,24 +95,6 @@
                             </template>
                             <span>Borrar dependencia personalizada</span>
                         </v-tooltip>
-
-
-<!--                        <v-tooltip top-->
-<!--                        >-->
-<!--                            <template v-slot:activator="{on,attrs}">-->
-
-<!--                                <v-icon-->
-<!--                                    v-bind="attrs"-->
-<!--                                    v-on="on"-->
-<!--                                    class="mr-2 primario&#45;&#45;text"-->
-<!--                                    @click="check(item)"-->
-<!--                                >-->
-<!--                                    mdi-delete-->
-<!--                                </v-icon>-->
-
-<!--                            </template>-->
-<!--                            <span>Borrar dependencia personalizada</span>-->
-<!--                        </v-tooltip>-->
 
                        <v-tooltip top>
                             <template v-slot:activator="{on,attrs}">
