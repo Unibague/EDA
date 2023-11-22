@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreFormQuestionRequest;
+use App\Models\Form;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class FormQuestionController extends Controller
@@ -24,6 +27,22 @@ class FormQuestionController extends Controller
     public function create()
     {
         //
+    }
+
+    public function storeOrUpdate(StoreFormQuestionRequest $request, Form $form): JsonResponse
+    {
+        $questions = $request->input('questions');
+        $form->update(
+            [
+                'questions' => json_encode($questions, JSON_THROW_ON_ERROR)
+            ]);
+        return response()->json(['message' => 'Opciones de respuesta actualizadas exitosamente']);
+    }
+
+
+    public function getByFormId(Form $form)
+    {
+        return response($form->questions);
     }
 
     /**

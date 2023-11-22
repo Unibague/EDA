@@ -91,11 +91,7 @@ class PositionController extends Controller
      */
     public function destroy(Position $position)
     {
-        try {
-            $position->delete();
-        } catch (QueryException $e) {
-                return response()->json(['message' => 'No puedes eliminar una posición si ya está asociado a algún funcionario'], 400);
-        }
+        $position->delete();
         return response()->json(['message' => 'Posición eliminada exitosamente']);
     }
 }
