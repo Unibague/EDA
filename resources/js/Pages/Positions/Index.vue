@@ -14,16 +14,6 @@
                     >
                         Crear nueva posición
                     </v-btn>
-
-                    <v-btn
-                        color="primario"
-                        class="grey--text text--lighten-4"
-                        @click="test()"
-                    >
-                       Test
-                    </v-btn>
-
-
                 </div>
             </div>
 
