@@ -44,14 +44,11 @@ class Position extends Model
     {
         $activeAssessmentPeriodId = AssessmentPeriod::getActiveAssessmentPeriod()->id;
         $upsertData = [];
-
         foreach ($jobTitles as $jobTitle){
             $upsertData [] = ['job_title' => $jobTitle,
                                 'assessment_period_id' => $activeAssessmentPeriodId];
         }
-
         DB::table('job_title_positions')->upsert($upsertData, ['job_title', 'assessment_period_id']);
-
     }
 
     use HasFactory;

@@ -528,6 +528,9 @@ export default {
             const endpoint = route('api.forms.store', {form: this[formModel].id});
             const axiosMethod = 'post';
             let data = this[formModel].toObjectRequest();
+            if(data.position === "Todas"){
+                data.position = null
+            }
             console.log(data);
             try {
                 let request = await axios[axiosMethod](endpoint, data);

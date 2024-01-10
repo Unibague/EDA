@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use phpDocumentor\Reflection\Types\Boolean;
 
 class FunctionaryProfile extends Model
 {
@@ -63,26 +64,41 @@ class FunctionaryProfile extends Model
 
     public static function createOrUpdateFromArray(array $functionaries): void
     {
-        $finalFunctionaries = $functionaries;
+        $activeAssessmentPeriodId = AssessmentPeriod::getActiveAssessmentPeriod()->id;
+        $assessmentPeriodAsString = (string)$activeAssessmentPeriodId;
         $functionaryRoleId = Role::getRoleIdByName('funcionario');
+
+        array_shift($functionaries);
+
+        /**First we check those users who are no longer on the university but still appear on functionary_profiles DB
+        and proceed to save the info on functionaries_data_changes */
+
+        self::checkForNoLongerFunctionaries($functionaries, $activeAssessmentPeriodId);
+
+        $finalFunctionaries = [];
+        foreach ($functionaries as $functionary){
+
+            /** Here we check if the users that really exist in endpoint have any information changed
+             (position, program) and if so, we save the info on functionaries_data_changes and do not proceed to sync directly
+             */
+            if (self::functionaryHasNoPendingChanges($functionary, $activeAssessmentPeriodId))
+            {
+                $finalFunctionaries [] = $functionary;
+            }
+        }
+
         $jobTitles = array_unique(array_column($finalFunctionaries, 'position'));
-        $serialized = array_map('serialize', $finalFunctionaries);
-        $unique = array_unique($serialized);
-        $finalFunctionaries = array_intersect_key($finalFunctionaries, $unique);
-
-        $assessment_period_id = AssessmentPeriod::getActiveAssessmentPeriod()->id;
-        $assessmentPeriodAsString = (string)$assessment_period_id;
-        $errorMessage = '';
-
         Position::syncJobTitles($jobTitles);
 
+        $errorMessage = '';
         foreach ($finalFunctionaries as $functionary) {
             $user = User::firstOrCreate(['email' => $functionary['email']], ['name' => $functionary['full_name'],
-                'password' => Hash::make($functionary['identification'] . $functionary['email'])]);
+                'password' => 'automatic_generate_password']);
 
             if ($functionary['dep_code'] === "") {
                 continue;
             }
+
             $dependencyIdentifier = $functionary['dep_code'] . '-' . $assessmentPeriodAsString;
             try {
                 self::updateOrCreate(
@@ -96,7 +112,7 @@ class FunctionaryProfile extends Model
                         'dependency_name' => $functionary['faculty'] === '' ? null : $functionary['faculty'],
                         'job_title' => $functionary['position'] === '' ? null : $functionary['position'],
                         'hire_date' => $functionary['date_admission'] === '' ? null : $functionary['date_admission'],
-                        'assessment_period_id' => $assessment_period_id
+                        'assessment_period_id' => $activeAssessmentPeriodId
                     ]);
 
                 DB::table('role_user')->updateOrInsert(
@@ -105,13 +121,74 @@ class FunctionaryProfile extends Model
                 );
                 self::assignFunctionaryToDependency($user->id, $dependencyIdentifier);
             } catch (\Exception $e) {
-                $errorMessage .= nl2br("Ha ocurrido el siguiente error mirando al docente $functionary[full_name] : {$e->getMessage()}");
+                $errorMessage .= nl2br("Ha ocurrido el siguiente error mirando al funcionario $functionary[full_name] : {$e->getMessage()}");
             }
         }
         if ($errorMessage !== '') {
             throw new \RuntimeException($errorMessage);
         }
 
+    }
+
+    public static function checkForNoLongerFunctionaries($functionaries, $activeAssessmentPeriodId): void
+    {
+        //Iterate from every user on funtionary_profiles table and check if exists on the $functionaries endPoint.
+        $functionariesOnDB = DB::table('functionary_profiles')->where("assessment_period_id", '=', $activeAssessmentPeriodId)->get();
+        $noLongerFunctionariesArray = [];
+        $functionaries = collect($functionaries);
+
+        foreach ($functionariesOnDB as $functionary){
+                $existsInEndPoint = $functionaries->contains('identification', '=',$functionary->identification_number);
+                if(!$existsInEndPoint){
+                    $noLongerFunctionariesArray [] = $functionary;
+                }
+        }
+
+        if(count($noLongerFunctionariesArray)>0){
+            foreach ($noLongerFunctionariesArray as $functionaryToDelete){
+                $payload = json_encode(["user_id" =>null,"name" => '',
+                    "identification_number" => '', "dependency_name" => '',
+                    "dependency_identifier" => '',
+                    "job_title" => ''], JSON_THROW_ON_ERROR);
+
+                DB::table('functionaries_data_changes')->updateOrInsert(["user_id" => $functionaryToDelete->user_id,
+                    "assessment_period_id" => $functionaryToDelete->assessment_period_id],["payload" => $payload]);
+            }
+        }
+    }
+
+    public static function functionaryHasNoPendingChanges($functionary, $activeAssessmentPeriodId): bool
+    {
+        //First let's check if user is already on table functionary_profiles
+        $functionaryDB = self::where('identification_number', '=', $functionary['identification'])->where('assessment_period_id', '=', $activeAssessmentPeriodId)->first();
+
+        //If the person already exists, let's check if there are some changes from the last sync on DB
+        if ($functionaryDB) {
+            $functionaryEndPointArray = ["position" => $functionary['position'],
+                "program" => $functionary['program'],
+            ];
+
+            $functionaryDBArray = ["position" => $functionaryDB['job_title'],
+                "program" => $functionaryDB['dependency_name'],
+            ];
+
+            $changes = array_diff($functionaryEndPointArray, $functionaryDBArray);
+            //If, in fact, there are changes, then we proceed and insert that info on the functionaries_info_changes
+            if (count($changes) > 0) {
+                if (isset($changes["position"]) || isset($changes["program"])) {
+                    $payload = json_encode(["user_id" =>$functionaryDB['user_id'],"name" => $functionary["full_name"],
+                                            "identification_number" => $functionary["identification"], "dependency_name" => $functionary["program"],
+                                            "dependency_identifier" => $functionary["dep_code"].'-'.$activeAssessmentPeriodId,
+                                            "job_title" => $functionary["position"], "hire_date" => $functionary["date_admission"]], JSON_THROW_ON_ERROR);
+
+                    DB::table('functionaries_data_changes')->updateOrInsert(["user_id" => $functionaryDB['user_id'],
+                        "assessment_period_id" => $functionaryDB['assessment_period_id']],["payload" => $payload]);
+
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 
     public static function assignFunctionaryToDependency($userId, $dependencyIdentifier): void

@@ -18,7 +18,6 @@
             </div>
 
             <!--Inicia tabla-->
-
             <v-card>
                 <v-card-title>
                     <v-text-field
@@ -133,17 +132,9 @@
                     </v-card-title>
                     <v-card-text>
                         <v-container>
-                            <v-row>
-                                <v-col cols="12">
-                                    <v-text-field
-                                        label="Nueva contraseña"
-                                        required
-                                        v-model="$data[createOrEditDialog.model].password"
-                                    ></v-text-field>
-                                </v-col>
-                            </v-row>
+                            <p> Esta acción solicitará una nueva contraseña al usuario seleccionado y le enviará un correo notificándole del cambio, ¿está seguro de continuar?</p>
                         </v-container>
-                        <small>Los campos con * son obligatorios</small>
+
                     </v-card-text>
                     <v-card-actions>
                         <v-spacer></v-spacer>
@@ -159,7 +150,7 @@
                             text
                             @click="changeExternalClientPassword"
                         >
-                            Guardar cambios
+                            Confirmar
                         </v-btn>
                     </v-card-actions>
                 </v-card>
@@ -232,7 +223,7 @@ export default {
                 dialogStatus: false,
             },
             isLoading: true,
-            emailRules: [ v => /.+@.+/.test(v) || 'Invalid Email address' ]
+            emailRules: [ v => /.+@.+/.test(v) || 'Por favor digita una dirección de correo con el formato adecuado: correo@domininio' ]
         }
     },
     async created() {
@@ -263,7 +254,7 @@ export default {
             try {
                 let request = await axios.post(route('api.externalClients.store'), data);
                 this.createOrEditDialog.dialogStatus = false;
-                showSnackbar(this.snackbar, request.data.message, 'success', 2000);
+                showSnackbar(this.snackbar, request.data.message, 'success', 10000);
                 await this.getExternalClients();
             } catch (e) {
                 showSnackbar(this.snackbar, e.response.data.message, 'alert', 3000);
@@ -332,11 +323,6 @@ export default {
 
         async changeExternalClientPassword(){
 
-            if (this.editedExternalClient.hasEmptyProperties()) {
-                showSnackbar(this.snackbar, 'Debes diligenciar todos los campos obligatorios', 'red', 2000);
-                return;
-            }
-            //Recollect information
             let data = this.editedExternalClient.toObjectRequest();
 
             try {

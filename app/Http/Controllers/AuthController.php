@@ -56,34 +56,28 @@ class AuthController extends Controller
     {
         $user = auth()->user();
         if ($user->role()->name == "funcionario") {
-            return Inertia::render('Commitments/Index');
+            return Inertia::render('Tests/Index');
         }
-
         if ($user->role()->name == "administrador") {
             return Inertia::render('Users/Index');
         }
-
         if ($user->role()->name == "administrador de dependencia") {
-
-            //Check in what dependencies is the user an admin
-//            dd($user);
-            $dependencyAdminRoleId = Role::getRoleIdByName($user->role()->name);
-            $userDependencies = DB::table('dependency_user')->where('user_id', '=', $user['id'])
-                ->where('role_id','=', $dependencyAdminRoleId)->get()->toArray();
-            $userDependenciesId = array_unique(array_column($userDependencies, 'dependency_identifier'));
-//            dd($dependenciesId);
-            $dependencies = DB::table('dependencies')->whereIn('identifier', $userDependenciesId)->get();
-//            dd($dependencies);
-
+            $dependencies = $this->adminHasMultipleDependencies($user);
             if(count($dependencies) > 1){
                 return Inertia::render('Dependencies/LandingMultipleDependenciesAdmin', ['dependencies' => $dependencies]);
             }
-
-//            $dependency =
-
             return Inertia::render('Dependencies/AssessmentStatus', ['dependency' => $dependencies[0]]);
         }
+    }
 
+    public function adminHasMultipleDependencies($user)
+    {
+        //Check in what dependencies is the user an admin
+        $dependencyAdminRoleId = Role::getRoleIdByName($user->role()->name);
+        $userDependencies = DB::table('dependency_user')->where('user_id', '=', $user['id'])
+            ->where('role_id','=', $dependencyAdminRoleId)->get()->toArray();
+        $userDependenciesId = array_unique(array_column($userDependencies, 'dependency_identifier'));
+        return DB::table('dependencies')->whereIn('identifier', $userDependenciesId)->get();
     }
 
     public function externalClientLogin(Request $request)
@@ -151,5 +145,8 @@ class AuthController extends Controller
     {
         return Inertia::render('Auth/PickRole');
     }
+
+
+
 
 }

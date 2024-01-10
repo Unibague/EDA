@@ -48,9 +48,16 @@
                         >
                             mdi-pencil
                         </v-icon>
+
                         <v-icon
                             class="primario--text"
-                            v-if="item.is_last"
+                            @click="editOrder(item)"
+                        >
+                            mdi-format-list-numbered
+                        </v-icon>
+
+                        <v-icon
+                            class="primario--text"
                             @click="confirmDeleteCompetence(item)"
                         >
                             mdi-delete
@@ -108,6 +115,57 @@
                 </v-card>
             </v-dialog>
 
+            <v-dialog
+                v-model="editCompetenceOrderDialog"
+                persistent
+                max-width="450px"
+            >
+                <v-card>
+                    <v-card-title>
+                        <span>
+                        </span>
+                        <span
+                            class="text-h5"> Intercambio de posición de la competencia {{this.currentCompetenceToOrder.name}}</span>
+                    </v-card-title>
+                    <v-card-text>
+                        <v-container>
+                            <v-row>
+                                <v-col cols="10">
+                                    <v-text-field
+                                        color="primario"
+                                        required
+                                        v-model="newCompetenceOrder"
+                                        label="Define la nueva posición de la competencia"
+                                        type="number"
+                                        min="1"
+                                        :max="competences.length"
+                                        class="mt-2"
+                                    ></v-text-field>
+                                </v-col>
+                            </v-row>
+                        </v-container>
+                    </v-card-text>
+                    <v-card-actions>
+                        <v-spacer></v-spacer>
+                        <v-btn
+                            color="primario"
+                            text
+                            @click="editCompetenceOrderDialog= false"
+                        >
+                            Cancelar
+                        </v-btn>
+                        <v-btn
+                            color="primario"
+                            text
+                            @click="updateCompetenceOrder"
+                        >
+                            Actualizar Renglón
+                        </v-btn>
+                    </v-card-actions>
+                </v-card>
+            </v-dialog>
+
+
             <!--Confirmar borrar assessmentPeriod-->
             <confirm-dialog
                 :show="deleteCompetenceDialog"
@@ -159,6 +217,8 @@ export default {
             newCompetence: new Competence(),
             editedCompetence: new Competence(),
             deletedCompetenceId: 0,
+            currentCompetenceToOrder: '',
+            newCompetenceOrder: null,
             //Snackbars
             snackbar: {
                 text: "",
@@ -167,6 +227,7 @@ export default {
                 timeout: 2000,
             },
             //Dialogs
+            editCompetenceOrderDialog: false,
             deleteCompetenceDialog: false,
             createOrEditDialog: {
                 model: 'newCompetence',
@@ -178,7 +239,6 @@ export default {
     },
     async created() {
         await this.getAllCompetences();
-        this.checkLastCompetence();
         this.isLoading = false;
     },
 
@@ -188,11 +248,16 @@ export default {
             this[this.createOrEditDialog.method]();
         },
 
-        checkLastCompetence (){
-            if(this.competences.length > 0){
-                this.competences[this.competences.length-1].is_last = true;
-                console.log(this.competences[this.competences.length-1]);
-            }
+        // checkLastCompetence (){
+        //     if(this.competences.length > 0){
+        //         this.competences[this.competences.length-1].is_last = true;
+        //         console.log(this.competences[this.competences.length-1]);
+        //     }
+        // },
+
+        editOrder(competence){
+            this.editCompetenceOrderDialog = true;
+            this.currentCompetenceToOrder = competence;
         },
 
         editCompetence: async function () {
@@ -209,7 +274,6 @@ export default {
                 this.createOrEditDialog.dialogStatus = false;
                 showSnackbar(this.snackbar, request.data.message, 'success');
                 await this.getAllCompetences();
-                this.checkLastCompetence();
                 //Clear role information
                 this.editedCompetence = new Competence();
             } catch (e) {
@@ -228,7 +292,6 @@ export default {
                 this.deleteCompetenceDialog = false;
                 showSnackbar(this.snackbar, request.data.message, 'success');
                 await this.getAllCompetences();
-                this.checkLastCompetence();
             } catch (e) {
                 showSnackbar(this.snackbar, e.response.data.message, 'red', 3000);
             }
@@ -272,9 +335,29 @@ export default {
                 this.createOrEditDialog.dialogStatus = false;
                 showSnackbar(this.snackbar, request.data.message, 'success', 2000);
                 await this.getAllCompetences();
-                this.checkLastCompetence();
             } catch (e) {
                 showSnackbar(this.snackbar, e.response.data.message, 'alert', 3000);
+            }
+        },
+
+        async updateCompetenceOrder(){
+
+            let data={
+                position: this.currentCompetenceToOrder,
+                oldPosition : this.currentCompetenceToOrder.position,
+                newPosition : this.newCompetenceOrder
+            };
+
+            try {
+                let request = await axios.post(route('competences.updateOrder'), {data});
+                this.createOrEditDialog.dialogStatus = false;
+                showSnackbar(this.snackbar, request.data.message, 'success');
+                await this.getAllCompetences();
+                this.editCompetenceOrderDialog = false;
+                //Clear role information
+                this.editedCompetence = new Competence();
+            } catch (e) {
+                showSnackbar(this.snackbar, prepareErrorText(e), 'alert');
             }
         }
     },
