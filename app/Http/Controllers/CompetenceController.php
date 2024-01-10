@@ -17,7 +17,7 @@ class CompetenceController extends Controller
      */
     public function index()
     {
-        return response()->json(Competence::all());
+        return response()->json(Competence::orderBy('position')->get());
     }
 
     /**
@@ -78,6 +78,14 @@ class CompetenceController extends Controller
         return response()->json(['message' => 'Competencia actualizada exitosamente']);
     }
 
+
+    public function updateOrder(Request $request)
+    {
+        $data = $request->input('data');
+        return Competence::reOrderCompetencesOnPositionChange($data['position'],$data['oldPosition'], $data['newPosition']);
+    }
+
+
     /**
      * Remove the specified resource from storage.
      *
@@ -87,12 +95,15 @@ class CompetenceController extends Controller
     public function destroy(Competence $competence)
     {
         try {
+            $deletedCompetencePosition = $competence['position'];
             $competence->delete();
+            Competence::reOrderCompetencesOnDelete($deletedCompetencePosition);
+
         } catch (QueryException $e) {
             if ($e->getCode() === "23000") {
-                return response()->json(['message' => 'No puedes eliminar una posición si ya está asociado a algún funcionario'], 400);
+                return response()->json(['message' => 'No se pidp eliminar la competencia seleccionada'], 400);
             }
         }
-        return response()->json(['message' => 'Posición eliminada exitosamente']);
+        return response()->json(['message' => 'Competencia eliminada exitosamente']);
     }
 }

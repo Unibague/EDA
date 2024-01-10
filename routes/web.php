@@ -41,6 +41,7 @@ Route::inertia('/competences', 'Competences/Index')->middleware(['auth', 'isAdmi
 Route::resource('api/competences', \App\Http\Controllers\CompetenceController::class, [
     'as' => 'api'
 ])->middleware('auth');
+Route::post('competences/updateOrder', [\App\Http\Controllers\CompetenceController::class, 'updateOrder'])->middleware('auth')->name('competences.updateOrder');
 
 /* >>>>>Dependencies routes <<<<<< */
 Route::inertia('/dependencies', 'Dependencies/Index')->middleware(['auth', 'isAdmin'])->name('dependencies.index.view');
@@ -86,11 +87,19 @@ Route::get('api/forms/{form}/formQuestions', [\App\Http\Controllers\FormQuestion
 Route::inertia('/functionaries', 'Functionaries/Index')->middleware(['auth', 'isAdmin'])->name('functionaries.index.view');
 Route::post('/api/functionaryProfiles/sync', [\App\Http\Controllers\FunctionaryProfileController::class, 'sync'])->middleware(['auth'])
     ->name('api.functionaryProfiles.sync');
+Route::post('/api/functionaryProfiles/{functionaryProfile}/changeStatus', [\App\Http\Controllers\FunctionaryProfileController::class, 'changeStatus'])->middleware(['auth'])
+    ->name('api.functionaryProfiles.changeStatus');
 Route::resource('api/functionaries', \App\Http\Controllers\FunctionaryProfileController::class, [
     'as' => 'api'
 ])->middleware('auth');
 Route::get('/api/{dependency}/functionaryProfiles/{functionaryProfile}', [\App\Http\Controllers\FunctionaryProfileController::class, 'edit'])
     ->middleware(['auth'])->name('api.functionaryProfiles.edit');
+Route::get('/functionaries/changes', [\App\Http\Controllers\FunctionaryProfileController::class, 'getPendingChanges'])->middleware(['auth'])->name('functionaryProfiles.pendingChanges');
+Route::post('/functionaries/changes/{userId}/approve',[\App\Http\Controllers\FunctionaryProfileController::class, 'approveChange'])
+    ->middleware(['auth'])->name('functionaryProfiles.change.approve');
+Route::post('/functionaries/changes/{userId}/delete',[\App\Http\Controllers\FunctionaryProfileController::class, 'declineChange'])
+    ->middleware(['auth'])->name('functionaryProfiles.change.decline');
+
 
 
 /* >>>>>>>>>>>>>>>>>>>>>>>  Positions routes >>>>>>>><<<<<< */

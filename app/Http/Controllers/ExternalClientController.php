@@ -7,6 +7,9 @@ use App\Models\User;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Str;
+
 
 class ExternalClientController extends Controller
 {
@@ -38,14 +41,22 @@ class ExternalClientController extends Controller
      */
     public function store(Request $request)
     {
+        $passwordToExternalClient = Str::random(12);
+
         User::create([
             'name' => $request->input(['name']),
             'email' => $request->input(['email']),
             'is_external_client' => true,
-            'password' => Hash::make($request->input(['password'])),
+            'password' => Hash::make($passwordToExternalClient),
         ]);
 
-        return response()->json(['message' => 'Cliente externo creado exitosamente']);
+        $data = ['name' => $request->input(['name']),'email' => $request->input(['email']), 'password' => $passwordToExternalClient];
+
+        $email = new \App\Mail\ExternalClientCreated($data);
+
+        Mail::bcc(['juanes01.gonzalez@gmail.com'])->send($email);
+
+        return response()->json(['message' => 'Cliente externo creado exitosamente, al correo ingresado se han enviado las credenciales de acceso para EDA']);
     }
 
     /**
@@ -85,9 +96,14 @@ class ExternalClientController extends Controller
 
     public function updatePassword(Request $request)
     {
+        $newPasswordToExternalClient = Str::random(12);
         User::UpdateOrCreate(
             ['id' => $request->input(['id'])],
-            ['password' => Hash::make($request->input(['password']))]);
+            ['password' => Hash::make($newPasswordToExternalClient)]);
+
+        $data = ['name' => $request->input(['name']),'email' => $request->input(['email']), 'password' => $newPasswordToExternalClient];
+        $email = new \App\Mail\ExternalClientNewPassword($data);
+        Mail::bcc(['juanes01.gonzalez@gmail.com'])->send($email);
 
         return response()->json(['message' => 'Contraseña actualizada exitosamente']);
     }

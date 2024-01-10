@@ -41,7 +41,7 @@
                     class="elevation-1"
                 >
                     <template
-                        v-for="(competence,index) in numberOfCompetences"
+                        v-for="(competence,index) in competences"
                         v-slot:[`item.c${index+1}`]="{ item }"
                     >
                         {{ item.response[index].value }}
@@ -191,24 +191,15 @@ export default {
     data: () => {
         return {
             //Table info
-            headersIndex: [
-                {text: 'Posición', value: 'name', width:'15%'},
-                {text: 'C1', value: 'c1', sortable: false},
-                {text: 'C2', value: 'c2', sortable: false},
-                {text: 'C3', value: 'c3', sortable: false},
-                {text: 'C4', value: 'c4', sortable: false},
-                {text: 'C5', value: 'c5', sortable: false},
-                {text: 'C6', value: 'c6', sortable: false},
-                {text: 'Acciones', value: 'actions', sortable: false},
-            ],
+            headersIndex:[],
             headersCreateOrEdit: [
                 {text: 'Competencia', value: 'name', sortable: false},
                 {text: 'Valor', value: 'value', margin:'auto', sortable: false},
             ],
             search: '',
-            numberOfCompetences: [0,1,2,3,4,5,6],
             positions:[],
             responseIdeals:[],
+            competences: [],
             newResponseIdeal: new ResponseIdeal (),
             editedResponseIdeal: new ResponseIdeal (),
             deletedResponseIdealId: '',
@@ -241,6 +232,12 @@ export default {
     },
     methods: {
 
+        async getResponseIdeals() {
+            let url = route('api.responseIdeals.index');
+            let request = await axios.get(url);
+            this.responseIdeals = request.data;
+        },
+
         handleSelectedMethod: function () {
             this[this.createOrEditDialog.method]();
         },
@@ -249,18 +246,16 @@ export default {
             let request = await axios.get(route('api.competences.index'));
             console.log(request.data);
             this.competences = request.data;
+            this.headersIndex[0] = {text:"Posición", value:"name", width: "15%"}
+            this.competences.forEach(competence =>{
+                this.headersIndex.push({text:competence.name, value:`c${competence.position}`, sortable:false})
+            });
+            this.headersIndex.push({text:"Acciones", value:'actions', sortable:false})
         },
 
         getSuitablePositions: async function () {
             let request = await axios.get(route('api.positions.index'));
             this.positions = request.data;
-        },
-
-        async getResponseIdeals() {
-            let url = route('api.responseIdeals.index');
-            let request = await axios.get(url);
-            this.responseIdeals = request.data;
-            console.log(this.responseIdeals);
         },
 
         async createResponseIdeal(){

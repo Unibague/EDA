@@ -16,14 +16,15 @@
                         Sincronizar funcionarios
                     </v-btn>
                 </div>
-
             </div>
 
-            <div class="d-flex flex-column align-center mt-12" v-if="">
+            <div class="d-flex flex-column align-center mt-12">
                 <h3 v-if="isSync">
                     Por favor espera, estamos realizando la sincronización de los funcionarios...
                 </h3>
             </div>
+
+            <IndexChanges @getAllFunctionaries="getAllFunctionaries" ref="childComponent"></IndexChanges>
 
             <!--Inicia tabla-->
 
@@ -48,25 +49,31 @@
                         'items-per-page-options': [20,50,100,-1]
                     }"
                     class="elevation-1"
+                    :item-class="getRowColor"
                 >
 
-<!--                    <template v-slot:item.actions="{ item }">
-                        <v-icon
-                            v-if="item.status === 'suspendido'"
-                            class="mr-2 primario&#45;&#45;text"
-                            @click="changeTeacherStatus(item,'activo')"
+                    <template v-slot:item.is_active="{ item }">
+                        {{item.is_active === 1 ? 'Activo' : 'Inactivo'}}
+                    </template>
+
+
+                   <template v-slot:item.actions="{ item }">
+                       <v-icon
+                           v-if="item.is_active === 1"
+                           class="mr-2 primario--text"
+                           @click="changeFunctionaryStatus(item,0)"
+                       >
+                           mdi-close
+                       </v-icon>
+                       <v-icon
+                            v-if="item.is_active !== 1"
+                            class="mr-2 primario--text"
+                            @click="changeFunctionaryStatus(item,1)"
                         >
                             mdi-check
                         </v-icon>
 
-                        <v-icon
-                            v-if="item.status === 'activo'"
-                            class="mr-2 primario&#45;&#45;text"
-                            @click="changeTeacherStatus(item,'suspendido')"
-                        >
-                            mdi-close
-                        </v-icon>
-                    </template>-->
+                    </template>
                 </v-data-table>
             </v-card>
             <!--Acaba tabla-->
@@ -80,9 +87,11 @@ import {InertiaLink} from "@inertiajs/inertia-vue";
 import {prepareErrorText, showSnackbar} from "@/HelperFunctions"
 import ConfirmDialog from "@/Components/ConfirmDialog";
 import Snackbar from "@/Components/Snackbar";
+import IndexChanges from "@/Pages/Functionaries/IndexChanges";
 
 export default {
     components: {
+        IndexChanges,
         ConfirmDialog,
         AuthenticatedLayout,
         InertiaLink,
@@ -97,6 +106,8 @@ export default {
                 {text: 'Documento', value: 'identification_number'},
                 {text: 'Dependencia', value: 'dependency_name'},
                 {text: 'Posición', value: 'job_title'},
+                {text: 'Estado', value: 'is_active'},
+                {text: 'Acciones', value: 'actions', sortable: false},
             ],
             functionaries: [],
             //Snackbars
@@ -117,12 +128,20 @@ export default {
 
     methods: {
 
+        getAllFunctionaries: async function () {
+            let request = await axios.get(route('api.functionaries.index'));
+            this.functionaries = request.data;
+            await this.$refs.childComponent.getChanges();
+            console.log(this.functionaries);
+        },
+
         syncFunctionaries: async function () {
             try {
                 this.isSync= true;
                 let request = await axios.post(route('api.functionaryProfiles.sync'));
                 showSnackbar(this.snackbar, request.data.message, 'success');
                 await this.getAllFunctionaries();
+                await this.$refs.childComponent.getChanges();
                 this.isSync = false;
             } catch (e) {
                 showSnackbar(this.snackbar, prepareErrorText(e), 'alert', 10000);
@@ -130,10 +149,20 @@ export default {
             }
         },
 
-        getAllFunctionaries: async function () {
-            let request = await axios.get(route('api.functionaries.index'));
-            this.functionaries = request.data;
-            console.log(this.functionaries);
+        changeFunctionaryStatus: async function (functionary, status) {
+            try {
+                let request = await axios.post(route('api.functionaryProfiles.changeStatus', {functionaryProfile: functionary.id}), {
+                    status
+                });
+                showSnackbar(this.snackbar, request.data.message, 'success');
+                await this.getAllFunctionaries();
+            } catch (e) {
+                showSnackbar(this.snackbar, e.response.data.message, 'red', 3000);
+            }
+        },
+
+        getRowColor: function (item) {
+            return item.is_active === 1 ? 'green lighten-5' :  'red lighten-5';
         },
 
     },

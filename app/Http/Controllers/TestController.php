@@ -15,7 +15,7 @@ class TestController extends Controller
     /**
      * Display a listing of the resource.
      *
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\JsonResponse
      */
     public function index()
     {
@@ -37,6 +37,7 @@ class TestController extends Controller
         if ($data->pending === 0) {
             return response('Ya has contestado esta evaluación', 401);
         }
+
         return Inertia::render('Tests/Show', ['test' => $test, 'functionary' => ['name' => $data->name, 'id' => $data->evaluated_id], 'role' => $data->role, 'canSend' => true]);
     }
 

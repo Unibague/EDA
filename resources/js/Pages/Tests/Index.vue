@@ -32,7 +32,7 @@
                                 mdi-close-circle-outline
                             </v-icon>
                         </template>
-                        <span>No hay una evaluación disponible para este grupo</span>
+                        <span>No hay una evaluación disponible para este funcionario </span>
                     </v-tooltip>
 
                     <form :action="route('tests.startTest',{testId: item.test.id})" method="POST"
@@ -123,15 +123,12 @@ export default {
     },
 
     methods: {
-
         getAssessments: async function () {
             let request = await axios.get(route('api.tests.index'));
             console.log(request.data);
             this.assessments = request.data;
         },
-
     },
-
 
 }
 </script>

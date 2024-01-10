@@ -13,14 +13,11 @@ class Test extends Model
 
     public static function getUserTests()
     {
-        $user = auth()->user();
         $userAssessments = Assessment::getUserAssessments();
         foreach ($userAssessments as $assessment) {
             $assessment->test = self::getTestFromAssessment($assessment);
         }
-
         return $userAssessments;
-
     }
 
     public static function getTestFromAssessment($assessment)
@@ -47,6 +44,10 @@ class Test extends Model
             ->where('dependency_role', '=', $assessment->role)
             ->where('assessment_period_id', '=', $activeAssessmentPeriodId)
             ->latest()->first();
+
+//        if($evaluatedPosition !== "Asistente"){
+//            dd($assessment, $evaluatedPosition, $form);
+//        }
 
         if ($form !== null) {
             return $form;
