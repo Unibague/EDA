@@ -29,12 +29,16 @@ Route::resource('api/assessmentPeriods', \App\Http\Controllers\AssessmentPeriodC
 ])->middleware('auth');
 Route::post('/api/assessmentPeriods/{assessmentPeriod}/setActive', [\App\Http\Controllers\AssessmentPeriodController::class, 'setActive'])->middleware(['auth', 'isAdmin'])->name('api.assessmentPeriods.setActive');
 
+
+/* >>>>>Comments routes <<<<<< */
+Route::resource('api/comments', \App\Http\Controllers\CommentController::class, [
+    'as' => 'api'])->middleware('auth');
+
+
 /* >>>>>Commitments routes <<<<<< */
 Route::inertia('/commitments', 'Commitments/Index')->name('commitments.index.view');
-//Route::get('/commitments', [\App\Http\Controllers\Roles\RoleController::class, 'index'])->middleware(['auth', 'isAdmin'])->name('roles.index');
-//Route::resource('api/roles', \App\Http\Controllers\Roles\ApiRoleController::class, [
-//    'as' => 'api'
-//])->middleware('auth');
+Route::resource('api/commitments', \App\Http\Controllers\CommitmentController::class, [
+    'as' => 'api'])->middleware('auth');
 
 /* >>>>>Competences routes <<<<<< */
 Route::inertia('/competences', 'Competences/Index')->middleware(['auth', 'isAdmin'])->name('competences.index.view');
@@ -67,6 +71,11 @@ Route::resource('api/externalClients', \App\Http\Controllers\ExternalClientContr
 Route::post('/api/externalClient/updatePassword', [\App\Http\Controllers\ExternalClientController::class, 'updatePassword'])->middleware(['auth'])
     ->name('api.externalClients.updatePassword');
 
+
+
+/* >>>>>>>>>>>>>>>>>>>>>>>  Files routes >>>>>>>><<<<<< */
+Route::post('/file/upload', [\App\Http\Controllers\ExternalClientController::class, 'uploadFile'])->middleware(['auth'])
+    ->name('file.upload');
 
 /* >>>>>>>>>>>>>>>>>>>>> Forms routes <<<<<<<<<<<<<<<<<<<< */
 Route::get('api/forms/withoutQuestions', [\App\Http\Controllers\FormController::class, 'getWithoutQuestions'])->middleware(['auth', 'isAdmin'])->name('api.forms.withoutQuestions');
@@ -137,6 +146,14 @@ Route::get('/tests/{testId}/preview', [\App\Http\Controllers\TestController::cla
 //Change teacher status
 Route::resource('api/tests', \App\Http\Controllers\TestController::class, [
     'as' => 'api'])->middleware('auth');
+
+
+/* >>>>>>>>>>>>>>>>>>>>>>>>>>>> Training routes <<<<<<<<<<<<<<<<<<<<<<<<<<< */
+Route::inertia('/commitments/trainings', 'Commitments/Trainings')->middleware(['auth', 'isAdmin'])->name('trainings.index.view');
+Route::resource('api/trainings', \App\Http\Controllers\TrainingController::class, [
+    'as' => 'api'
+])->middleware('auth');
+
 
 
 /* >>>>>User routes <<<<<< */

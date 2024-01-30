@@ -7,11 +7,12 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
 
-class ExternalClientCreated extends Mailable
+class CommitmentCreated extends Mailable
 {
     use Queueable, SerializesModels;
-    public $subject = "Creación de usuario y contraseña acceso a plataforma EDA";
+    public $subject = "Creación de compromiso para Evaluación de Desempeño";
     public $data;
+
 
     /**
      * Create a new message instance.
@@ -30,6 +31,6 @@ class ExternalClientCreated extends Mailable
      */
     public function build()
     {
-        return $this->view('createExternalClient')->with('data', $this->data);
+        return $this->view('commitmentCreated')->with('data', $this->data);
     }
 }

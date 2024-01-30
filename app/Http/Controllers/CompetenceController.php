@@ -101,7 +101,7 @@ class CompetenceController extends Controller
 
         } catch (QueryException $e) {
             if ($e->getCode() === "23000") {
-                return response()->json(['message' => 'No se pidp eliminar la competencia seleccionada'], 400);
+                return response()->json(['message' => 'No se pudo eliminar la competencia seleccionada'], 400);
             }
         }
         return response()->json(['message' => 'Competencia eliminada exitosamente']);

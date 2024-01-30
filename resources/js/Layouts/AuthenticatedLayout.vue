@@ -302,7 +302,7 @@ export default {
                     },
                     {
                         name: 'Compromisos',
-                        href: route('users.index'),
+                        href: route('commitments.index.view'),
                         role: 3,
                         icon: 'mdi-account-cog'
                     },
