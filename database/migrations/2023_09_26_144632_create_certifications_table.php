@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class AddTimestampsToTrainingsTable extends Migration
+class CreateCertificationsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,7 +13,11 @@ class AddTimestampsToTrainingsTable extends Migration
      */
     public function up()
     {
-        Schema::table('trainings', function (Blueprint $table) {
+        Schema::create('certifications', function (Blueprint $table) {
+            $table->id();
+            $table->string('original_file_name');
+            $table->string('encoded_file_name');
+            $table->foreignId('commitment_id')->constrained();
             $table->timestamps();
         });
     }
@@ -25,8 +29,6 @@ class AddTimestampsToTrainingsTable extends Migration
      */
     public function down()
     {
-        Schema::table('trainings', function (Blueprint $table) {
-            $table->dropTimestamps();
-        });
+        Schema::dropIfExists('certifications');
     }
 }
