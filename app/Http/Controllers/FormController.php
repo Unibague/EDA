@@ -48,7 +48,6 @@ class FormController extends Controller
      */
     public function store(UpdateFormRequest $request): JsonResponse
     {
-
         Form::createForm($request);
         return response()->json(['message' => 'Formulario actualizado exitosamente']);
     }

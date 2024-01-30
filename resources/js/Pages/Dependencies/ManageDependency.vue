@@ -229,6 +229,7 @@ export default {
         async getAllFunctionaries() {
             let request = await axios.get(route('api.functionaries.index'));
             this.allFunctionaries = request.data;
+            console.log(this.functionaries);
         },
 
         async getDependencyAdmins(){

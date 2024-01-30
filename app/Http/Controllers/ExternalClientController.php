@@ -23,6 +23,17 @@ class ExternalClientController extends Controller
         return response()->json(User::where('is_external_client','=', 1)->get());
     }
 
+
+//    public function uploadFile(Request $request)
+//    {
+//        if($request->hasFile('archive')){
+//            $file=  \Illuminate\Support\Facades\Request::file('archive');
+//            $file->move("attachments", $file->getClientOriginalName());
+//        }
+//
+//
+//    }
+
     /**
      * Show the form for creating a new resource.
      *
@@ -36,7 +47,7 @@ class ExternalClientController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param Request $request
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
@@ -55,7 +66,6 @@ class ExternalClientController extends Controller
         $email = new \App\Mail\ExternalClientCreated($data);
 
         Mail::bcc(['juanes01.gonzalez@gmail.com'])->send($email);
-
         return response()->json(['message' => 'Cliente externo creado exitosamente, al correo ingresado se han enviado las credenciales de acceso para EDA']);
     }
 
@@ -84,7 +94,7 @@ class ExternalClientController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param Request $request
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */

@@ -107,7 +107,6 @@
                                         mdi-account-group
                                     </v-icon>
                                 </InertiaLink>
-
                             </template>
                             <span>Gestionar Dependencia</span>
                         </v-tooltip>
