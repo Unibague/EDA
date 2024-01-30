@@ -2,12 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Certification;
 use App\Models\FunctionaryProfile;
 use App\Models\User;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 
@@ -23,16 +25,6 @@ class ExternalClientController extends Controller
         return response()->json(User::where('is_external_client','=', 1)->get());
     }
 
-
-//    public function uploadFile(Request $request)
-//    {
-//        if($request->hasFile('archive')){
-//            $file=  \Illuminate\Support\Facades\Request::file('archive');
-//            $file->move("attachments", $file->getClientOriginalName());
-//        }
-//
-//
-//    }
 
     /**
      * Show the form for creating a new resource.

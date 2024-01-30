@@ -8,6 +8,8 @@ use Illuminate\Database\Eloquent\Model;
 class Certification extends Model
 {
 
+    protected $guarded = [];
+
     public function commitment(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(Commitment::class);

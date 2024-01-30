@@ -30,6 +30,14 @@ Route::resource('api/assessmentPeriods', \App\Http\Controllers\AssessmentPeriodC
 Route::post('/api/assessmentPeriods/{assessmentPeriod}/setActive', [\App\Http\Controllers\AssessmentPeriodController::class, 'setActive'])->middleware(['auth', 'isAdmin'])->name('api.assessmentPeriods.setActive');
 
 
+
+/* >>>>>Certifications routes <<<<<< */
+Route::resource('api/certifications', \App\Http\Controllers\CertificationController::class, [
+    'as' => 'api'])->middleware('auth');
+Route::get('/certifications/{certification}/downloadFile', [\App\Http\Controllers\CertificationController::class, 'downloadFile'])->middleware(['auth'])->name('certifications.downloadFile');
+
+
+
 /* >>>>>Comments routes <<<<<< */
 Route::resource('api/comments', \App\Http\Controllers\CommentController::class, [
     'as' => 'api'])->middleware('auth');

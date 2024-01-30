@@ -5,9 +5,8 @@
 
         <v-container>
             <div class="d-flex flex-column align-end mb-8">
-                <h2 class="align-self-start"> Visualizando el compromiso {{
-                        this.commitment.training_name
-                    }} del funcionario {{this.commitment.user_name}}</h2>
+                <h2 class="align-self-start"> Visualizando el compromiso
+                    {{this.commitment.training_name}} del funcionario {{this.commitment.user_name}}</h2>
                 <div>
                     <v-btn
                         color="primario"
@@ -26,6 +25,15 @@
 <!--                    </v-btn>-->
                 </div>
             </div>
+
+
+            <!--Inicia tabla-->
+            <v-card style="margin-bottom: 30px">
+                <v-card-title>
+                    <a :href="route('certifications.downloadFile', {certification: 4})"> Descargar el archivo </a>
+                </v-card-title>
+            </v-card>
+
 
             <!--Inicia tabla-->
             <v-card>
@@ -136,13 +144,13 @@
                                 <v-col cols="12">
                                     <template>
                                         <v-file-input
-                                            label="Agrega el archivo"
-                                            multiple
+                                            label="Click aquí para agregar el archivo"
                                             outlined
                                             dense
+                                            accept="image/*,.pdf,.doc,.docx"
                                             @change="checkFile"
                                         ></v-file-input>
-                                        <small>Formatos de archivo soportados: .pdf .doc .xls .txt</small>
+                                        <h4>Formatos de archivo soportados: .pdf .doc </h4>
                                     </template>
                                 </v-col>
                             </v-row>
@@ -176,7 +184,7 @@
                 @confirmed-dialog="deleteComment(deletedCommentId)"
             >
                 <template v-slot:title>
-                    Estas a punto de eliminar el comentario seleccionado
+                    Estás a punto de eliminar el comentario seleccionado
                 </template>
 
                 ¡Cuidado! esta acción es irreversible
@@ -221,6 +229,7 @@ export default {
                 {text: 'Última actualización', value: 'updated_at', sortable: false},
             ],
             comments: [],
+            files:[],
 
             //AssessmentPeriods models
             newComment: new Comment(),
@@ -234,12 +243,7 @@ export default {
                 timeout: 2000,
             },
 
-            upload:{
-                title:'Subida',
-                comment_text: 'Esta es la primera subida',
-                archive: null,
-            },
-
+            fileInfo: null,
 
             //Dialogs
             deleteCommentDialog: false,
@@ -255,6 +259,7 @@ export default {
     },
     async created() {
         await this.getComments();
+        await this.getFiles();
         this.isLoading = false;
     },
 
@@ -264,29 +269,34 @@ export default {
             this.addFileDialog = true;
         },
 
-        async checkFile(e){
-
-            console.log(e);
-            this.upload.archive = e[0];
-
-            const file= new FormData();
-
-            for (let key in this.upload){
-                file.append(key, this.upload[key])
-            }
-
-            // file.append('name', fileInfo.name);
-            // file.append('document_type', fileInfo.type);
-            // file.append('size', fileInfo.size);
-
-            let request = await axios.post(route('file.upload'), file,{headers:{'content-type': 'multipart/form-data'}});
-        },
-
         getComments: async function () {
             let data = this.commitment;
             let request = await axios.get(route('api.comments.index', data));
             console.log(request.data);
             this.comments = request.data;
+        },
+
+        getFiles: async function (){
+            let data = this.commitment
+            let request = await axios.get(route('api.certifications.index', data))
+            this.files = request.data;
+            console.log(request.data);
+
+        },
+
+        async checkFile(e){
+
+            this.fileInfo = e;
+            const file= new FormData();
+            file.append("file", this.fileInfo)
+            file.append("commitment_id", this.commitment.id)
+
+            let request = await axios.post(route('api.certifications.store'), file,
+                {headers:{'content-type': 'multipart/form-data'}});
+
+            // file.append('name', fileInfo.name);
+            // file.append('document_type', fileInfo.type);
+            // file.append('size', fileInfo.size);
         },
 
         createComment: async function () {

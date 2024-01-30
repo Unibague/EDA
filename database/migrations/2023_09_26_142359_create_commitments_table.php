@@ -15,11 +15,9 @@ class CreateCommitmentsTable extends Migration
     {
         Schema::create('commitments', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
             $table->foreignId('user_id')->constrained();
             $table->foreignId('training_id')->constrained();
             $table->date('due_date');
-            $table->text('comments')->nullable();
             $table->boolean('done')->default(false);
             $table->dateTime('done_date')->nullable();
             $table->foreignId('assessment_period_id')->constrained();
