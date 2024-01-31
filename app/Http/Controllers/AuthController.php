@@ -20,18 +20,6 @@ class AuthController extends Controller
         return Inertia::render('Landing/Index');
     }
 
-    public function webService(Request $request)
-    {
-
-        $data = $request->input('data');
-
-        $response = AtlanteProvider::post('avVillas/registerStatus', $data);
-
-        dd($response);
-
-
-    }
-
     public function logout(Request $request)
     {
         Auth::logout();

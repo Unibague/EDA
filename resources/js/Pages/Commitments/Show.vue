@@ -16,24 +16,17 @@
                         Agregar nuevo comentario
                     </v-btn>
 
-<!--                    <v-btn-->
-<!--                        color="primario"-->
-<!--                        class="grey&#45;&#45;text text&#45;&#45;lighten-4"-->
-<!--                        @click="addFileDialog = true"-->
-<!--                    >-->
-<!--                        Agregar nuevo archivo-->
-<!--                    </v-btn>-->
+                    <v-btn
+                        color="primario"
+                        class="grey--text text--lighten-4"
+                        @click="callChildComponent"
+                    >
+                        Agregar nuevo archivo
+                    </v-btn>
                 </div>
             </div>
 
-
-            <!--Inicia tabla-->
-            <v-card style="margin-bottom: 30px">
-                <v-card-title>
-                    <a :href="route('certifications.downloadFile', {certification: 4})"> Descargar el archivo </a>
-                </v-card-title>
-            </v-card>
-
+            <Certifications :commitment="this.commitment" ref="childComponent"> </Certifications>
 
             <!--Inicia tabla-->
             <v-card>
@@ -126,57 +119,6 @@
             </v-dialog>
 
 
-            <!--Agregar archivos -->
-            <v-dialog
-                v-model="addFileDialog"
-                persistent
-                max-width="650px"
-            >
-                <v-card>
-                    <v-card-title>
-                        <span>
-                        </span>
-                        <span class="text-h5">Añadir un archivo al compromiso</span>
-                    </v-card-title>
-                    <v-card-text>
-                        <v-container>
-                            <v-row>
-                                <v-col cols="12">
-                                    <template>
-                                        <v-file-input
-                                            label="Click aquí para agregar el archivo"
-                                            outlined
-                                            dense
-                                            accept="image/*,.pdf,.doc,.docx"
-                                            @change="checkFile"
-                                        ></v-file-input>
-                                        <h4>Formatos de archivo soportados: .pdf .doc </h4>
-                                    </template>
-                                </v-col>
-                            </v-row>
-                        </v-container>
-                    </v-card-text>
-                    <v-card-actions>
-                        <v-spacer></v-spacer>
-                        <v-btn
-                            color="primario"
-                            text
-                            @click="addFileDialog = false"
-                        >
-                            Cancelar
-                        </v-btn>
-                        <v-btn
-                            color="primario"
-                            text
-                            @click="checkFile"
-                        >
-                            Guardar archivo
-                        </v-btn>
-                    </v-card-actions>
-                </v-card>
-            </v-dialog>
-
-
             <!--Confirmar borrar comentario-->
             <confirm-dialog
                 :show="deleteCommentDialog"
@@ -204,10 +146,12 @@ import {prepareErrorText, showSnackbar} from "@/HelperFunctions"
 import ConfirmDialog from "@/Components/ConfirmDialog";
 import Snackbar from "@/Components/Snackbar";
 import Comment from "@/models/Comment"
+import Certifications from "@/Pages/Commitments/Certifications";
 
 
 export default {
     components: {
+        Certifications,
         ConfirmDialog,
         AuthenticatedLayout,
         InertiaLink,
@@ -228,9 +172,8 @@ export default {
                 {text: 'Publicado por', value: 'user_name', sortable: false},
                 {text: 'Última actualización', value: 'updated_at', sortable: false},
             ],
-            comments: [],
-            files:[],
 
+            comments: [],
             //AssessmentPeriods models
             newComment: new Comment(),
             editedComment: new Comment(),
@@ -243,7 +186,6 @@ export default {
                 timeout: 2000,
             },
 
-            fileInfo: null,
 
             //Dialogs
             deleteCommentDialog: false,
@@ -252,21 +194,20 @@ export default {
                 method: 'createComment',
                 dialogStatus: false,
             },
+
             isLoading: true,
 
-            addFileDialog: false,
         }
     },
     async created() {
         await this.getComments();
-        await this.getFiles();
         this.isLoading = false;
     },
 
     methods: {
 
-        addFile(){
-            this.addFileDialog = true;
+        callChildComponent(){
+            this.$refs.childComponent.setAddFileDialog();
         },
 
         getComments: async function () {
@@ -275,32 +216,7 @@ export default {
             console.log(request.data);
             this.comments = request.data;
         },
-
-        getFiles: async function (){
-            let data = this.commitment
-            let request = await axios.get(route('api.certifications.index', data))
-            this.files = request.data;
-            console.log(request.data);
-
-        },
-
-        async checkFile(e){
-
-            this.fileInfo = e;
-            const file= new FormData();
-            file.append("file", this.fileInfo)
-            file.append("commitment_id", this.commitment.id)
-
-            let request = await axios.post(route('api.certifications.store'), file,
-                {headers:{'content-type': 'multipart/form-data'}});
-
-            // file.append('name', fileInfo.name);
-            // file.append('document_type', fileInfo.type);
-            // file.append('size', fileInfo.size);
-        },
-
         createComment: async function () {
-
             if (this.newComment.hasEmptyProperties()) {
                 showSnackbar(this.snackbar, 'Debes diligenciar todos los campos obligatorios', 'red', 2000);
                 return;
@@ -322,6 +238,7 @@ export default {
                 showSnackbar(this.snackbar, e.response.data.message, 'alert', 3000);
             }
         },
+
         editComment: async function () {
             //Verify request
             if (this.editedComment.hasEmptyProperties()) {
@@ -359,10 +276,10 @@ export default {
             }
 
         },
-
         handleSelectedMethod: function () {
             this[this.createOrEditDialog.method]();
         },
+
         setCommentDialogToCreateOrEdit(which, item = null) {
             if (which === 'create') {
                 this.createOrEditDialog.method = 'createComment';
@@ -377,8 +294,7 @@ export default {
                 this.createOrEditDialog.dialogStatus = true;
             }
 
-        },
-
+        }
 
     },
 }

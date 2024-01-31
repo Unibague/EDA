@@ -27,14 +27,16 @@ Route::inertia('/assessmentPeriods', 'AssessmentPeriods/Index')->middleware(['au
 Route::resource('api/assessmentPeriods', \App\Http\Controllers\AssessmentPeriodController::class, [
     'as' => 'api'
 ])->middleware('auth');
-Route::post('/api/assessmentPeriods/{assessmentPeriod}/setActive', [\App\Http\Controllers\AssessmentPeriodController::class, 'setActive'])->middleware(['auth', 'isAdmin'])->name('api.assessmentPeriods.setActive');
+Route::post('/api/assessmentPeriods/{assessmentPeriod}/setActive', [\App\Http\Controllers\AssessmentPeriodController::class, 'setActive'])
+    ->middleware(['auth', 'isAdmin'])->name('api.assessmentPeriods.setActive');
 
 
 
 /* >>>>>Certifications routes <<<<<< */
 Route::resource('api/certifications', \App\Http\Controllers\CertificationController::class, [
     'as' => 'api'])->middleware('auth');
-Route::get('/certifications/{certification}/downloadFile', [\App\Http\Controllers\CertificationController::class, 'downloadFile'])->middleware(['auth'])->name('certifications.downloadFile');
+Route::get('/certifications/{certification}/downloadFile', [\App\Http\Controllers\CertificationController::class, 'downloadFile'])->middleware(['auth'])
+    ->name('certifications.downloadFile');
 
 
 
@@ -53,7 +55,8 @@ Route::inertia('/competences', 'Competences/Index')->middleware(['auth', 'isAdmi
 Route::resource('api/competences', \App\Http\Controllers\CompetenceController::class, [
     'as' => 'api'
 ])->middleware('auth');
-Route::post('competences/updateOrder', [\App\Http\Controllers\CompetenceController::class, 'updateOrder'])->middleware('auth')->name('competences.updateOrder');
+Route::post('competences/updateOrder', [\App\Http\Controllers\CompetenceController::class, 'updateOrder'])->middleware('auth')
+    ->name('competences.updateOrder');
 
 /* >>>>>Dependencies routes <<<<<< */
 Route::inertia('/dependencies', 'Dependencies/Index')->middleware(['auth', 'isAdmin'])->name('dependencies.index.view');
@@ -63,7 +66,8 @@ Route::get('/api/dependencies/{dependency}', [\App\Http\Controllers\DependencyCo
 Route::get('/api/dependencies/{dependency}/assessmentStatus', [\App\Http\Controllers\DependencyController::class, 'assessmentStatus'])
     ->middleware(['auth', 'isAdminOrDependencyAdmin'])->name('api.dependencies.assessmentStatus');
 Route::post('/api/dependencies/sync', [\App\Http\Controllers\DependencyController::class, 'sync'])->middleware(['auth'])->name('api.dependencies.sync');
-Route::get('/api/dependencies/{dependency}/admins', [\App\Http\Controllers\DependencyController::class, 'getAdmins'])->middleware(['auth'])->name('api.dependencies.admins');
+Route::get('/api/dependencies/{dependency}/admins', [\App\Http\Controllers\DependencyController::class, 'getAdmins'])->middleware(['auth'])
+    ->name('api.dependencies.admins');
 Route::inertia('/dependencies/admin/landing', 'Dependencies/LandingMultipleDependenciesAdmin')->middleware(['auth'])->name('dependencies.landing');
 
 
@@ -86,7 +90,8 @@ Route::post('/file/upload', [\App\Http\Controllers\ExternalClientController::cla
     ->name('file.upload');
 
 /* >>>>>>>>>>>>>>>>>>>>> Forms routes <<<<<<<<<<<<<<<<<<<< */
-Route::get('api/forms/withoutQuestions', [\App\Http\Controllers\FormController::class, 'getWithoutQuestions'])->middleware(['auth', 'isAdmin'])->name('api.forms.withoutQuestions');
+Route::get('api/forms/withoutQuestions', [\App\Http\Controllers\FormController::class, 'getWithoutQuestions'])->middleware(['auth', 'isAdmin'])
+    ->name('api.forms.withoutQuestions');
 Route::get('api/forms/copyFromPeriod/{assessmentPeriod}', [\App\Http\Controllers\FormController::class, 'copyFromPeriod'])->name('api.forms.copyFromPeriod')
     ->middleware(['auth', 'isAdmin']);
 Route::inertia('/forms', 'Forms/Index')->middleware(['auth', 'isAdmin'])->name('forms.index.view');
@@ -96,8 +101,10 @@ Route::resource('api/forms', \App\Http\Controllers\FormController::class, [
 ])->middleware('auth');
 Route::get('borrarForm/{form}', [\App\Http\Controllers\FormController::class, 'destroy']);
 Route::post('api/forms/{form}/copy', [\App\Http\Controllers\FormController::class, 'copy'])->name('api.forms.copy')->middleware(['auth']);
-Route::patch('api/forms/{form}/formQuestions', [\App\Http\Controllers\FormQuestionController::class, 'storeOrUpdate'])->name('api.forms.questions.store')->middleware(['auth']);
-Route::get('api/forms/{form}/formQuestions', [\App\Http\Controllers\FormQuestionController::class, 'getByFormId'])->name('api.forms.questions.show')->middleware(['auth']);
+Route::patch('api/forms/{form}/formQuestions', [\App\Http\Controllers\FormQuestionController::class, 'storeOrUpdate'])->name('api.forms.questions.store')
+    ->middleware(['auth']);
+Route::get('api/forms/{form}/formQuestions', [\App\Http\Controllers\FormQuestionController::class, 'getByFormId'])->name('api.forms.questions.show')
+    ->middleware(['auth']);
 
 
 /* >>>>>FunctionaryProfile routes <<<<<< */
@@ -111,7 +118,8 @@ Route::resource('api/functionaries', \App\Http\Controllers\FunctionaryProfileCon
 ])->middleware('auth');
 Route::get('/api/{dependency}/functionaryProfiles/{functionaryProfile}', [\App\Http\Controllers\FunctionaryProfileController::class, 'edit'])
     ->middleware(['auth'])->name('api.functionaryProfiles.edit');
-Route::get('/functionaries/changes', [\App\Http\Controllers\FunctionaryProfileController::class, 'getPendingChanges'])->middleware(['auth'])->name('functionaryProfiles.pendingChanges');
+Route::get('/functionaries/changes', [\App\Http\Controllers\FunctionaryProfileController::class, 'getPendingChanges'])->middleware(['auth'])
+    ->name('functionaryProfiles.pendingChanges');
 Route::post('/functionaries/changes/{userId}/approve',[\App\Http\Controllers\FunctionaryProfileController::class, 'approveChange'])
     ->middleware(['auth'])->name('functionaryProfiles.change.approve');
 Route::post('/functionaries/changes/{userId}/delete',[\App\Http\Controllers\FunctionaryProfileController::class, 'declineChange'])
@@ -121,7 +129,8 @@ Route::post('/functionaries/changes/{userId}/delete',[\App\Http\Controllers\Func
 
 /* >>>>>>>>>>>>>>>>>>>>>>>  Positions routes >>>>>>>><<<<<< */
 Route::inertia('/positions', 'Positions/Index')->middleware(['auth', 'isAdmin'])->name('positions.index.view');
-Route::get('api/positions/ableToAssign/', [\App\Http\Controllers\PositionController::class, 'ableToAssign'])->middleware(['auth', 'isAdmin'])->name('api.positions.ableToAssign');
+Route::get('api/positions/ableToAssign/', [\App\Http\Controllers\PositionController::class, 'ableToAssign'])->middleware(['auth', 'isAdmin'])
+    ->name('api.positions.ableToAssign');
 Route::resource('api/positions', \App\Http\Controllers\PositionController::class, [
     'as' => 'api'
 ])->middleware('auth');
@@ -131,8 +140,10 @@ Route::inertia('/positions/assignment', 'PositionAssignment/Index')->middleware(
 Route::resource('api/positionsAssignment', \App\Http\Controllers\PositionAssignmentController::class, [
     'as' => 'api'
 ])->middleware('auth');
-Route::post('api/positionsAssignment/create', [\App\Http\Controllers\PositionAssignmentController::class, 'createAssignment'])->middleware(['auth', 'isAdmin'])->name('api.positionsAssignment.create');
-Route::post('api/positionsAssignment/destroy', [\App\Http\Controllers\PositionAssignmentController::class, 'deleteAssignment'])->middleware(['auth', 'isAdmin'])->name('api.positionsAssignment.destroy');
+Route::post('api/positionsAssignment/create', [\App\Http\Controllers\PositionAssignmentController::class, 'createAssignment'])
+    ->middleware(['auth', 'isAdmin'])->name('api.positionsAssignment.create');
+Route::post('api/positionsAssignment/destroy', [\App\Http\Controllers\PositionAssignmentController::class, 'deleteAssignment'])
+    ->middleware(['auth', 'isAdmin'])->name('api.positionsAssignment.destroy');
 
 /* >>>>>ResponseIdeals routes<<<<<< */
 Route::inertia('/responseIdeals', 'ResponseIdeals/Index')->middleware(['auth', 'isAdmin'])->name('responseIdeals.index.view');

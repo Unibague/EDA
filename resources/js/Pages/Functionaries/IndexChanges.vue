@@ -271,6 +271,9 @@ export default {
                     let request = await axios.post(route(`functionaryProfiles.change.${which}`,{userId: change.user_id}))
                     console.log(request.data);
                     await this.getChanges();
+
+
+                    //Here we call a function on the parent component
                     this.$emit('getAllFunctionaries')
                     showSnackbar(this.snackbar, request.data.message, 'success');
                 } catch (e) {
