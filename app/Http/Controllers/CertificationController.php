@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Certification;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -24,7 +25,7 @@ class CertificationController extends Controller
 
     public function downloadFile(Certification $certification)
     {
-            return Storage::disk('local')->download($certification['file_name'], "Archivo para descargar");
+            return Storage::disk('local')->download($certification['encoded_file_name'], $certification['original_file_name']);
     }
 
 
@@ -44,7 +45,7 @@ class CertificationController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(Request $request): JsonResponse
     {
 
         if($request->hasFile('file')){
@@ -52,17 +53,18 @@ class CertificationController extends Controller
             $file = $request->file('file');
             $commitmentId = $request->input("commitment_id");
 
-            $savedFile = Storage::disk('local')->putFileAs('/attachments', $file,
-                $file->hashName());
+            try{
+                $savedFile = Storage::disk('local')->putFileAs('/attachments', $file,
+                    $file->hashName());
+                Certification::create(['original_file_name' => $file->getClientOriginalName(),
+                    'encoded_file_name' => $savedFile,
+                    'commitment_id' => $commitmentId]);
+            } catch (JsonException $e){
+                return response()->json(['message' => 'No se puedo cargar el archivo, inténtalo más tarde o comúnicate con g3@unibague.edu.co'], 400);
+            }
 
-            Certification::create(['file_name' => $savedFile,
-               'commitment_id' => $commitmentId]);
-
-            dd($file);
+            return response()->json(['message' => 'El archivo se ha añadido exitosamente al compromiso']);
         }
-
-
-
     }
 
     /**
