@@ -21,7 +21,7 @@
 
                             <v-tooltip top>
                                 <template v-slot:activator="{ on, attrs }">
-                                    <form :action="route('certifications.downloadFile',{certification: item.id})" method="GET">
+                                    <form :action="route('certifications.downloadFile',{certification: item.encoded_file_name})" method="GET">
                                     <v-btn
                                         type="submit"
                                         v-on="on"

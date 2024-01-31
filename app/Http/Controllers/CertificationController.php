@@ -23,9 +23,15 @@ class CertificationController extends Controller
     }
 
 
-    public function downloadFile(Certification $certification)
+    public function downloadFile($certification)
     {
-            return Storage::disk('local')->download($certification['encoded_file_name'], $certification['original_file_name']);
+
+        //Get the file info
+        $certification = Certification::where('encoded_file_name','=', $certification)->first();
+
+        //Once the file is retrieved, then just download it
+        return Storage::disk('local')->download($certification['encoded_file_name'], $certification['original_file_name']);
+
     }
 
 
@@ -54,7 +60,7 @@ class CertificationController extends Controller
             $commitmentId = $request->input("commitment_id");
 
             try{
-                $savedFile = Storage::disk('local')->putFileAs('/attachments', $file,
+                $savedFile = Storage::disk('local')->putFileAs('/', $file,
                     $file->hashName());
                 Certification::create(['original_file_name' => $file->getClientOriginalName(),
                     'encoded_file_name' => $savedFile,
