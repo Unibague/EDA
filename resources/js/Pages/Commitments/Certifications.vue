@@ -134,7 +134,7 @@ export default {
             search: '',
             headers:[
                 {text: 'Nombre de archivo', value: 'original_file_name'},
-                {text: 'Añadido por', value: 'updated_at', sortable: false},
+                {text: 'Añadido por', value: 'user_name', sortable: false},
                 {text: 'Acciones', value: 'actions', sortable: false, width:'15%'},
                 {text: 'Última actualización', value: 'updated_at', sortable: false},
             ],

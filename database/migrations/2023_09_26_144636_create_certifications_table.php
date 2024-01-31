@@ -18,6 +18,8 @@ class CreateCertificationsTable extends Migration
             $table->string('original_file_name');
             $table->string('encoded_file_name');
             $table->foreignId('commitment_id')->constrained();
+            $table->foreignId('added_by');
+            $table->foreign('added_by')->references('id')->on('users');
             $table->timestamps();
         });
     }
