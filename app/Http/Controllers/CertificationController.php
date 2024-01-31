@@ -18,7 +18,10 @@ class CertificationController extends Controller
     public function index(Request $request)
     {
             $commitmentId = $request['id'];
-            return DB::table('certifications')->where('commitment_id', '=', $commitmentId)->get();
+            return DB::table('certifications as c')
+                ->select(['c.id', 'c.original_file_name', 'c.encoded_file_name', 'c.commitment_id', 'c.updated_at', 'u.name as user_name'])
+                ->where('c.commitment_id', '=', $commitmentId)
+                ->join('users as u', 'c.added_by','=', 'u.id')->get();
 
     }
 
@@ -58,13 +61,15 @@ class CertificationController extends Controller
 
             $file = $request->file('file');
             $commitmentId = $request->input("commitment_id");
+            $userId = auth()->user()->id;
 
             try{
                 $savedFile = Storage::disk('local')->putFileAs('/', $file,
                     $file->hashName());
                 Certification::create(['original_file_name' => $file->getClientOriginalName(),
                     'encoded_file_name' => $savedFile,
-                    'commitment_id' => $commitmentId]);
+                    'commitment_id' => $commitmentId,
+                    'added_by' => $userId]);
             } catch (JsonException $e){
                 return response()->json(['message' => 'No se puedo cargar el archivo, inténtalo más tarde o comúnicate con g3@unibague.edu.co'], 400);
             }
