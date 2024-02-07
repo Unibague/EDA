@@ -33,7 +33,12 @@ class CertificationController extends Controller
         $certification = Certification::where('encoded_file_name','=', $certification)->first();
 
         //Once the file is retrieved, then just download it
-        return Storage::disk('local')->download($certification['encoded_file_name'], $certification['original_file_name']);
+        try{
+            return Storage::disk('local')->download($certification['encoded_file_name'], $certification['original_file_name']);
+        }catch (\Exception $exception){
+            return response()->json(['message' => 'No se pudo descargar el archivo, comunícate con g3@unibague.edu.co'], 400);
+        }
+
 
     }
 
@@ -118,8 +123,17 @@ class CertificationController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy(Certification $certification)
     {
-        //
+
+        try{
+            $certificationPath = $certification->encoded_file_name;
+            $certification->delete();
+            Storage::disk('local')->delete($certificationPath);
+        } catch(\Exception $exception){
+            return response()->json(['message' => 'No se pudo borrar el archivo, inténtalo más tarde o comúnicate con g3@unibague.edu.co'], 400);
+
+        }
+        return response()->json(['message' => 'El archivo se ha borrado exitosamente']);
     }
 }

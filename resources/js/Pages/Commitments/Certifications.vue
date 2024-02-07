@@ -18,10 +18,9 @@
                     class="elevation-1"
                 >
                     <template v-slot:item.actions="{ item }">
-
                             <v-tooltip top>
                                 <template v-slot:activator="{ on, attrs }">
-                                    <form :action="route('certifications.downloadFile',{certification: item.encoded_file_name})" method="GET">
+                                    <form :action="route('certifications.downloadFile',{certification: item.encoded_file_name})" method="GET" style="display: inline">
                                     <v-btn
                                         type="submit"
                                         v-on="on"
@@ -41,10 +40,11 @@
                         <v-tooltip bottom>
                             <template v-slot:activator="{ on, attrs }">
                                     <v-icon
-                                        v-bind="attrs"
                                         v-on="on"
+                                        v-bind="attrs"
                                         class="mr-2 primario--text"
-                                    @click="">
+                                        @click="deleteFile(item)"
+                                        v-if="role.name === 'administrador' && commitment.done === 0">
                                         mdi-delete
                                     </v-icon>
                             </template>
@@ -104,6 +104,24 @@
                     </v-card-actions>
                 </v-card>
             </v-dialog>
+
+            <!--Confirmar borrar archivo-->
+            <confirm-dialog
+                :show="deleteFileDialog"
+                @canceled-dialog="deleteFileDialog = false"
+                @confirmed-dialog="deleteFile(deletedFileId)"
+            >
+                <template v-slot:title>
+                    Estas a punto de eliminar el archivo seleccionado
+                </template>
+
+                ¡Cuidado! esta acción es irreversible
+
+                <template v-slot:confirm-button-text>
+                    Borrar
+                </template>
+            </confirm-dialog>
+
         </v-container>
 </template>
 
@@ -125,7 +143,8 @@ export default {
     },
 
     props: {
-        commitment: Object
+        commitment: Object,
+        role: Object
     },
 
     data: () => {
@@ -151,9 +170,13 @@ export default {
 
             fileSelected: null,
 
+            deletedFileId: null,
+
             //Dialogs
             isLoading: true,
             addFileDialog: false,
+
+            deleteFileDialog: false,
         }
     },
     async created() {
@@ -176,7 +199,6 @@ export default {
         },
 
         addFile: function (e){
-
             console.log(e, "info obtenida");
             if (e === null){
                 return;
@@ -185,7 +207,6 @@ export default {
         },
 
         checkAndSendFile: async function (){
-
             const file = new FormData();
             file.append("file", this.fileSelected)
             file.append("commitment_id", this.commitment.id)
@@ -200,8 +221,23 @@ export default {
             } catch (e) {
                 showSnackbar(this.snackbar, e.response.data.message, 'alert', 8000);
             }
+        },
 
-        }
+        deleteFile: async function(file){
+            try {
+                let request = await axios.delete(route('api.certifications.destroy', {certification: file}));
+                this.deleteFileDialog = false;
+                showSnackbar(this.snackbar, request.data.message, 'success');
+                await this.getFiles();
+            } catch (e) {
+                showSnackbar(this.snackbar, e.response.data.message, 'red', 5000);
+            }
+        },
+
+        confirmDeleteFile: function (file) {
+            this.deletedFileId = file.id;
+            this.deleteFileDialog = true;
+        },
 
     },
 }

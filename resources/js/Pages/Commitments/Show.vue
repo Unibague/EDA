@@ -7,7 +7,7 @@
             <div class="d-flex flex-column align-end mb-8">
                 <h2 class="align-self-start"> Visualizando el compromiso
                     {{this.commitment.training_name}} del funcionario {{this.commitment.user_name}}</h2>
-                <div>
+                <div v-if="this.commitment.done === 0">
                     <v-btn
                         color="primario"
                         class="grey--text text--lighten-4"
@@ -23,10 +23,19 @@
                     >
                         Agregar nuevo archivo
                     </v-btn>
+
+                    <v-btn
+                        color="primario"
+                        class="grey--text text--lighten-4"
+                        @click="setAsDoneDialog = true"
+                        v-if="this.role.name === 'administrador'"
+                    >
+                        Marcar como finalizado
+                    </v-btn>
                 </div>
             </div>
 
-            <Certifications :commitment="this.commitment" ref="childComponent"> </Certifications>
+            <Certifications :commitment="this.commitment" :role ="this.role" ref="childComponent"> </Certifications>
 
             <!--Inicia tabla-->
             <v-card>
@@ -50,12 +59,13 @@
                     :footer-props="{
                         'items-per-page-options': [20,50,100,-1]
                     }"
-                    class="elevation-1"
+                    class="elevation-1"Ya
                 >
-                    <template v-slot:item.actions="{ item }">
+                    <template v-slot:item.actions="{ item }"  v-if="this.commitment.done === 0" >
                         <v-icon
                             class="mr-2 primario--text"
                             @click="setCommentDialogToCreateOrEdit('edit',item)"
+                            v-if="item.user_name === $page.props.user.name"
                         >
                             mdi-pencil
                         </v-icon>
@@ -63,6 +73,7 @@
                         <v-icon
                             class="primario--text"
                             @click="confirmDeleteComment(item)"
+                            v-if="role.name === 'administrador'"
                         >
                             mdi-delete
                         </v-icon>
@@ -135,9 +146,42 @@
                     Borrar
                 </template>
             </confirm-dialog>
+
+
+            <!--Confirmar marcar como finalizado-->
+            <confirm-dialog
+                :show="setAsDoneDialog"
+                @canceled-dialog="setAsDoneDialog = false"
+                @confirmed-dialog="setCommitmentAsDone"
+            >
+
+                <template v-slot:title>
+                    Finalizar compromiso
+                </template>
+
+                Estás a punto de marcar el compromiso como finalizado. Una vez lo hagas ya no podrás agregar nuevos comentarios ni archivos al compromiso. ¿Estás seguro?
+
+
+                <template v-slot:confirm-button-text>
+                    Marcar como finalizado
+                </template>
+            </confirm-dialog>
+
         </v-container>
     </AuthenticatedLayout>
 </template>
+
+<style>
+
+#content{
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+    word-break: break-word;
+    margin: auto;
+    text-align: center;
+}
+
+</style>
 
 <script>
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
@@ -147,6 +191,7 @@ import ConfirmDialog from "@/Components/ConfirmDialog";
 import Snackbar from "@/Components/Snackbar";
 import Comment from "@/models/Comment"
 import Certifications from "@/Pages/Commitments/Certifications";
+import {delay} from "lodash";
 
 
 export default {
@@ -159,7 +204,8 @@ export default {
     },
 
     props: {
-        commitment: Object
+        commitment: Object,
+        role: Object,
     },
 
     data: () => {
@@ -194,13 +240,15 @@ export default {
                 method: 'createComment',
                 dialogStatus: false,
             },
-
+            setAsDoneDialog: false,
             isLoading: true,
 
         }
     },
     async created() {
         await this.getComments();
+        console.log(this.$page.props.user, 'info del usuario');
+        console.log(this.role, 'rol');
         this.isLoading = false;
     },
 
@@ -211,6 +259,8 @@ export default {
         },
 
         getComments: async function () {
+
+            console.log(this.commitment, "El compromiso");
             let data = this.commitment;
             let request = await axios.get(route('api.comments.index', data));
             console.log(request.data);
@@ -292,6 +342,23 @@ export default {
                 this.createOrEditDialog.method = 'editComment';
                 this.createOrEditDialog.model = 'editedComment';
                 this.createOrEditDialog.dialogStatus = true;
+            }
+
+        },
+
+        setCommitmentAsDone: async function(){
+
+            try {
+                let request = await axios.get(route('commitments.setDone', {commitment: this.commitment}));
+                showSnackbar(this.snackbar, request.data.message, 'success', 5000);
+                this.setAsDoneDialog = false;
+
+                setTimeout(function () {
+                    window.location.reload();
+                }, 1150);
+
+            } catch (e) {
+                showSnackbar(this.snackbar, e.response.data.message, 'red', 3000);
             }
 
         }
