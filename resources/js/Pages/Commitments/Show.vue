@@ -59,7 +59,7 @@
                     :footer-props="{
                         'items-per-page-options': [20,50,100,-1]
                     }"
-                    class="elevation-1"Ya
+                    class="elevation-1"
                 >
                     <template v-slot:item.actions="{ item }"  v-if="this.commitment.done === 0" >
                         <v-icon

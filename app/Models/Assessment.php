@@ -33,7 +33,7 @@ class Assessment extends Model
 
         $user = auth()->user();
 
-        if($user->role()->name == "funcionario" || $user->role()->name == "administrador") {
+        if($user->role()->name == "funcionario" || $user->role()->name == "administrador" || $user->role()->name == "cliente externo") {
 
             return  DB::table('assessments as a')
                 ->select(['a.id', 'a.pending','u.name', 'a.role', 'a.evaluator_id', 'a.evaluated_id', 'a.assessment_period_id', 'fp.dependency_name'])

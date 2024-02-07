@@ -234,7 +234,7 @@ export default {
             [{
                 name: 'Cambiar Rol',
                 href: route('pickRole'),
-                role: 1,
+                role: 3,
                 icon: 'mdi-calendar'
             },],
         dropdowns: [

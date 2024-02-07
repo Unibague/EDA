@@ -249,11 +249,11 @@ export default {
                 return;
             }
             let data = this.newExternalClient.toObjectRequest();
-            //Clear role information
-            this.newExternalClient = new ExternalClient();
             try {
                 let request = await axios.post(route('api.externalClients.store'), data);
                 this.createOrEditDialog.dialogStatus = false;
+                //Clear role information
+                this.newExternalClient = new ExternalClient();
                 showSnackbar(this.snackbar, request.data.message, 'success', 10000);
                 await this.getExternalClients();
             } catch (e) {
