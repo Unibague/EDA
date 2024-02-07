@@ -4,9 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Models\Certification;
 use App\Models\FunctionaryProfile;
+use App\Models\Role;
 use App\Models\User;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
@@ -45,13 +47,19 @@ class ExternalClientController extends Controller
     public function store(Request $request)
     {
         $passwordToExternalClient = Str::random(12);
+        $externalClientRoleId = Role::getRoleIdByName('cliente externo');
 
-        User::create([
+        $user = User::create([
             'name' => $request->input(['name']),
             'email' => $request->input(['email']),
             'is_external_client' => true,
             'password' => Hash::make($passwordToExternalClient),
         ]);
+
+        DB::table('role_user')->updateOrInsert(
+            ['user_id' => $user['id'],
+                'role_id' => $externalClientRoleId]
+        );
 
         $data = ['name' => $request->input(['name']),'email' => $request->input(['email']), 'password' => $passwordToExternalClient];
 

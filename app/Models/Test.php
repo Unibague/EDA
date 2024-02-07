@@ -14,6 +14,11 @@ class Test extends Model
     public static function getUserTests()
     {
         $userAssessments = Assessment::getUserAssessments();
+
+       if (!$userAssessments){
+           return [];
+       }
+
         foreach ($userAssessments as $assessment) {
             $assessment->test = self::getTestFromAssessment($assessment);
         }

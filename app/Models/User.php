@@ -73,13 +73,17 @@ class User extends Authenticatable
         //Check if is still valid
         $userRoles = $user->roles;
 
-//        dd($actualRole, $userRoles);
-
         foreach ($userRoles as $role) {
             if ($actualRole === $role->id) {
                 return $role;
             }
         }
+
+        //If all of this has happened and hasn't returned, then it is because it is an external client, so then we return that role
+        if(count($userRoles)> 0){
+            return $userRoles[0];
+        }
+
         return (object)[
             'name' => 'no role',
             'customId' => 0
