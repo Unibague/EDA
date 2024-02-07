@@ -47,8 +47,12 @@ Route::resource('api/comments', \App\Http\Controllers\CommentController::class, 
 
 /* >>>>>Commitments routes <<<<<< */
 Route::inertia('/commitments', 'Commitments/Index')->name('commitments.index.view');
+Route::get('/commitments/landing', [\App\Http\Controllers\CommitmentController::class, 'landing'])->middleware(['auth'])->name('commitments.landing');
 Route::resource('api/commitments', \App\Http\Controllers\CommitmentController::class, [
     'as' => 'api'])->middleware('auth');
+Route::get('/commitments/{role}', [\App\Http\Controllers\CommitmentController::class, 'indexCommitments'])->middleware(['auth'])->name('commitments.index');
+Route::get('/commitments/{commitment}/finish', [\App\Http\Controllers\CommitmentController::class, 'setCommitmentAsDone'])->middleware(['auth'])->name('commitments.setDone');
+
 
 /* >>>>>Competences routes <<<<<< */
 Route::inertia('/competences', 'Competences/Index')->middleware(['auth', 'isAdmin'])->name('competences.index.view');
@@ -69,6 +73,7 @@ Route::post('/api/dependencies/sync', [\App\Http\Controllers\DependencyControlle
 Route::get('/api/dependencies/{dependency}/admins', [\App\Http\Controllers\DependencyController::class, 'getAdmins'])->middleware(['auth'])
     ->name('api.dependencies.admins');
 Route::inertia('/dependencies/admin/landing', 'Dependencies/LandingMultipleDependenciesAdmin')->middleware(['auth'])->name('dependencies.landing');
+Route::inertia('/assessmentStatus', 'Dependencies/AssessmentStatus')->middleware(['auth', 'isAdmin']);
 
 
 /* >>>>>DependencyAdmin routes <<<<<< */
@@ -82,7 +87,6 @@ Route::resource('api/externalClients', \App\Http\Controllers\ExternalClientContr
 ])->middleware('auth');
 Route::post('/api/externalClient/updatePassword', [\App\Http\Controllers\ExternalClientController::class, 'updatePassword'])->middleware(['auth'])
     ->name('api.externalClients.updatePassword');
-
 
 
 /* >>>>>>>>>>>>>>>>>>>>>>>  Files routes >>>>>>>><<<<<< */
@@ -168,11 +172,17 @@ Route::resource('api/tests', \App\Http\Controllers\TestController::class, [
 
 
 /* >>>>>>>>>>>>>>>>>>>>>>>>>>>> Training routes <<<<<<<<<<<<<<<<<<<<<<<<<<< */
-Route::inertia('/commitments/trainings', 'Commitments/Trainings')->middleware(['auth', 'isAdmin'])->name('trainings.index.view');
+Route::inertia('/commitments/landing/trainings', 'Commitments/Trainings')->middleware(['auth', 'isAdmin'])->name('trainings.index.view');
 Route::resource('api/trainings', \App\Http\Controllers\TrainingController::class, [
     'as' => 'api'
 ])->middleware('auth');
 
+
+/* >>>>>>>>>>>>>>>>>>>>>>>>>>>> Reminder routes <<<<<<<<<<<<<<<<<<<<<<<<<<< */
+Route::inertia('/commitments/landing/reminders', 'Commitments/Reminders')->middleware(['auth', 'isAdmin'])->name('reminders.index.view');
+Route::resource('api/reminders', \App\Http\Controllers\ReminderController::class, [
+    'as' => 'api'
+])->middleware('auth');
 
 
 /* >>>>>User routes <<<<<< */
@@ -198,5 +208,4 @@ Route::get('/google/callback', [\App\Http\Controllers\AuthController::class, 'ha
 Route::get('/pickRole', [\App\Http\Controllers\AuthController::class, 'pickRole'])->name('pickRole');
 
 
-Route::inertia('/assessmentStatus', 'Dependencies/AssessmentStatus')->middleware(['auth', 'isAdmin']);
-Route::post('/testWebService', [\App\Http\Controllers\AuthController::class, 'webService'])->name('webService.test');
+

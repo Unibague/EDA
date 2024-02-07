@@ -61,6 +61,10 @@ class Commitment extends Model
      return AssessmentPeriod::where('commitment_start_date', '<=', $dueDate)->where('commitment_end_date', '>=', $dueDate)->where('active','=', 1)->first();
     }
 
+    public static function getBossCommitments($commitment){
+        return $commitment['done'] === 1;
+    }
+
     public function assessmentPeriod(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(User::class);

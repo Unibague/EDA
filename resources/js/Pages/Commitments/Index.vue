@@ -5,8 +5,8 @@
 
         <v-container>
             <div class="d-flex flex-column align-end mb-8">
-                <h2 class="align-self-start">Gestionar compromisos</h2>
-                <div>
+                <h2 class="align-self-start" >Gestionar compromisos</h2>
+                <div  v-if="role.name === 'administrador'">
                     <v-btn
                         color="primario"
                         class="grey--text text--lighten-4"
@@ -22,6 +22,14 @@
                     >
                         Capacitaciones
                     </InertiaLink>
+                    <InertiaLink
+                        as="v-btn"
+                        color="primario"
+                        class="grey--text text--lighten-4"
+                        :href="route('reminders.index.view')"
+                    >
+                        Configurar Notificación
+                    </InertiaLink>
                 </div>
             </div>
 
@@ -32,7 +40,7 @@
                     <v-text-field
                         v-model="search"
                         append-icon="mdi-magnify"
-                        label="Filtrar por nombre,tipo de compromiso o fecha límite"
+                        label="Filtrar por nombre, tipo de compromiso o fecha"
                         single-line
                         hide-details
                     ></v-text-field>
@@ -55,7 +63,7 @@
                     </template>
 
                     <template v-slot:item.actions="{ item }">
-                        <v-tooltip top>
+                        <v-tooltip top >
                             <template v-slot:activator="{on,attrs}">
                                 <InertiaLink :href="route('api.commitments.edit', {commitment:item.id})">
                                     <v-icon
@@ -68,14 +76,9 @@
                                 </InertiaLink>
                             </template>
                             <span>Visualizar compromiso</span>
-
                         </v-tooltip>
-                        <v-icon
-                            class="mr-2 primario--text"
-                            @click="setCommitmentDialogToCreateOrEdit('edit',item)"
-                        >
 
-                        </v-icon>
+                        <div v-if="role.name === 'administrador' && item.done === 0">
                         <v-icon
                             class="mr-2 primario--text"
                             @click="setCommitmentDialogToCreateOrEdit('edit',item)"
@@ -83,11 +86,12 @@
                             mdi-pencil
                         </v-icon>
                         <v-icon
-                            class="primario--text"
+                            class="mr-2 primario--text"
                             @click="confirmDeleteCommitment(item)"
                         >
                             mdi-delete
                         </v-icon>
+                        </div>
                     </template>
                 </v-data-table>
             </v-card>
@@ -195,6 +199,12 @@ export default {
         InertiaLink,
         Snackbar,
     },
+
+    props: {
+        role: Object,
+        token: String
+    },
+
     data: () => {
         return {
             //Table info
@@ -241,7 +251,9 @@ export default {
     methods: {
 
         async getCommitments () {
-            let request = await axios.get(route('api.commitments.index'));
+
+            console.log(this.role, "The role")
+            let request = await axios.get(route('commitments.index', {role: this.role.id}));
             this.commitments = request.data;
             console.log(this.commitments);
         },

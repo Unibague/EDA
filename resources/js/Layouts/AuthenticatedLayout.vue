@@ -81,6 +81,7 @@
                 </v-menu>
             </template>
 
+
             <v-menu left bottom>
                 <template v-slot:activator="{ on, attrs }">
                     <v-avatar
@@ -168,7 +169,6 @@
                                       v-if="!dropdownItem.method"
                                       :key="dropdownItem.name"
                                       :href="dropdownItem.href"
-
                                 >
                                     <v-list-item-content>
                                         <v-list-item-title v-text="dropdownItem.name"></v-list-item-title>
@@ -177,14 +177,12 @@
 
                                 <v-list-item
                                     @click="triggerFunction(dropdownItem.method)"
-                                    v-else
                                     :key="dropdownItem.name"
                                 >
-                                    <v-list-item-content>
+                                    <v-list-item-content  >
                                         <v-list-item-title v-text="dropdownItem.name"></v-list-item-title>
                                     </v-list-item-content>
                                 </v-list-item>
-
                             </template>
 
                         </v-list-group>
@@ -242,80 +240,86 @@ export default {
         dropdowns: [
             {
                 name: 'Gestionar',
-                role: 10,
+                role: 3,
                 active: false,
                 icon: 'mdi-cog-box',
                 items: [
                     {
                         name: 'Periodos de evaluación',
                         href: route('assessmentPeriods.index.view'),
-                        role: 3,
+                        role: 10,
                         icon: 'mdi-account-cog'
                     },
                     {
                         name: 'Dependencias',
                         href: route('dependencies.index.view'),
-                        role: 3,
+                        role: 10,
                         icon: 'mdi-account-cog'
                     },
                     {
                         name: 'Funcionarios',
                         href: route('functionaries.index.view'),
-                        role: 3,
+                        role: 10,
                         icon: 'mdi-account-cog'
                     },
                     {
                         name: 'Posiciones',
                         href: route('positions.index.view'),
-                        role: 3,
+                        role: 10,
                         icon: 'mdi-account-cog'
                     },
                     {
                         name: 'Asignación de Cargos a Posiciones',
                         href: route('positions.assignment.index.view'),
-                        role: 3,
+                        role: 10,
                         icon: 'mdi-account-cog'
                     },
                     {
                         name: 'Clientes Externos',
                         href: route('externalClients.index.view'),
-                        role: 3,
+                        role: 10,
                         icon: 'mdi-account-cog'
                     },
                     {
                         name: 'Ideales de respuesta',
                         href: route('responseIdeals.index.view'),
-                        role: 3,
+                        role: 10,
                         icon: 'mdi-account-cog'
                     },
                     {
                         name: 'Competencias',
                         href: route('competences.index.view'),
-                        role: 3,
+                        role: 10,
                         icon: 'mdi-account-cog'
                     },
                     {
                         name: 'Formularios',
                         href: route('forms.index.view'),
-                        role: 3,
+                        role: 10,
                         icon: 'mdi-account-cog'
                     },
                     {
+                        name: 'Mis evaluaciones',
+                        href: route('tests.index.view'),
+                        role: 3,
+                        icon: 'mdi-cog-box'
+                    },
+                    {
                         name: 'Compromisos',
-                        href: route('commitments.index.view'),
+                        href: route('commitments.landing'),
                         role: 3,
                         icon: 'mdi-account-cog'
                     },
                     {
                         name: 'Roles',
                         href: route('roles.index'),
-                        role: 3,
+                        role: 10,
                         icon: 'mdi-cog-box'
                     },
                     {
                         name: 'Usuarios',
                         href: route('users.index'),
-                        role: 3,
+                        role: 10,
                         icon: 'mdi-account-cog'
                     },
                 ]
@@ -363,6 +367,8 @@ export default {
 
     async created() {
         //Get the inicials
+
+        console.log(this.$page.props.user,'the user');
         let name = this.$page.props.user.name;
         let splitName = name.split(' ');
         this.initials = `${splitName[0].charAt(0)}${splitName[1].charAt(0)}`;

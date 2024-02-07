@@ -73,6 +73,8 @@ class User extends Authenticatable
         //Check if is still valid
         $userRoles = $user->roles;
 
+//        dd($actualRole, $userRoles);
+
         foreach ($userRoles as $role) {
             if ($actualRole === $role->id) {
                 return $role;

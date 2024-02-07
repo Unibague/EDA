@@ -82,7 +82,11 @@ class TrainingController extends Controller
      */
     public function destroy(Training $training)
     {
-        $training->delete();
+        try{
+            $training->delete();
+        } catch (\Exception $exception){
+            return response()->json(['message' => 'No puedes borrar una capacitación si ya existen compromisos asociados a esta!'],400);
+        }
         return response()->json(['message' => 'Capacitación eliminada exitosamente']);
     }
 }
