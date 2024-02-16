@@ -332,8 +332,8 @@ export default {
                 icon: 'mdi-cog-box',
                 items: [
                     {
-                        name: 'Reportes por compromisos',
-                        href: route('roles.index'),
+                        name: 'Reportes por evaluación',
+                        href: route('reports.assessments.index'),
                         role: 1,
                         icon: 'mdi-calendar'
                     },

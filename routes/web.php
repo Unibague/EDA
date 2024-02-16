@@ -111,6 +111,13 @@ Route::get('api/forms/{form}/formQuestions', [\App\Http\Controllers\FormQuestion
     ->middleware(['auth']);
 
 
+/* >>>>>>>>>>>>>>>>>>>>> Forms answers routes <<<<<<<<<<<<<<<<<<<< */
+Route::resource('api/answers', \App\Http\Controllers\FormAnswersController::class, [
+    'as' => 'api'
+])->middleware('auth');
+
+
+
 /* >>>>>FunctionaryProfile routes <<<<<< */
 Route::inertia('/functionaries', 'Functionaries/Index')->middleware(['auth', 'isAdmin'])->name('functionaries.index.view');
 Route::post('/api/functionaryProfiles/sync', [\App\Http\Controllers\FunctionaryProfileController::class, 'sync'])->middleware(['auth'])
@@ -149,6 +156,18 @@ Route::post('api/positionsAssignment/create', [\App\Http\Controllers\PositionAss
 Route::post('api/positionsAssignment/destroy', [\App\Http\Controllers\PositionAssignmentController::class, 'deleteAssignment'])
     ->middleware(['auth', 'isAdmin'])->name('api.positionsAssignment.destroy');
 
+/* >>>>>>>>>>>>>>>>>>>>>>>>>>>> Reminder routes <<<<<<<<<<<<<<<<<<<<<<<<<<< */
+Route::inertia('/commitments/landing/reminders', 'Commitments/Reminders')->middleware(['auth', 'isAdmin'])->name('reminders.index.view');
+Route::resource('api/reminders', \App\Http\Controllers\ReminderController::class, [
+    'as' => 'api'
+])->middleware('auth');
+
+/* >>>>>Reports routes<<<<<< */
+Route::inertia('/reports/assessments', 'Reports/Assessments')->middleware(['auth', 'isAdmin'])->name('reports.assessments.index');
+Route::resource('api/responseIdeals', \App\Http\Controllers\ResponseIdealController::class, [
+    'as' => 'api'
+])->middleware('auth');
+
 /* >>>>>ResponseIdeals routes<<<<<< */
 Route::inertia('/responseIdeals', 'ResponseIdeals/Index')->middleware(['auth', 'isAdmin'])->name('responseIdeals.index.view');
 Route::resource('api/responseIdeals', \App\Http\Controllers\ResponseIdealController::class, [
@@ -178,11 +197,7 @@ Route::resource('api/trainings', \App\Http\Controllers\TrainingController::class
 ])->middleware('auth');
 
 
-/* >>>>>>>>>>>>>>>>>>>>>>>>>>>> Reminder routes <<<<<<<<<<<<<<<<<<<<<<<<<<< */
-Route::inertia('/commitments/landing/reminders', 'Commitments/Reminders')->middleware(['auth', 'isAdmin'])->name('reminders.index.view');
-Route::resource('api/reminders', \App\Http\Controllers\ReminderController::class, [
-    'as' => 'api'
-])->middleware('auth');
+
 
 
 /* >>>>>User routes <<<<<< */

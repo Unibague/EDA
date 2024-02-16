@@ -159,7 +159,7 @@
                             text
                             @click="updateCompetenceOrder"
                         >
-                            Actualizar Renglón
+                            Actualizar Orden
                         </v-btn>
                     </v-card-actions>
                 </v-card>
@@ -247,13 +247,6 @@ export default {
         handleSelectedMethod: function () {
             this[this.createOrEditDialog.method]();
         },
-
-        // checkLastCompetence (){
-        //     if(this.competences.length > 0){
-        //         this.competences[this.competences.length-1].is_last = true;
-        //         console.log(this.competences[this.competences.length-1]);
-        //     }
-        // },
 
         editOrder(competence){
             this.editCompetenceOrderDialog = true;
