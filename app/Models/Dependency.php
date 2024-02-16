@@ -41,11 +41,9 @@ class Dependency extends Model
     }
 
     public static function getDependencies(int $assessmentPeriodId = null){
-
         if ($assessmentPeriodId === null){
             $assessmentPeriodId = AssessmentPeriod::getActiveAssessmentPeriod()->id;
         }
-
         return self::where('assessment_period_id','=', $assessmentPeriodId)->with('functionariesFromDependency')->get();
     }
 

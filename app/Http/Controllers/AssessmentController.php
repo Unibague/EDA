@@ -93,6 +93,11 @@ class AssessmentController extends Controller
      */
     public function update(Request $request, Assessment $assessment)
     {
+
+        if($assessment['pending'] === 0){
+            return response()->json(['message' => 'No puedes modificar la asignación si esta ya se realizó'], 400);
+        }
+
         $assessment->update($request->all());
         return response()->json(['message' => 'Asignación actualizada exitosamente']);
     }
@@ -106,6 +111,9 @@ class AssessmentController extends Controller
     public function destroy(Assessment $assessment)
     {
         try {
+            if($assessment['pending'] === 0){
+                return response()->json(['message' => 'No puedes eliminar la asignación si esta ya se realizó'], 400);
+            }
             $assessment->delete();
         } catch (QueryException $e) {
             return response()->json(['message' => 'No se ha podido eliminar la asignación...'], 400);

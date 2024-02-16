@@ -26,7 +26,11 @@ class FunctionaryProfileController extends Controller
      */
     public function index(Request $request): JsonResponse
     {
-        $activeAssessmentPeriodId = AssessmentPeriod::getActiveAssessmentPeriod()->id;
+
+        $assessmentPeriodId = $request->input('assessmentPeriodId');
+        if ($assessmentPeriodId === null){
+            $assessmentPeriodId = AssessmentPeriod::getActiveAssessmentPeriod()->id;
+        }
         $dependency = $request->input('dependency');
         $functionaryProfile = $request->input('functionaryProfile');
 
@@ -35,11 +39,11 @@ class FunctionaryProfileController extends Controller
         }
 
         if ($functionaryProfile !== null){
-            return response()->json(FunctionaryProfile::where('assessment_period_id', '=', $activeAssessmentPeriodId)->where('user_id', '!=', $functionaryProfile['user_id'])
+            return response()->json(FunctionaryProfile::where('assessment_period_id', '=', $assessmentPeriodId)->where('user_id', '!=', $functionaryProfile['user_id'])
                 ->with('user')->get()->sortBy('user.name')->values()->all());
         }
 
-        return response()->json(FunctionaryProfile::where('assessment_period_id', '=', $activeAssessmentPeriodId)
+        return response()->json(FunctionaryProfile::where('assessment_period_id', '=', $assessmentPeriodId)
             ->with('user')->get()->sortBy('user.name')->values()->all());
 
     }

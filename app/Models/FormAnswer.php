@@ -33,7 +33,7 @@ class FormAnswer extends Model
         $activeAssessmentPeriodId = AssessmentPeriod::getActiveAssessmentPeriod()->id;
         $competencesAverage = self::getCompetencesAverage(json_decode(json_encode($request->input('answers'), JSON_THROW_ON_ERROR), false, 512, JSON_THROW_ON_ERROR));
 
-        self::create([
+        $formAnswer = self::create([
             'user_id' => auth()->user()->id,
             'form_id' => $form->id,
             'answers' => json_encode($request->input('answers')),
@@ -48,7 +48,7 @@ class FormAnswer extends Model
             'assessment_period_id' => $activeAssessmentPeriodId,
         ]);
 
-        self::updateResponseStatusToAnswered($request->input('evaluatedId'), $request->input('role'));
+        self::updateResponseStatusToAnswered($request->input('evaluatedId'), $request->input('role'), $formAnswer);
     }
 
     public static function getCompetencesAverage($answers): array
@@ -92,13 +92,13 @@ class FormAnswer extends Model
         return $averages;
     }
 
-    public static function updateResponseStatusToAnswered($evaluatedId, $role): void
+    public static function updateResponseStatusToAnswered($evaluatedId, $role, $formAnswer): void
     {
         $evaluatorId = auth()->user()->id;
         $activeAssessmentPeriodId = AssessmentPeriod::getActiveAssessmentPeriod()->id;
-        Assessment::where('evaluated_id', $evaluatedId)->where('role', $role)->where('evaluator_id', $evaluatorId)
+        Assessment::where('evaluated_id','=', $evaluatedId)->where('role', $role)->where('evaluator_id', $evaluatorId)
             ->where('assessment_period_id', $activeAssessmentPeriodId)->update([
-                'pending' => 0
+                'pending' => 0 , 'form_answer_id' => $formAnswer->id
             ]);
     }
 
