@@ -49,9 +49,9 @@
                             flat
                             solo-inverted
                             hide-details
-                            :items="functionaries"
+                            :items="filteredFunctionaries"
                             :item-text="(functionary)=> capitalize(functionary.name)"
-                            item-value="id"
+                            item-value="user_id"
                             prepend-inner-icon="mdi-account-search"
                             label="Funcionario"
                         ></v-autocomplete>
@@ -100,7 +100,7 @@
                     :no-data-text="noDataText"
                     :loading="isLoading"
                     :headers="headers"
-                    :items="grades"
+                    :items="filteredGrades"
                     :items-per-page="20"
                     :footer-props="{
                         'items-per-page-options': [20,50,100,-1]
@@ -250,7 +250,8 @@ export default {
 
         getTableHeaders: async function (){
             this.headers.push({text:"Funcionario", value:"name", width: "15%"})
-            // this.headers.push({text:"Rol", value:"dependency_role", width: "10%"})
+            this.headers.push({text:"Dependencia", value:"dependency_name", width: "10%"})
+            this.headers.push({text:"Rol", value:"role", width: "10%"})
             await this.getCompetences();
             this.headers.push({text:"Fecha de envío", value:"submitted_at", width: "15%"})
             this.headers.push({text:"Graficar resultados", value:"graph", width: "15%"})
@@ -287,8 +288,9 @@ export default {
         },
 
         getFunctionaries: async function (){
-            let request = await axios.get(route('api.functionaries.index', {assessmentPeriodId:this.assessmentPeriod}));
+            let request = await axios.get(route('api.functionaries.index', {assessmentPeriodId:this.assessmentPeriod, report: 'yes'}));
             this.functionaries = request.data;
+            console.log(this.functionaries, 'Todos los funcionarios');
         },
 
         matchProperty: function (array, propertyPath, reference) {
@@ -310,10 +312,6 @@ export default {
             individualGrades.forEach(grade => {
                 this.grades.push(grade);
             })
-
-
-
-
         },
 
         //
@@ -331,14 +329,6 @@ export default {
         //     });
         //     this.assessments.sort(this.orderData);
         // },
-
-        getOpenAnswersFromColleagues: async function (teacherId){
-            let url = route('formAnswers.teachers.openAnswersColleagues', {assessmentPeriodId: this.assessmentPeriod});
-            let request = await axios.post(url, {teacherId: teacherId});
-            this.openAnswersColleagues = request.data;
-            console.log(this.openAnswersColleagues, 'respuestas de colegas');
-        },
-
 
         async setDialogToShowChart(teacher){
             this.showChartDialog = true
@@ -399,43 +389,37 @@ export default {
         },
 
         downloadExcel (){
-            console.log(this.filteredItems);
-
-            if (this.filteredItems.length === 0){
+            if (this.filteredGrades.length === 0){
                 showSnackbar(this.snackbar, "No hay datos para guardar", 'alert');
             }
 
-            /*            let excelInfo = this.filteredItems.map(item =>{
-
-                            return {
-                                Nombre :item.name,
-                                rol: item.unit_role,
-                                NombreUnidad: item.unitName,
-                                PromedioC1: item.first_competence_average,
-                                PromedioC2: item.second_competence_average,
-                                PromedioC3: item.third_competence_average,
-                                PromedioC4: item.fourth_competence_average,
-                                PromedioC5: item.fifth_competence_average,
-                                PromedioC6: item.sixth_competence_average,
-                            }
-                        })
-
-                        let csv = Papa.unparse(excelInfo, {delimiter:';'});
-                        var csvData = new Blob(["\uFEFF"+csv], {type: 'text/csv;charset=utf-8;'});
-                        var csvURL =  null;
-                        if (navigator.msSaveBlob)
-                        {
-                            csvURL = navigator.msSaveBlob(csvData, 'ResultadosEvaluación.csv');
-                        }
-                        else
-                        {
-                            csvURL = window.URL.createObjectURL(csvData);
-                        }
-
-                        var tempLink = document.createElement('a');
-                        tempLink.href = csvURL;
-                        tempLink.setAttribute('download', 'ResultadosEvaluación.csv');
-                        tempLink.click();*/
+            let excelInfo = this.filteredGrades.map(item =>{
+                let competencesData = {}
+                this.competences.forEach((competence, index) =>{
+                    competencesData[competence.name] = item[`c${competence.position}`].toLocaleString("pt-BR")
+                })
+                return {
+                    Funcionario :item.name,
+                    NombreUnidad: item.dependency_name,
+                    rol: item.role,
+                    ...competencesData
+                }
+            })
+            let csv = Papa.unparse(excelInfo, {delimiter:';'});
+            var csvData = new Blob(["\uFEFF"+csv], {type: 'text/csv;charset=utf-8;'});
+            var csvURL =  null;
+            if (navigator.msSaveBlob)
+            {
+                csvURL = navigator.msSaveBlob(csvData, 'Resultados_Evaluación.csv');
+            }
+            else
+            {
+                csvURL = window.URL.createObjectURL(csvData);
+            }
+            var tempLink = document.createElement('a');
+            tempLink.href = csvURL;
+            tempLink.setAttribute('download', 'Resultados_Evaluación.csv');
+            tempLink.click();
         },
 
 
@@ -455,84 +439,38 @@ export default {
                 (p1.name > p2.name) ? 1 : (p1.name > p2.name) ? -1 : 0);
         },
 
-        getFilteredAssessmentsByDependency(assessments = null) {
+        getFilteredGradesByDependency(grades = null) {
 
-            if (assessments === null) {
-                assessments = this.assessments;
+            if (grades === null) {
+                grades = this.grades
             }
-            return assessments.filter((assessment) => {
-                let doesAssessmentHaveDependency = false;
-                if (assessment.dependency_identifier === this.dependency) {
-                    doesAssessmentHaveDependency = true;
+            return grades.filter((grade) => {
+                let doesGradeHaveDependency = false;
+                if (grade.dependency_identifier === this.dependency) {
+                    doesGradeHaveDependency = true;
                 }
-                return doesAssessmentHaveDependency;
+                return doesGradeHaveDependency;
             });
         },
 
-        getFilteredAssessmentsByTeacher(assessments = null) {
-            if (assessments === null) {
-                assessments = this.assessments;
+        getFilteredGradesByFunctionary(grades = null) {
+            if (grades === null) {
+                grades = this.grades;
             }
-            return this.matchProperty(assessments, 'teacherId', this.teacher)
+            return this.matchProperty(grades, 'user_id', this.functionary)
         },
 
-        getFilteredAssessmentsByRole(assessments = null) {
-            if (assessments === null) {
-                assessments = this.assessments;
+        getFilteredGradesByRole(grades = null) {
+            if (grades === null) {
+                grades = this.grades;
             }
-            return this.matchProperty(assessments, 'unit_role', this.role)
+            return this.matchProperty(grades, 'role', this.role)
         },
 
         fillCompetencesArray(roleArray) {
             let array = [roleArray.first_competence_average, roleArray.second_competence_average, roleArray.third_competence_average, roleArray.fourth_competence_average,
                 roleArray.fifth_competence_average, roleArray.sixth_competence_average]
             return array;
-        },
-
-        getTeachingLadderNameByParameter: async function (teachingLadderCode){
-
-            let request = await axios.get(route('api.assessmentPeriods.teachingLadders'));
-            let teachingLadders = request.data
-            teachingLadders.forEach(teachingLadder =>{
-
-                if(teachingLadder == 'NIN'){
-
-                    this.finalTeachingLadders.unshift({name : 'Ninguno',
-                        identifier:teachingLadder})
-                }
-
-                if(teachingLadder == 'AUX'){
-
-                    this.finalTeachingLadders.unshift({name : 'Auxiliar',
-                        identifier:teachingLadder})
-                }
-
-                if(teachingLadder == 'ASI'){
-                    this.finalTeachingLadders.unshift({name : 'Asistente',
-                        identifier:teachingLadder})
-                }
-
-                if(teachingLadder == 'ASO'){
-                    this.finalTeachingLadders.unshift({name : 'Asociado',
-                        identifier:teachingLadder})
-                }
-
-                if(teachingLadder == 'TIT'){
-                    this.finalTeachingLadders.unshift({name : 'Titular',
-                        identifier:teachingLadder})
-                }
-
-            })
-
-            let teachingLadder = this.finalTeachingLadders.find(teachingLadder =>{
-                return teachingLadder.identifier == teachingLadderCode
-            })
-
-            if (teachingLadder === undefined){
-                return 'Ninguno'
-            }
-            return teachingLadder.name
-
         },
 
         getPossibleInitialCompetences() {
@@ -550,33 +488,6 @@ export default {
                 return this.getPossibleInitialCompetences();
             }
             return request.data;
-        },
-
-        async getResponseIdealsDataset(teacher){
-
-            console.log(teacher, 'teacher');
-            this.selectedTeacherToGraph = teacher.name
-            let unitIdentifier = teacher.unit_identifier
-            let teacherId = teacher.teacherId;
-            let info = {userId : teacherId}
-            let request = await axios.post(route('teachers.getTeachingLadder'), info)
-            let teachingLadder= await this.getTeachingLadderNameByParameter(request.data)
-
-            console.log(request.data, 'RESPONSE IDEALS DATASET')
-            let responseIdealsCompetences = await this.getResponseIdealsCompetences(teachingLadder, unitIdentifier);
-
-            responseIdealsCompetences.forEach(competence =>{
-                this.responseIdealsCompetencesArray.push(competence.value);
-            })
-
-            this.datasets.unshift({
-                label: `Nivel Esperado (${teachingLadder == 'Ninguno' ? 'Auxiliar' : teachingLadder})`,
-                data: this.responseIdealsCompetencesArray,
-                backgroundColor: 'orange',
-                borderColor: 'orange',
-                borderWidth: 2,
-                borderDash: [5, 5],
-            })
         },
 
         getRolesDatasets(teacher){
@@ -645,51 +556,47 @@ export default {
         },
 
         addAllElementSelectionItem(model, text) {
-            model.unshift({id: '', name: text});
+            model.unshift({user_id: '', name: text});
         },
 
     },
 
     computed: {
 
-        filteredItems() {
-
-            let finalAssessments = this.assessments;
-
-            if (this.individualView){
-                finalAssessments = this.getFilteredAssessmentsByDependency(finalAssessments);
-            }
-
-            else {
-                if (this.unit !== '') {
-                    finalAssessments = this.getFilteredAssessmentsByDependency(finalAssessments);
-                }
-            }
-
-            if (this.teacher !== '') {
-                finalAssessments = this.getFilteredAssessmentsByTeacher(finalAssessments);
-            }
-            if (this.role !== '') {
-                finalAssessments = this.getFilteredAssessmentsByRole(finalAssessments);
-            }
-
-            return finalAssessments;
+        filteredGrades() {
+            let finalGrades = this.grades;
+            // if (!this.isUserAdmin){
+            //     finalGrades = this.getFilteredGradesByDependency(finalGrades);
+            // }
+            // else {
+            //     if (this.dependency !== '') {
+            //         finalGrades = this.getFilteredGradesByDependency(finalGrades);
+            //     }
+            // }
+             if (this.dependency !== '') {
+                 finalGrades = this.getFilteredGradesByDependency(finalGrades);
+             }
+             if (this.functionary !== '') {
+                finalGrades = this.getFilteredGradesByFunctionary(finalGrades);
+             }
+             if (this.role !== '') {
+                finalGrades = this.getFilteredGradesByRole(finalGrades);
+             }
+            return finalGrades;
         },
 
 
         filteredFunctionaries(){
-
             let finalFunctionaries = this.functionaries;
-            let finalAssessments = this.assessments;
+            let finalGrades = this.grades;
 
             if (this.dependency !== '') {
-                finalAssessments = this.getFilteredAssessmentsByDependency();
+                finalGrades = this.getFilteredGradesByDependency();
                 finalFunctionaries = finalFunctionaries.filter((functionary) => {
-                    return finalAssessments.some((assessment) => assessment.teacherId == functionary.id)
+                    return finalGrades.some((grade) => grade.user_id == functionary.user_id)
                 });
             }
-
-            this.addAllElementSelectionItem(finalFunctionaries, 'Todos los docentes');
+            this.addAllElementSelectionItem(finalFunctionaries, 'Todos los funcionarios');
             return finalFunctionaries;
         }
     },

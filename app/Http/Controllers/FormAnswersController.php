@@ -22,12 +22,13 @@ class FormAnswersController extends Controller
         }
 
         return DB::table('form_answers as fa')
-            ->select(['fa.id', 'fa.submitted_at', 'u.name', 'a.role',
+            ->select(['fa.id', 'fa.submitted_at', 'u.name', 'a.role', 'a.dependency_identifier', 'u.id as user_id', 'd.name as dependency_name',
                 'fa.first_competence_average as c1','fa.second_competence_average as c2','fa.third_competence_average as c3','fa.fourth_competence_average as c4',
                 'fa.fifth_competence_average as c5','fa.sixth_competence_average as c6'])
             ->join('forms as f', 'fa.form_id', '=', 'f.id')
             ->join('users as u', 'fa.evaluated_id', '=', 'u.id')
             ->join('assessments as a','fa.id','=','a.form_answer_id')
+            ->join('dependencies as d', 'a.dependency_identifier','=','d.identifier')
             ->where('f.creation_assessment_period_id', '=', $assessmentPeriodId)
             ->get();
 
@@ -46,6 +47,13 @@ class FormAnswersController extends Controller
     {
         //
     }
+
+
+    public function testCalculateAggregateGrades()
+    {
+
+    }
+
 
     /**
      * Store a newly created resource in storage.

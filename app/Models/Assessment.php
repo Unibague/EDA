@@ -21,6 +21,11 @@ class Assessment extends Model
         return $this->BelongsTo(AssessmentPeriod::class);
     }
 
+    public function formAnswer(): \Illuminate\Database\Eloquent\Relations\HasOne
+    {
+        return $this->hasOne(FormAnswer::class);
+    }
+
     public static function getUserAssessments($user = null){
 
         $activeAssessmentPeriodId = AssessmentPeriod::getActiveAssessmentPeriod()->id;

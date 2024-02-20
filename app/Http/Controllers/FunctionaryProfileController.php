@@ -28,6 +28,7 @@ class FunctionaryProfileController extends Controller
     {
 
         $assessmentPeriodId = $request->input('assessmentPeriodId');
+        $report = $request->input('report');
         if ($assessmentPeriodId === null){
             $assessmentPeriodId = AssessmentPeriod::getActiveAssessmentPeriod()->id;
         }
