@@ -115,6 +115,8 @@ Route::get('api/forms/{form}/formQuestions', [\App\Http\Controllers\FormQuestion
 Route::resource('api/answers', \App\Http\Controllers\FormAnswersController::class, [
     'as' => 'api'
 ])->middleware('auth');
+Route::get('answers/aggregateGrades', [\App\Http\Controllers\FormAnswersController::class, 'testCalculateAggregateGrades'])->name('answers.aggregateGrades');
+
 
 
 
@@ -221,6 +223,8 @@ Route::get('/googleLogin', [\App\Http\Controllers\AuthController::class, 'redire
 Route::post('/logout', [\App\Http\Controllers\AuthController::class, 'logout'])->name('logout');
 Route::get('/google/callback', [\App\Http\Controllers\AuthController::class, 'handleGoogleCallback']);
 Route::get('/pickRole', [\App\Http\Controllers\AuthController::class, 'pickRole'])->name('pickRole');
+
+
 
 
 

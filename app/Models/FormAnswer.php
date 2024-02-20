@@ -28,6 +28,11 @@ class FormAnswer extends Model
         return $this->belongsTo(Form::class);
     }
 
+    public function assessment(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(Assessment::class);
+    }
+
     public static function createFormFromRequest(Request $request, Form $form): void
     {
         $activeAssessmentPeriodId = AssessmentPeriod::getActiveAssessmentPeriod()->id;

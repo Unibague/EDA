@@ -54,6 +54,16 @@ class AssessmentController extends Controller
      */
     public function store(Request $request)
     {
+        $activeAssessmentPeriodId = AssessmentPeriod::getActiveAssessmentPeriod()->id;
+        //Check that evaluator selected isn't an already an evaluator for the same functionary
+        $assessmentAlreadyExists = DB::table('assessments')->where('evaluated_id','=',$request->input('evaluated_id'))
+            ->where('evaluator_id','=', $request->input('evaluator_id'))
+            ->where('assessment_period_id','=', $activeAssessmentPeriodId)->first();
+
+        if($assessmentAlreadyExists){
+            return response()->json(['message' => 'No puedes asignar a una persona más de una vez al mismo funcionario'], 400);
+        }
+
         try{
             Assessment::createAssessment($request);
         }catch (QueryException $e) {
@@ -93,6 +103,16 @@ class AssessmentController extends Controller
      */
     public function update(Request $request, Assessment $assessment)
     {
+
+        $activeAssessmentPeriodId = AssessmentPeriod::getActiveAssessmentPeriod()->id;
+        //Check that evaluator selected isn't an already an evaluator for the same functionary
+        $assessmentAlreadyExists = DB::table('assessments')->where('evaluated_id','=',$request->input('evaluated_id'))
+            ->where('evaluator_id','=', $request->input('evaluator_id'))
+            ->where('assessment_period_id','=', $activeAssessmentPeriodId)->first();
+
+        if($assessmentAlreadyExists){
+            return response()->json(['message' => 'No puedes asignar a una persona más de una vez al mismo funcionario'], 400);
+        }
 
         if($assessment['pending'] === 0){
             return response()->json(['message' => 'No puedes modificar la asignación si esta ya se realizó'], 400);

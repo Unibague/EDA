@@ -230,6 +230,7 @@ export default {
             console.log(request.data);
             console.log(this.functionary);
             this.assessments = request.data;
+            console.log(this.assessments, 'assessments del funcionario');
         },
 
         async getExternalClients(){
@@ -241,7 +242,7 @@ export default {
         async getPossibleEvaluators() {
             let request = await axios.get(route('api.functionaries.index', {functionaryProfile: this.functionary}));
             this.functionaries = request.data;
-            console.log(request.data);
+            console.log(request.data, 'Functionaries');
         },
 
         getRoles(){
@@ -331,7 +332,7 @@ export default {
             } catch (e) {
                 showSnackbar(this.snackbar, e.response.data.message, 'alert', 3000);
             }
-        }
+        },
     },
 }
 </script>
