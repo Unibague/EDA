@@ -237,6 +237,7 @@ export default {
         await this.getFunctionaries();
         await this.getRoles();
         await this.getIndividualGrades();
+        await this.getAggregateGrades();
         this.isLoading = false;
     },
 
@@ -314,21 +315,15 @@ export default {
             })
         },
 
-        //
-        // async getFinalGrades(){
-        //     let url = route('formAnswers.finalGrades', {assessmentPeriodId: this.assessmentPeriod});
-        //     let request = await axios.get(url);
-        //     let finalGrades = request.data;
-        //     console.log(finalGrades, 'promedio final');
-        //
-        //     finalGrades.forEach(answer =>{
-        //         answer.unit_role = 'promedio final'
-        //         answer.aggregate_students_amount_reviewers = answer.involved_actors
-        //         answer.aggregate_students_amount_on_360_groups = answer.total_actors
-        //         this.assessments.push(answer)
-        //     });
-        //     this.assessments.sort(this.orderData);
-        // },
+        async getAggregateGrades(){
+            let url = route('api.answers.aggregateGrades', {assessmentPeriodId: this.assessmentPeriod});
+            let request = await axios.get(url);
+            let aggregateGrades = request.data;
+            console.log(aggregateGrades, 'promedios finales');
+            aggregateGrades.forEach(grade =>{
+                this.grades.push(grade);
+            })
+        },
 
         async setDialogToShowChart(teacher){
             this.showChartDialog = true
