@@ -22,6 +22,9 @@ class CreateAggregateAssessmentResultsTable extends Migration
             $table->double('fourth_competence')->nullable();
             $table->double('fifth_competence')->nullable();
             $table->double('sixth_competence')->nullable();
+            $table->string('dependency_identifier');
+            $table->foreign('dependency_identifier')->references('identifier')->on('dependencies');
+            $table->string('role');
             $table->foreignId('assessment_period_id')->references('id')->on('assessment_periods');
             $table->timestamps();
         });

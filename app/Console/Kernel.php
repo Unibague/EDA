@@ -26,6 +26,7 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule)
     {
         $schedule->command('commitmentReminder:send')->dailyAt('02:00');
+        $schedule->command('aggregate_grades:update')->everyThirtyMinutes();
     }
 
     /**

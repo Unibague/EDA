@@ -115,7 +115,8 @@ Route::get('api/forms/{form}/formQuestions', [\App\Http\Controllers\FormQuestion
 Route::resource('api/answers', \App\Http\Controllers\FormAnswersController::class, [
     'as' => 'api'
 ])->middleware('auth');
-Route::get('answers/aggregateGrades', [\App\Http\Controllers\FormAnswersController::class, 'testCalculateAggregateGrades'])->name('answers.aggregateGrades');
+Route::get('answers/aggregateGradesTest', [\App\Http\Controllers\FormAnswersController::class, 'testCalculateAggregateGrades'])->name('answers.aggregateGrades');
+Route::get('answers/aggregateGrades', [\App\Http\Controllers\FormAnswersController::class, 'indexAggregateGrades'])->name('api.answers.aggregateGrades');
 
 
 

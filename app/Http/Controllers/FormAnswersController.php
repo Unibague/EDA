@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\AssessmentPeriod;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -37,6 +38,22 @@ class FormAnswersController extends Controller
 //                'fa.fifth_competence_average','fa.sixth_competence_average'
 
     }
+
+
+    public function indexAggregateGrades(Request $request)
+    {
+        $assessmentPeriodId = $request->input('assessmentPeriodId');
+        if($assessmentPeriodId === null){
+            $assessmentPeriodId = AssessmentPeriod::getActiveAssessmentPeriod()->id;
+        }
+        return DB::table('aggregate_assessment_results as ar')
+            ->select(['ar.updated_at as submitted_at', 'ar.role', 'ar.dependency_identifier', 'u.id as user_id','u.name' , 'd.name as dependency_name',
+                'ar.first_competence as c1','ar.second_competence as c2','ar.third_competence as c3','ar.fourth_competence as c4', 'ar.fifth_competence as c5','ar.sixth_competence as c6'])
+            ->join('users as u', 'ar.user_id', '=', 'u.id')
+            ->join('dependencies as d', 'ar.dependency_identifier','=','d.identifier')
+            ->where('ar.assessment_period_id', '=', $assessmentPeriodId)->get();
+    }
+
 
     /**
      * Show the form for creating a new resource.
