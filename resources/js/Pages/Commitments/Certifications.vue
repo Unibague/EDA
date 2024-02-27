@@ -2,6 +2,7 @@
         <v-container>
             <Snackbar :timeout="snackbar.timeout" :text="snackbar.text" :type="snackbar.type"
                       :show="snackbar.status" @closeSnackbar="snackbar.status = false"></Snackbar>
+            <h2 class="align-self-start mb-2"> Archivos/Adjuntos del compromiso </h2>
             <!--Inicia tabla-->
             <v-card style="margin-bottom: 30px">
                 <v-data-table

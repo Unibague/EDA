@@ -65,13 +65,6 @@ class FormAnswersController extends Controller
         //
     }
 
-
-    public function testCalculateAggregateGrades()
-    {
-
-    }
-
-
     /**
      * Store a newly created resource in storage.
      *

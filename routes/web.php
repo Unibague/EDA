@@ -39,19 +39,18 @@ Route::get('/certifications/{certification}/downloadFile', [\App\Http\Controller
     ->name('certifications.downloadFile');
 
 
-
 /* >>>>>Comments routes <<<<<< */
 Route::resource('api/comments', \App\Http\Controllers\CommentController::class, [
     'as' => 'api'])->middleware('auth');
 
 
 /* >>>>>Commitments routes <<<<<< */
-Route::inertia('/commitments', 'Commitments/Index')->name('commitments.index.view');
+Route::inertia('/commitments', 'Commitments/Index')->name('commitments.index.view')->middleware('auth');
 Route::get('/commitments/landing', [\App\Http\Controllers\CommitmentController::class, 'landing'])->middleware(['auth'])->name('commitments.landing');
 Route::resource('api/commitments', \App\Http\Controllers\CommitmentController::class, [
     'as' => 'api'])->middleware('auth');
 Route::get('/commitments/{role}', [\App\Http\Controllers\CommitmentController::class, 'indexCommitments'])->middleware(['auth'])->name('commitments.index');
-Route::get('/commitments/{commitment}/finish', [\App\Http\Controllers\CommitmentController::class, 'setCommitmentAsDone'])->middleware(['auth'])->name('commitments.setDone');
+Route::get('/commitments/{commitment}/finish', [\App\Http\Controllers\CommitmentController::class, 'setCommitmentAsDone'])->middleware(['auth', 'isAdmin'])->name('commitments.setDone');
 
 
 /* >>>>>Competences routes <<<<<< */
@@ -59,33 +58,33 @@ Route::inertia('/competences', 'Competences/Index')->middleware(['auth', 'isAdmi
 Route::resource('api/competences', \App\Http\Controllers\CompetenceController::class, [
     'as' => 'api'
 ])->middleware('auth');
-Route::post('competences/updateOrder', [\App\Http\Controllers\CompetenceController::class, 'updateOrder'])->middleware('auth')
+Route::post('competences/updateOrder', [\App\Http\Controllers\CompetenceController::class, 'updateOrder'])->middleware(['auth', 'isAdmin'])
     ->name('competences.updateOrder');
 
 /* >>>>>Dependencies routes <<<<<< */
 Route::inertia('/dependencies', 'Dependencies/Index')->middleware(['auth', 'isAdmin'])->name('dependencies.index.view');
 Route::resource('api/dependencies', \App\Http\Controllers\DependencyController::class, [
     'as' => 'api'])->middleware('auth');
-Route::get('/api/dependencies/{dependency}', [\App\Http\Controllers\DependencyController::class, 'edit'])->middleware(['auth'])->name('api.dependencies.edit');
+Route::get('/api/dependencies/{dependency}', [\App\Http\Controllers\DependencyController::class, 'edit'])->middleware(['auth', 'isAdmin'])->name('api.dependencies.edit');
 Route::get('/api/dependencies/{dependency}/assessmentStatus', [\App\Http\Controllers\DependencyController::class, 'assessmentStatus'])
     ->middleware(['auth', 'isAdminOrDependencyAdmin'])->name('api.dependencies.assessmentStatus');
-Route::post('/api/dependencies/sync', [\App\Http\Controllers\DependencyController::class, 'sync'])->middleware(['auth'])->name('api.dependencies.sync');
+Route::post('/api/dependencies/sync', [\App\Http\Controllers\DependencyController::class, 'sync'])->middleware(['auth', 'isAdmin'])->name('api.dependencies.sync');
 Route::get('/api/dependencies/{dependency}/admins', [\App\Http\Controllers\DependencyController::class, 'getAdmins'])->middleware(['auth'])
     ->name('api.dependencies.admins');
-Route::inertia('/dependencies/admin/landing', 'Dependencies/LandingMultipleDependenciesAdmin')->middleware(['auth'])->name('dependencies.landing');
+Route::inertia('/dependencies/admin/landing', 'Dependencies/LandingMultipleDependenciesAdmin')->middleware(['auth', 'isAdminOrDependencyAdmin'])->name('dependencies.landing');
 Route::inertia('/assessmentStatus', 'Dependencies/AssessmentStatus')->middleware(['auth', 'isAdmin']);
 
 
 /* >>>>>DependencyAdmin routes <<<<<< */
 Route::resource('api/{dependency}/dependencyAdmins', \App\Http\Controllers\DependencyAdminController::class, [
-    'as' => 'api'])->middleware('auth');
+    'as' => 'api'])->middleware(['auth', 'isAdmin']);
 
 /* >>>>>>>>>>>>>>>>>>>>>>>  ExternalClients routes >>>>>>>><<<<<< */
 Route::inertia('/externalClients', 'ExternalClients/Index')->middleware(['auth', 'isAdmin'])->name('externalClients.index.view');
 Route::resource('api/externalClients', \App\Http\Controllers\ExternalClientController::class, [
     'as' => 'api'
 ])->middleware('auth');
-Route::post('/api/externalClient/updatePassword', [\App\Http\Controllers\ExternalClientController::class, 'updatePassword'])->middleware(['auth'])
+Route::post('/api/externalClient/updatePassword', [\App\Http\Controllers\ExternalClientController::class, 'updatePassword'])->middleware(['auth', 'isAdmin'])
     ->name('api.externalClients.updatePassword');
 
 
@@ -115,10 +114,7 @@ Route::get('api/forms/{form}/formQuestions', [\App\Http\Controllers\FormQuestion
 Route::resource('api/answers', \App\Http\Controllers\FormAnswersController::class, [
     'as' => 'api'
 ])->middleware('auth');
-Route::get('answers/aggregateGradesTest', [\App\Http\Controllers\FormAnswersController::class, 'testCalculateAggregateGrades'])->name('answers.aggregateGrades');
 Route::get('answers/aggregateGrades', [\App\Http\Controllers\FormAnswersController::class, 'indexAggregateGrades'])->name('api.answers.aggregateGrades');
-
-
 
 
 /* >>>>>FunctionaryProfile routes <<<<<< */

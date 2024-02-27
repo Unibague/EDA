@@ -46,7 +46,7 @@
 
             <template
                 v-for="dropdown in dropdowns"
-                v-if="$page.props.user.customRoleId >= dropdown.role">
+                v-if="$page.props.user.customRoleId === dropdown.role">
                 <v-menu
                     bottom
                     origin="center center"
@@ -144,6 +144,8 @@
                                 <v-list-item-title>{{ item.name }}</v-list-item-title>
                             </v-list-item>
                         </template>
+
+
                         <!-- LINKS DE DROPDOWNS-->
                         <v-list-group
                             v-for="dropdown in dropdowns"
@@ -151,7 +153,7 @@
                             v-model="dropdown.active"
                             :prepend-icon="dropdown.icon"
                             no-action
-                            v-if="$page.props.user.customRoleId >= dropdown.role"
+                            v-if="$page.props.user.customRoleId === dropdown.role"
 
                         >
                             <!-- activator -->
@@ -163,7 +165,7 @@
 
 
                             <template v-for="dropdownItem in dropdown.items"
-                                      v-if="$page.props.user.customRoleId >= dropdownItem.role">
+                                      v-if="$page.props.user.customRoleId === dropdownItem.role">
 
                                 <Link as="v-list-item"
                                       v-if="!dropdownItem.method"
@@ -175,14 +177,14 @@
                                     </v-list-item-content>
                                 </Link>
 
-                                <v-list-item
+<!--                                <v-list-item
                                     @click="triggerFunction(dropdownItem.method)"
                                     :key="dropdownItem.name"
                                 >
                                     <v-list-item-content  >
                                         <v-list-item-title v-text="dropdownItem.name"></v-list-item-title>
                                     </v-list-item-content>
-                                </v-list-item>
+                                </v-list-item>-->
                             </template>
 
                         </v-list-group>
@@ -240,7 +242,7 @@ export default {
         dropdowns: [
             {
                 name: 'Gestionar',
-                role: 3,
+                role: 10,
                 active: false,
                 icon: 'mdi-cog-box',
                 items: [
@@ -299,15 +301,9 @@ export default {
                         icon: 'mdi-account-cog'
                     },
                     {
-                        name: 'Mis evaluaciones',
-                        href: route('tests.index.view'),
-                        role: 3,
-                        icon: 'mdi-cog-box'
-                    },
-                    {
                         name: 'Compromisos',
                         href: route('commitments.landing'),
-                        role: 3,
+                        role: 10,
                         icon: 'mdi-account-cog'
                     },
                     {
@@ -323,8 +319,29 @@ export default {
                         icon: 'mdi-account-cog'
                     },
                 ]
-
             },
+
+            {
+                name: 'Gestionar',
+                role: 3,
+                active: false,
+                icon: 'mdi-cog-box',
+                items: [
+                    {
+                        name: 'Mis evaluaciones',
+                        href: route('tests.index.view'),
+                        role: 3,
+                        icon: 'mdi-cog-box'
+                    },
+                    {
+                        name: 'Compromisos',
+                        href: route('commitments.landing'),
+                        role: 3,
+                        icon: 'mdi-account-cog'
+                    },
+                ]
+            },
+
             {
                 name: 'Generar',
                 role: 10,
@@ -334,12 +351,10 @@ export default {
                     {
                         name: 'Reportes por evaluación',
                         href: route('reports.assessments.index'),
-                        role: 1,
+                        role: 10,
                         icon: 'mdi-calendar'
                     },
-
                 ]
-
             },
         ],
         group: null,
