@@ -64,6 +64,11 @@ export default {
         logout() {
             this.$inertia.post(route('logout'));
         },
+    },
+
+    async created() {
+        //Get the inicials
+
     }
 }
 </script>

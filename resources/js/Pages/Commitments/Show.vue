@@ -7,7 +7,7 @@
             <div class="d-flex flex-column align-end mb-8">
                 <h2 class="align-self-start"> Visualizando el compromiso
                     {{this.commitment.training_name}} del funcionario {{this.commitment.user_name}}</h2>
-                <div v-if="this.commitment.done === 0">
+                <div v-if="this.commitment.done === 0" class="mt-3">
                     <v-btn
                         color="primario"
                         class="grey--text text--lighten-4"
@@ -38,6 +38,7 @@
             <Certifications :commitment="this.commitment" :role ="this.role" ref="childComponent"> </Certifications>
 
             <!--Inicia tabla-->
+            <h2 class="align-self-start mb-2"> Comentarios realizados</h2>
             <v-card>
                 <v-card-title>
                     <v-text-field

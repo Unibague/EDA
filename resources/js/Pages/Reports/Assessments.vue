@@ -185,27 +185,18 @@ export default {
             assessmentPeriod: '',
             assessmentPeriods: [],
             competences: [],
+
             dependency: '',
             dependencies:[],
+
             functionary: '',
-            selectedTeacher: '',
             functionaries:[],
-            selectedTeacherToGraph: '',
-            selectedTeacherOpenAnswers: '',
-            role:'',
-            roles: [],
-
             grades: [],
-
-            dataToGraph: [],
-            chart:'',
-            datasets:[],
-            competencesValuesAsArray:[],
             responseIdeals: [],
-            responseIdealsCompetences: [],
-            responseIdealsCompetencesArray: [],
-            openAnswersStudents: [],
-            openAnswersColleagues: [],
+
+            //selected
+            graphFunctionary:'',
+
             confirmSavePDF: false,
             //Snackbars
             snackbar: {
@@ -216,10 +207,12 @@ export default {
             },
             //Dialogs
             showChartDialog: false,
-            showOpenAnswersDialog: false,
             isLoading: true,
             isUserAdmin: true,
-            noDataText: 'Para comenzar, selecciona un periodo de evaluación y la dependencia que deseas visualizar'
+            noDataText: 'Para comenzar, selecciona un periodo de evaluación y la dependencia que deseas visualizar',
+
+            //Graph data
+            datasets:[]
         }
     },
 
@@ -236,6 +229,7 @@ export default {
         await this.getDependencies();
         await this.getFunctionaries();
         await this.getRoles();
+        await this.getResponseIdeals();
         await this.getIndividualGrades();
         await this.getAggregateGrades();
         this.isLoading = false;
@@ -325,26 +319,6 @@ export default {
             })
         },
 
-        async setDialogToShowChart(teacher){
-            this.showChartDialog = true
-            this.selectedTeacher = teacher;
-            await this.getResponseIdealsDataset(teacher);
-            this.getRolesDatasets(teacher);
-            this.getGraph();
-            this.getChartAsObject()
-        },
-
-        async setDialogToShowOpenAnswers(teacher){
-            this.selectedTeacherOpenAnswers = teacher.name;
-            this.showOpenAnswersDialog = true
-            if(teacher.unit_role === 'estudiante'){
-                await this.getOpenAnswersFromStudents(teacher.teacherId)
-            }
-            else{
-                await this.getOpenAnswersFromColleagues(teacher.teacherId);
-            }
-        },
-
         async downloadPDF(){
             this.confirmSavePDF = false;
             this.datasets.forEach(dataset =>{
@@ -417,12 +391,110 @@ export default {
             tempLink.click();
         },
 
+        getGraph(){
+
+            const legendMargin ={
+                beforeInit: function(chart, options) {
+                    chart.legend.afterFit = function() {
+                        this.height += 10; // must use `function` and not => because of `this`
+                    };
+                }
+            }
+
+            let miCanvas = document.getElementById("MiGrafica").getContext("2d");
+            this.chart = new Chart(miCanvas, {
+                type:"line",
+                data:{
+                    labels: ["Orientación a la calidad educativa", "Trabajo Colaborativo",
+                        "Empatía Universitaria", "Comunicación", "Innovación del conocimiento","Productividad académica"],
+                    datasets: this.datasets
+                },
+                options: {
+                    plugins: {
+                        filler: {
+                            propagate: false
+                        },
+                    },
+                    layout:{
+                        padding:{
+                            left: 0,
+                            right: 0,
+                            top: 0,
+                            bottom: 0
+                        }
+                    },
+                    legend: {
+                        display: true,
+                        /*   labels:{
+                               padding:20
+                           },*/
+                        position: "bottom"
+                    },
+                    responsive: true,
+                    tooltips: {
+                        mode: "index",
+                        intersect: false
+                    },
+                    hover: {
+                        mode: "nearest",
+                        intersect: false
+                    },
+
+                    scales: {
+                        x:
+                            {
+                                display: true,
+                                title: {
+                                    display: true,
+                                    text: 'Competencias',
+                                    color: 'black',
+                                    font: {
+                                        size: 15,
+                                        weight: 'bold',
+                                        lineHeight: 1.2,
+                                    },
+                                },
+                                position: 'top'
+                            }
+                        ,
+                        y:
+                            {
+                                min: 0,
+                                max: 5.4,
+                                display: true,
+
+                                title: {
+                                    display: true,
+                                    text: 'Valores obtenidos',
+                                    color: 'black',
+                                    font: {
+                                        size: 15,
+                                        weight: 'bold',
+                                        lineHeight: 1.2,
+                                    },
+                                },
+
+                                ticks:{
+                                    callback: (value, index, values) => (index == (values.length-1)) ? undefined : value,
+                                },
+                            }
+                    }
+                },
+            })
+        },
 
         getRoles (){
             this.roles = [{id:  'Todos los roles', name: ''},{id: 'jefe', name: 'jefe'},
                 {id: 'par', name: 'par'}, {id: 'autoevaluación', name: 'autoevaluación'},
                 {id: 'cliente interno', name: 'cliente interno'}, {id: 'cliente externo', name: 'cliente externo'},
                 {id: 'promedio final', name:'promedio final'}]
+        },
+
+
+        async getResponseIdeals() {
+            let url = route('api.responseIdeals.index');
+            let request = await axios.get(url);
+            this.responseIdeals = request.data;
         },
 
         capitalize($field){
@@ -472,59 +544,6 @@ export default {
             return new Question().getPossibleCompetencesAsArrayOfObjects();
         },
 
-        async getResponseIdealsCompetences(teachingLadder, unitIdentifier){
-
-            let url = route('teacher.responseIdeals.get');
-            let request = await axios.post(url, {teachingLadder: teachingLadder, unitIdentifier: unitIdentifier, assessmentPeriodId: this.assessmentPeriod})
-
-            console.log(request.data, 'RESPONSE IDEALS DATASET')
-
-            if(request.data.length === 0){
-                return this.getPossibleInitialCompetences();
-            }
-            return request.data;
-        },
-
-        getRolesDatasets(teacher){
-
-            let teacherRolesArrays = this.filteredItems.filter((item) => {
-                return item.name == teacher.name
-            })
-
-            let colors = new Question().getLineChartColors();
-
-            teacherRolesArrays.forEach(roleArray => {
-
-                if(roleArray.unit_role == 'promedio final')
-                {
-                    this.datasets.push({
-
-                        label: this.capitalize(roleArray.unit_role),
-                        data: this.fillCompetencesArray(roleArray),
-                        backgroundColor: 'black',
-                        borderColor: 'black',
-                        borderWidth: 5
-                    })
-                }
-
-                else{
-
-                    colors.forEach(color => {
-                        if(color.role === roleArray.unit_role){
-                            this.datasets.push({
-
-                                label: this.capitalize(roleArray.unit_role),
-                                data: this.fillCompetencesArray(roleArray),
-                                backgroundColor: color.color,
-                                borderColor: color.color,
-                                borderWidth: 2
-                            })
-                        }
-                    })
-                }
-            })
-        },
-
         orderData(a,b){
             if ( a.name < b.name ){
                 return -1;
@@ -536,12 +555,44 @@ export default {
 
         },
 
+        async getResponseIdealsDataset(functionary){
+
+            console.log(functionary, 'teacher');
+            this.selectedTeacherToGraph = functionary.name
+            let unitIdentifier = functionary.unit_identifier
+            let teacherId = functionary.teacherId;
+            let info = {userId : teacherId}
+            let request = await axios.post(route('teachers.getTeachingLadder'), info)
+
+            console.log(request.data, 'RESPONSE IDEALS DATASET')
+            let responseIdealsCompetences = await this.getResponseIdealsCompetences(teachingLadder, unitIdentifier);
+
+            responseIdealsCompetences.forEach(competence =>{
+                this.responseIdealsCompetencesArray.push(competence.value);
+            })
+
+            this.datasets.unshift({
+                label: `Nivel Esperado (${teachingLadder == 'Ninguno' ? 'Auxiliar' : teachingLadder})`,
+                data: this.responseIdealsCompetencesArray,
+                backgroundColor: 'orange',
+                borderColor: 'orange',
+                borderWidth: 2,
+                borderDash: [5, 5],
+            })
+        },
+
+
+        async setDialogToShowChart(functionary){
+            this.showChartDialog = true
+            this.graphFunctionary= functionary;
+            await this.getResponseIdealsDataset(functionary);
+            // this.getRolesDatasets(teacher);
+            // this.getGraph();
+            // this.getChartAsObject()
+        },
+
         setDialogToCancelChart (){
             this.showChartDialog = false
-            this.chart.destroy();
-            this.responseIdealsCompetencesArray.length = 0;
-            this.finalTeachingLadders.length= 0;
-            this.datasets = [];
         },
 
         setDialogToCancelOpenAnswers (){
@@ -599,8 +650,12 @@ export default {
     watch:{
 
         async assessmentPeriod(){
+            await this.getAssessmentPeriods();
             await this.getDependencies();
             await this.getFunctionaries();
+            await this.getRoles();
+            await this.getIndividualGrades();
+            await this.getAggregateGrades();
         }
     }
 }

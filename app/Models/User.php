@@ -80,13 +80,13 @@ class User extends Authenticatable
         }
 
         //If all of this has happened and hasn't returned, then it is because it is an external client, so then we return that role
-        if(count($userRoles)> 0){
-            return $userRoles[0];
-        }
+//        if(count($userRoles)> 0){
+//            return $userRoles[0];
+//        }
 
         return (object)[
-            'name' => 'no role',
-            'customId' => 0
+            'name' => 'cliente externo',
+            'customId' => 1
         ];
     }
 
