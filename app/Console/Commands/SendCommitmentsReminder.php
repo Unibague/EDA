@@ -73,10 +73,10 @@ class SendCommitmentsReminder extends Command
                             'due_date' => (date("d/m/Y", strtotime($commitment->due_date)))];
 
                         $email = new \App\Mail\CommitmentReminder($data);
-                        Mail::bcc(['juanes01.gonzalez@gmail.com'])->send($email);
+                        Mail::bcc([$commitment['email']])->send($email);
                     }
                 }
-                Log::info("Commitment reminders correctly");
+                Log::info("Commitment reminders correctly sent");
             }
         }
 
