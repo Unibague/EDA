@@ -50,7 +50,7 @@ class Commitment extends Model
             'due_date' => (date("d/m/Y", strtotime($commitment->due_date)))];
 
         $email = new \App\Mail\CommitmentCreated($data);
-        Mail::bcc(['juanes01.gonzalez@gmail.com'])->send($email);
+        Mail::bcc([$commitment->email])->send($email);
     }
 
     public static function isDone($commitment){

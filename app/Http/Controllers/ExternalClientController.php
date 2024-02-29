@@ -65,7 +65,7 @@ class ExternalClientController extends Controller
 
         $email = new \App\Mail\ExternalClientCreated($data);
 
-        Mail::bcc(['juanes01.gonzalez@gmail.com'])->send($email);
+        Mail::bcc([$request->input(['email'])])->send($email);
         return response()->json(['message' => 'Cliente externo creado exitosamente, al correo ingresado se han enviado las credenciales de acceso para EDA']);
     }
 
@@ -107,13 +107,13 @@ class ExternalClientController extends Controller
     public function updatePassword(Request $request)
     {
         $newPasswordToExternalClient = Str::random(12);
-        User::UpdateOrCreate(
+        $user = User::UpdateOrCreate(
             ['id' => $request->input(['id'])],
             ['password' => Hash::make($newPasswordToExternalClient)]);
 
         $data = ['name' => $request->input(['name']),'email' => $request->input(['email']), 'password' => $newPasswordToExternalClient];
         $email = new \App\Mail\ExternalClientNewPassword($data);
-        Mail::bcc(['juanes01.gonzalez@gmail.com'])->send($email);
+        Mail::bcc([$user['email']])->send($email);
 
         return response()->json(['message' => 'Contraseña actualizada exitosamente']);
     }

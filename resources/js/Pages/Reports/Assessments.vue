@@ -64,7 +64,7 @@
                             solo-inverted
                             hide-details
                             :items="roles"
-                            :item-text="(role)=> capitalize(role.id)"
+                            item-text="id"
                             item-value="name"
                             prepend-inner-icon="mdi-eye-settings"
                             label="Rol"
@@ -137,20 +137,61 @@
         </v-container>
 
 
+        <!--Canvas para la gráfica-->
+        <v-dialog
+            v-model="showChartDialog"
+            persistent
+        >
+            <v-card>
+                <v-card-text>
+                    <h2 class="black--text pt-5" style="text-align: center"> Visualizando al funcionario: {{this.graphFunctionary.name}}</h2>
+                </v-card-text>
+
+                <v-container style="position: relative; height:60vh; width:90vw; background: #FAF9F6">
+                <canvas id="graph"></canvas>
+                </v-container>
+
+                <h5 class="gray--text" style="text-align: left; margin-left: 60px; margin-bottom: 5px"> Puedes dar click izquierdo sobre la leyenda de la linea de tendencia que desees ocultar </h5>
+
+                <v-card-actions>
+                    <v-btn
+                        color="primario"
+                        class="white--text"
+                        @click="confirmSavePDF = true"
+                        :disabled="!graphFunctionary"
+                    >
+                        Descargar reporte en PDF
+                    </v-btn>
+
+                    <v-btn
+                        color="primario"
+                        class="grey--text text--lighten-4"
+                        @click="setDialogToCancelChart()"
+                    >
+                        Salir
+                    </v-btn>
+                </v-card-actions>
+            </v-card>
+        </v-dialog>
+
         <!--Confirmar guardar PDF-->
         <confirm-dialog
             :show="confirmSavePDF"
             @canceled-dialog="confirmSavePDF = false"
-            @confirmed-dialog="savePDF()"
+            @confirmed-dialog="getPDF()"
         >
             <template v-slot:title>
                 Ahora serás redirigido a la pantalla para guardar el PDF
             </template>
+
             Una vez allí, lo único que debes hacer es darle click al botón de <strong class="black--text"> Guardar </strong> en la parte inferior derecha de tu pantal.la
+
             <template v-slot:confirm-button-text>
                 Descargar PDF
             </template>
         </confirm-dialog>
+
+
 
     </AuthenticatedLayout>
 </template>
@@ -162,7 +203,7 @@ import {prepareErrorText, showSnackbar} from "@/HelperFunctions"
 import ConfirmDialog from "@/Components/ConfirmDialog";
 import Form from "@/models/Form";
 import Snackbar from "@/Components/Snackbar";
-// import Chart from "chart.js/auto";
+import Chart from "chart.js/auto"
 import Question from "@/models/Question";
 import Papa from 'papaparse';
 
@@ -191,9 +232,13 @@ export default {
 
             functionary: '',
             functionaries:[],
+
             grades: [],
+
             responseIdeals: [],
 
+            role: "",
+            roles: [],
             //selected
             graphFunctionary:'',
 
@@ -205,6 +250,7 @@ export default {
                 status: false,
                 timeout: 2000,
             },
+
             //Dialogs
             showChartDialog: false,
             isLoading: true,
@@ -212,6 +258,8 @@ export default {
             noDataText: 'Para comenzar, selecciona un periodo de evaluación y la dependencia que deseas visualizar',
 
             //Graph data
+            chartColors: [{role: 'autoevaluación', name: 'blue'}, {role: 'jefe', name: 'red'}, {role: 'par', name: 'green'},
+                {role: 'cliente interno', name: 'purple'}, {role: 'cliente externo', name: '#00BFA5'}, {role: 'promedio final', name: 'black'}],
             datasets:[]
         }
     },
@@ -319,21 +367,12 @@ export default {
             })
         },
 
-        async downloadPDF(){
+        async getPDF(){
             this.confirmSavePDF = false;
-            this.datasets.forEach(dataset =>{
-                dataset.fill = {target: 'origin',
-                    above: 'rgb(255, 255, 255)',
-                    below: 'rgb(255, 255, 255)'}
-            })
-            console.log(this.selectedTeacher);
             var winName='MyWindow';
-            var winURL= route('reports.assessment360');
+            var winURL= route('reports.assessmentPDF');
             var windowOption='resizable=yes,height=600,width=800,location=0,menubar=0,scrollbars=1';
             var params = { _token: this.token,
-                chart: JSON.stringify(this.getChartAsObject()),
-                teacherResults: JSON.stringify(this.filteredItems),
-                teacherId: this.selectedTeacher.teacherId,
                 assessmentPeriodId: this.assessmentPeriod
             };
 
@@ -393,20 +432,12 @@ export default {
 
         getGraph(){
 
-            const legendMargin ={
-                beforeInit: function(chart, options) {
-                    chart.legend.afterFit = function() {
-                        this.height += 10; // must use `function` and not => because of `this`
-                    };
-                }
-            }
+            let graph = document.getElementById("graph").getContext("2d");
 
-            let miCanvas = document.getElementById("MiGrafica").getContext("2d");
-            this.chart = new Chart(miCanvas, {
+            this.chart = new Chart(graph, {
                 type:"line",
                 data:{
-                    labels: ["Orientación a la calidad educativa", "Trabajo Colaborativo",
-                        "Empatía Universitaria", "Comunicación", "Innovación del conocimiento","Productividad académica"],
+                    labels: this.competences.map(competence => competence.name),
                     datasets: this.datasets
                 },
                 options: {
@@ -490,11 +521,11 @@ export default {
                 {id: 'promedio final', name:'promedio final'}]
         },
 
-
         async getResponseIdeals() {
             let url = route('api.responseIdeals.index');
             let request = await axios.get(url);
             this.responseIdeals = request.data;
+            console.log(this.responseIdeals, 'ideales de respuesta');
         },
 
         capitalize($field){
@@ -534,46 +565,14 @@ export default {
             return this.matchProperty(grades, 'role', this.role)
         },
 
-        fillCompetencesArray(roleArray) {
-            let array = [roleArray.first_competence_average, roleArray.second_competence_average, roleArray.third_competence_average, roleArray.fourth_competence_average,
-                roleArray.fifth_competence_average, roleArray.sixth_competence_average]
-            return array;
-        },
-
-        getPossibleInitialCompetences() {
-            return new Question().getPossibleCompetencesAsArrayOfObjects();
-        },
-
-        orderData(a,b){
-            if ( a.name < b.name ){
-                return -1;
-            }
-            if ( a.name > b.name ){
-                return 1;
-            }
-            return 0;
-
-        },
-
-        async getResponseIdealsDataset(functionary){
-
-            console.log(functionary, 'teacher');
-            this.selectedTeacherToGraph = functionary.name
-            let unitIdentifier = functionary.unit_identifier
-            let teacherId = functionary.teacherId;
-            let info = {userId : teacherId}
-            let request = await axios.post(route('teachers.getTeachingLadder'), info)
-
-            console.log(request.data, 'RESPONSE IDEALS DATASET')
-            let responseIdealsCompetences = await this.getResponseIdealsCompetences(teachingLadder, unitIdentifier);
-
-            responseIdealsCompetences.forEach(competence =>{
-                this.responseIdealsCompetencesArray.push(competence.value);
-            })
+        mapResponseIdealDataset(functionary){
+            let positionResponseIdeal = this.responseIdeals.filter(responseIdeal =>{
+                return responseIdeal.name === functionary.position_name;
+            })[0];
 
             this.datasets.unshift({
-                label: `Nivel Esperado (${teachingLadder == 'Ninguno' ? 'Auxiliar' : teachingLadder})`,
-                data: this.responseIdealsCompetencesArray,
+                label: `Nivel Esperado (${functionary.position_name})`,
+                data: positionResponseIdeal.response.map(competence => competence.value),
                 backgroundColor: 'orange',
                 borderColor: 'orange',
                 borderWidth: 2,
@@ -581,30 +580,54 @@ export default {
             })
         },
 
+        async mapRoleDatasets(functionary){
+          let functionaryGrades = this.grades.filter(grade => {
+              return grade.user_id === functionary.user_id
+          });
+
+          console.log(functionaryGrades);
+
+          functionaryGrades.forEach(grade => {
+              let gradeDataset = [];
+              let borderWidth = 3;
+              if(grade.role === "promedio final"){
+                  borderWidth = 7;
+              }
+              let color = this.chartColors.find(color => color.role === grade.role);
+
+              //For each functionary role, we have to create the dataset that we will show on the graph
+              for (let i=1; i < 7; i++){
+                  gradeDataset.push(grade[`c${i}`]);
+              }
+              //Now that we have the dataset, now we have to add it to the graph and style it too
+              this.datasets.push({
+                  label: this.capitalize(grade.role),
+                  data: gradeDataset,
+                  backgroundColor: color.name,
+                  borderColor: color.name,
+                  borderWidth: borderWidth
+              })
+
+          });
+        },
 
         async setDialogToShowChart(functionary){
             this.showChartDialog = true
             this.graphFunctionary= functionary;
-            await this.getResponseIdealsDataset(functionary);
-            // this.getRolesDatasets(teacher);
-            // this.getGraph();
-            // this.getChartAsObject()
+            this.mapResponseIdealDataset(functionary);
+            await this.mapRoleDatasets(functionary);
+            this.getGraph();
         },
 
         setDialogToCancelChart (){
             this.showChartDialog = false
-        },
-
-        setDialogToCancelOpenAnswers (){
-            this.showOpenAnswersDialog = false;
-            this.openAnswersColleagues = [];
-            this.openAnswersStudents= [];
+            this.chart.destroy();
+            this.datasets = []
         },
 
         addAllElementSelectionItem(model, text) {
             model.unshift({user_id: '', name: text});
         },
-
     },
 
     computed: {
@@ -648,7 +671,6 @@ export default {
     },
 
     watch:{
-
         async assessmentPeriod(){
             await this.getAssessmentPeriods();
             await this.getDependencies();

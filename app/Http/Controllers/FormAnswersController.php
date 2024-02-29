@@ -12,7 +12,7 @@ class FormAnswersController extends Controller
     /**
      * Display a listing of the resource.
      *
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Support\Collection
      */
     public function index(Request $request)
     {
@@ -23,14 +23,17 @@ class FormAnswersController extends Controller
         }
 
         return DB::table('form_answers as fa')
-            ->select(['fa.id', 'fa.submitted_at', 'u.name', 'a.role', 'a.dependency_identifier', 'u.id as user_id', 'd.name as dependency_name',
+            ->select(['fa.id', 'fa.submitted_at', 'u.name', 'a.role', 'a.dependency_identifier', 'u.id as user_id', 'd.name as dependency_name', 'p.name as position_name',
                 'fa.first_competence_average as c1','fa.second_competence_average as c2','fa.third_competence_average as c3','fa.fourth_competence_average as c4',
                 'fa.fifth_competence_average as c5','fa.sixth_competence_average as c6'])
             ->join('forms as f', 'fa.form_id', '=', 'f.id')
             ->join('users as u', 'fa.evaluated_id', '=', 'u.id')
             ->join('assessments as a','fa.id','=','a.form_answer_id')
             ->join('dependencies as d', 'a.dependency_identifier','=','d.identifier')
+            ->join('position_user as pu','u.id','=','pu.user_id')
+            ->join('positions as p','p.id','=','pu.position_id')
             ->where('f.creation_assessment_period_id', '=', $assessmentPeriodId)
+            ->where('pu.assessment_period_id','=',$assessmentPeriodId)
             ->get();
 
 
@@ -47,10 +50,12 @@ class FormAnswersController extends Controller
             $assessmentPeriodId = AssessmentPeriod::getActiveAssessmentPeriod()->id;
         }
         return DB::table('aggregate_assessment_results as ar')
-            ->select(['ar.updated_at as submitted_at', 'ar.role', 'ar.dependency_identifier', 'u.id as user_id','u.name' , 'd.name as dependency_name',
+            ->select(['ar.updated_at as submitted_at', 'ar.role', 'ar.dependency_identifier', 'u.id as user_id','u.name' , 'd.name as dependency_name', 'p.name as position_name',
                 'ar.first_competence as c1','ar.second_competence as c2','ar.third_competence as c3','ar.fourth_competence as c4', 'ar.fifth_competence as c5','ar.sixth_competence as c6'])
             ->join('users as u', 'ar.user_id', '=', 'u.id')
             ->join('dependencies as d', 'ar.dependency_identifier','=','d.identifier')
+            ->join('position_user as pu','u.id','=','pu.user_id')
+            ->join('positions as p','p.id','=','pu.position_id')
             ->where('ar.assessment_period_id', '=', $assessmentPeriodId)->get();
     }
 
