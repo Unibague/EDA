@@ -46,6 +46,7 @@ class DependencyController extends Controller
         return response()->json(Dependency::getDependencyAdmins($dependency));
     }
 
+
     /**
      * Show the form for creating a new resource.
      *

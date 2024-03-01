@@ -63,10 +63,10 @@ class Dependency extends Model
         DB::table('dependency_user')->where('user_id', '=',$userId)
             ->where('dependency_identifier', '=', $dependencyIdentifier)->where('role_id', '=', $dependencyAdminRoleId)->delete();
         //Check if user is still admin on any other dependency
-        $userStillAdmin =  DB::table('role_user')->where('user_id', '=', $userId)
-           ->where('role_id', '=',$dependencyAdminRoleId)->first();
+        $userStillAdmin =   DB::table('dependency_user')->where('user_id', '=',$userId)
+            ->where('role_id', '=', $dependencyAdminRoleId)->first();
 
-        if($userStillAdmin){
+        if(!$userStillAdmin){
             DB::table('role_user')->where('user_id', '=', $userId)->where('role_id','=', $dependencyAdminRoleId)->delete();
         }
     }
