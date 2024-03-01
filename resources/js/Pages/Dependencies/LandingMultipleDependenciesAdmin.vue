@@ -33,7 +33,7 @@
                             color="primario"
                             v-model="selectedDependencyIdentifier"
                             :items="dependencies"
-                            label="Selecciona un rol"
+                            label="Selecciona una dependencia"
                             :item-value="(role)=>role.identifier"
                             :item-text="(role)=>role.name"
                         ></v-select>
@@ -44,7 +44,7 @@
                             class="grey--text text--lighten-4"
                             @click="selectDependency"
                         >
-                            Seleccionar rol
+                            Seleccionar dependencia
                         </v-btn>
                     </v-col>
                 </v-row>

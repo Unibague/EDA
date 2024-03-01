@@ -52,6 +52,12 @@ Route::resource('api/commitments', \App\Http\Controllers\CommitmentController::c
 Route::get('/commitments/{role}', [\App\Http\Controllers\CommitmentController::class, 'indexCommitments'])->middleware(['auth'])->name('commitments.index');
 Route::get('/commitments/{commitment}/finish', [\App\Http\Controllers\CommitmentController::class, 'setCommitmentAsDone'])->middleware(['auth', 'isAdmin'])->name('commitments.setDone');
 
+/* >>>>>>>>>>>>>>>>>>>>>>>>>>>> Commitment Reminder routes <<<<<<<<<<<<<<<<<<<<<<<<<<< */
+Route::inertia('/commitments/landing/reminders', 'Commitments/Reminders')->middleware(['auth', 'isAdmin'])->name('reminders.index.view');
+Route::resource('api/reminders', \App\Http\Controllers\ReminderController::class, [
+    'as' => 'api'
+])->middleware('auth');
+
 
 /* >>>>>Competences routes <<<<<< */
 Route::inertia('/competences', 'Competences/Index')->middleware(['auth', 'isAdmin'])->name('competences.index.view');
@@ -65,15 +71,17 @@ Route::post('competences/updateOrder', [\App\Http\Controllers\CompetenceControll
 Route::inertia('/dependencies', 'Dependencies/Index')->middleware(['auth', 'isAdmin'])->name('dependencies.index.view');
 Route::resource('api/dependencies', \App\Http\Controllers\DependencyController::class, [
     'as' => 'api'])->middleware('auth');
-Route::get('/api/dependencies/{dependency}', [\App\Http\Controllers\DependencyController::class, 'edit'])->middleware(['auth', 'isAdmin'])->name('api.dependencies.edit');
+Route::get('/api/dependencies/{dependency}', [\App\Http\Controllers\DependencyController::class, 'edit'])->middleware(['auth', 'isAdmin'])
+    ->name('api.dependencies.edit');
 Route::get('/api/dependencies/{dependency}/assessmentStatus', [\App\Http\Controllers\DependencyController::class, 'assessmentStatus'])
     ->middleware(['auth', 'isAdminOrDependencyAdmin'])->name('api.dependencies.assessmentStatus');
-Route::post('/api/dependencies/sync', [\App\Http\Controllers\DependencyController::class, 'sync'])->middleware(['auth', 'isAdmin'])->name('api.dependencies.sync');
+Route::post('/api/dependencies/sync', [\App\Http\Controllers\DependencyController::class, 'sync'])->middleware(['auth', 'isAdmin'])
+    ->name('api.dependencies.sync');
 Route::get('/api/dependencies/{dependency}/admins', [\App\Http\Controllers\DependencyController::class, 'getAdmins'])->middleware(['auth'])
     ->name('api.dependencies.admins');
-Route::inertia('/dependencies/admin/landing', 'Dependencies/LandingMultipleDependenciesAdmin')->middleware(['auth', 'isAdminOrDependencyAdmin'])->name('dependencies.landing');
+Route::inertia('/dependencies/admin/landing', 'Dependencies/LandingMultipleDependenciesAdmin')->middleware(['auth', 'isAdminOrDependencyAdmin'])
+    ->name('dependencies.landing');
 Route::inertia('/assessmentStatus', 'Dependencies/AssessmentStatus')->middleware(['auth', 'isAdmin']);
-
 
 /* >>>>>DependencyAdmin routes <<<<<< */
 Route::resource('api/{dependency}/dependencyAdmins', \App\Http\Controllers\DependencyAdminController::class, [
@@ -122,11 +130,10 @@ Route::get('answers/aggregateGrades', [\App\Http\Controllers\FormAnswersControll
 Route::inertia('/functionaries', 'Functionaries/Index')->middleware(['auth', 'isAdmin'])->name('functionaries.index.view');
 Route::post('/api/functionaryProfiles/sync', [\App\Http\Controllers\FunctionaryProfileController::class, 'sync'])->middleware(['auth', 'isAdmin'])
     ->name('api.functionaryProfiles.sync');
-Route::post('/api/functionaryProfiles/{functionaryProfile}/changeStatus', [\App\Http\Controllers\FunctionaryProfileController::class, 'changeStatus'])->middleware(['auth', 'isAdmin'])
-    ->name('api.functionaryProfiles.changeStatus');
+Route::post('/api/functionaryProfiles/{functionaryProfile}/changeStatus', [\App\Http\Controllers\FunctionaryProfileController::class, 'changeStatus'])
+    ->middleware(['auth', 'isAdmin'])->name('api.functionaryProfiles.changeStatus');
 Route::resource('api/functionaries', \App\Http\Controllers\FunctionaryProfileController::class, [
-    'as' => 'api'
-])->middleware('auth');
+    'as' => 'api'])->middleware('auth');
 Route::get('/api/{dependency}/functionaryProfiles/{functionaryProfile}', [\App\Http\Controllers\FunctionaryProfileController::class, 'edit'])
     ->middleware(['auth', 'isAdmin'])->name('api.functionaryProfiles.edit');
 Route::get('/functionaries/changes', [\App\Http\Controllers\FunctionaryProfileController::class, 'getPendingChanges'])->middleware(['auth', 'isAdmin'])
@@ -135,7 +142,6 @@ Route::post('/functionaries/changes/{userId}/approve',[\App\Http\Controllers\Fun
     ->middleware(['auth', 'isAdmin'])->name('functionaryProfiles.change.approve');
 Route::post('/functionaries/changes/{userId}/delete',[\App\Http\Controllers\FunctionaryProfileController::class, 'declineChange'])
     ->middleware(['auth', 'isAdmin'])->name('functionaryProfiles.change.decline');
-
 
 
 /* >>>>>>>>>>>>>>>>>>>>>>>  Positions routes >>>>>>>><<<<<< */
@@ -156,11 +162,7 @@ Route::post('api/positionsAssignment/create', [\App\Http\Controllers\PositionAss
 Route::post('api/positionsAssignment/destroy', [\App\Http\Controllers\PositionAssignmentController::class, 'deleteAssignment'])
     ->middleware(['auth', 'isAdmin'])->name('api.positionsAssignment.destroy');
 
-/* >>>>>>>>>>>>>>>>>>>>>>>>>>>> Reminder routes <<<<<<<<<<<<<<<<<<<<<<<<<<< */
-Route::inertia('/commitments/landing/reminders', 'Commitments/Reminders')->middleware(['auth', 'isAdmin'])->name('reminders.index.view');
-Route::resource('api/reminders', \App\Http\Controllers\ReminderController::class, [
-    'as' => 'api'
-])->middleware('auth');
+
 
 /* >>>>>Reports routes<<<<<< */
 Route::inertia('/reports/assessments', 'Reports/Assessments')->middleware(['auth', 'isAdmin'])->name('reports.assessments.index');
@@ -183,8 +185,6 @@ Route::resource('api/roles', \App\Http\Controllers\Roles\ApiRoleController::clas
 /* >>>>>>>>>>>>>>>>>>>>>>>>>>>> Test routes <<<<<<<<<<<<<<<<<<<<<<<<<<< */
 Route::get('/tests', [\App\Http\Controllers\TestController::class, 'indexView'])->middleware(['auth'])->name('tests.index.view');
 Route::post('/tests/{testId}', [\App\Http\Controllers\TestController::class, 'startTest'])->middleware(['auth'])->name('tests.startTest');
-Route::get('/tests/{testId}/preview', [\App\Http\Controllers\TestController::class, 'preview'])->middleware(['auth', 'isAdmin'])->name('tests.preview');
-//Change teacher status
 Route::resource('api/tests', \App\Http\Controllers\TestController::class, [
     'as' => 'api'])->middleware('auth');
 
@@ -196,15 +196,12 @@ Route::resource('api/trainings', \App\Http\Controllers\TrainingController::class
 ])->middleware('auth');
 
 
-
 /* >>>>>User routes <<<<<< */
 Route::get('/users', [\App\Http\Controllers\Users\UserController::class, 'index'])->middleware(['auth', 'isAdmin'])->name('users.index');
-Route::get('api/users/sync', [\App\Http\Controllers\UserController::class, 'getWithoutQuestions'])->middleware(['auth', 'isAdmin'])->name('api.forms.withoutQuestions');
 Route::resource('api/users', \App\Http\Controllers\Users\ApiUserController::class, [
-    'as' => 'api'
-])->middleware('auth');
+    'as' => 'api'])->middleware('auth');
 //Update user role
-Route::patch('/api/users/{user}/roles', [\App\Http\Controllers\Users\ApiUserController::class, 'updateUserRoles'])->middleware('auth')->name('api.users.roles.update');
+Route::patch('/api/users/{user}/roles', [\App\Http\Controllers\Users\ApiUserController::class, 'updateUserRoles'])->middleware(['auth', 'isAdmin'])->name('api.users.roles.update');
 Route::get('/api/users/{user}/roles', [\App\Http\Controllers\Users\ApiUserController::class, 'getUserRoles'])->middleware('auth')->name('api.users.roles.show');
 Route::post('/api/roles/select', [\App\Http\Controllers\Users\ApiUserController::class, 'selectRole'])->middleware('auth')->name('api.roles.selectRole');
 Route::post('/users/{userId}/impersonate', [\App\Http\Controllers\Users\UserController::class, 'impersonate'])->middleware(['auth', 'isAdmin'])->name('users.impersonate');

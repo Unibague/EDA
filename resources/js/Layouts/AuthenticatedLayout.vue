@@ -343,6 +343,22 @@ export default {
             },
 
             {
+                name: 'Gestionar',
+                role: 4,
+                active: false,
+                icon: 'mdi-cog-box',
+                items: [
+                    {
+                        name: 'Dependencias asignadas',
+                        href: route('redirect'),
+                        role: 4,
+                        icon: 'mdi-cog-box'
+                    },
+                ]
+            },
+
+
+            {
                 name: 'Generar',
                 role: 10,
                 active: false,
@@ -385,7 +401,16 @@ export default {
 
         console.log(this.$page.props.user,'the user');
         let name = this.$page.props.user.name;
-        let splitName = name.split(' ');
+        let splitName = "";
+
+        if (name.trim().indexOf(' ') !== -1){
+            splitName = name.split(' ');
+        }
+
+        else{
+            splitName = name;
+        }
+
         this.initials = `${splitName[0].charAt(0)}${splitName[1].charAt(0)}`;
 
     }
