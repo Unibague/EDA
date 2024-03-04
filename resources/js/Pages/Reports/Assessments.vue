@@ -122,7 +122,7 @@
                                 <v-icon
                                     v-bind="attrs"
                                     v-on="on"
-                                    class="mr-2 primario&#45;&#45;text"
+                                    class="mr-2 primario--text"
                                     @click="setDialogToShowChart(item)"
                                 >
                                     mdi-chart-line
@@ -130,11 +130,75 @@
                             </template>
                             <span>Graficar resultados</span>
                         </v-tooltip>
-
                     </template>
+
+                    <template v-slot:item.op_answers="{ item }">
+                        <v-tooltip top
+                        >
+                            <template v-slot:activator="{on,attrs}">
+                                <v-icon
+                                    v-bind="attrs"
+                                    v-on="on"
+                                    class="mr-2 primario--text"
+                                    @click="setDialogToShowOpenAnswers(item)"
+                                >
+                                    mdi-text-box
+                                </v-icon>
+                            </template>
+                            <span>Visualizar comentarios</span>
+                        </v-tooltip>
+                    </template>
+
                 </v-data-table>
             </v-card>
         </v-container>
+
+
+
+<!--        //Respuestas abiertas-->
+        <v-dialog
+            v-model="showOpenAnswersDialog"
+            persistent
+        >
+            <v-card>
+<!--                <v-card-text v-if="openAnswersColleagues.length > 0 || openAnswersStudents.length > 0">
+                    <h2 class="black&#45;&#45;text pt-5" style="text-align: center"> Visualizando comentarios hacia el docente: {{ this.capitalize(this.selectedTeacherOpenAnswers) }}</h2>
+                    <div v-if="openAnswersColleagues.length > 0">
+                        <h3 class="black&#45;&#45;text pt-5"> Comentarios por parte de profesores:</h3>
+                        <div v-for="question in openAnswersColleagues" class="mt-3">
+                            <h4 class="black&#45;&#45;text pt-3"> Pregunta: </h4>
+                            <h4 style="font-weight: bold">{{question.question_name}}</h4>
+                            <div style="margin-left: 20px">
+                                <div v-for="person in question.answers" class="mt-3">
+                                    <h4 class="black&#45;&#45;text"> {{person.name}} - ({{person.unit_role}}): </h4>
+                                    <div v-for="answer in person.answers" class="mt-3">
+                                        <h4> {{answer}}</h4>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </v-card-text>-->
+
+                <v-card-text >
+                    <h2 class="black--text pt-5" style="text-align: center"> No hay comentarios disponibles para este funcionario</h2>
+                </v-card-text>
+
+                <v-card-actions>
+                    <v-btn
+                        color="primario"
+                        class="grey--text text--lighten-4"
+                        @click="setDialogToCancelOpenAnswers()"
+                    >
+                        Salir
+                    </v-btn>
+                </v-card-actions>
+            </v-card>
+        </v-dialog>
+
+
+
+
 
 
         <!--Canvas para la gráfica-->
@@ -239,11 +303,16 @@ export default {
 
             role: "",
             roles: [],
+
+            openAnswers: [],
+
             //selected
             graphFunctionary:'',
+            graphFunctionaryDatasets: [],
 
-            confirmSavePDF: false,
-            //Snackbars
+            openAnswersFunctionary:'',
+
+
             snackbar: {
                 text: "",
                 type: 'alert',
@@ -251,9 +320,15 @@ export default {
                 timeout: 2000,
             },
 
-            //Dialogs
+            //Snackbars
             showChartDialog: false,
+            showOpenAnswersDialog: false,
+
+
+
+            //Dialogs
             isLoading: true,
+            confirmSavePDF: false,
             isUserAdmin: true,
             noDataText: 'Para comenzar, selecciona un periodo de evaluación y la dependencia que deseas visualizar',
 
@@ -297,7 +372,8 @@ export default {
             this.headers.push({text:"Rol", value:"role", width: "10%"})
             await this.getCompetences();
             this.headers.push({text:"Fecha de envío", value:"submitted_at", width: "15%"})
-            this.headers.push({text:"Graficar resultados", value:"graph", width: "15%"})
+            this.headers.push({text:"Graficar resultados", value:"graph", width: "15%", sortable:false})
+            this.headers.push({text:"Visualizar comentarios", value:"op_answers", width: "15%", sortable:false})
         },
 
         getCompetences: async function () {
@@ -367,14 +443,40 @@ export default {
             })
         },
 
+        getOpenAnswers: async function (functionary){
+            let url = route('api.answers.openAnswers', {functionary,assessmentPeriodId: this.assessmentPeriod});
+            let request = await axios.get(url);
+            this.openAnswers = request.data;
+            console.log(this.openAnswers, 'openAnswers');
+        },
+
         async getPDF(){
+
             this.confirmSavePDF = false;
+            let base64Graph =  document.getElementById('graph').toDataURL('image/png')
+
+            let functionaryGrades = this.grades.filter(grade => {
+                return grade.user_id === this.graphFunctionary.user_id
+            });
+
+            console.log(functionaryGrades);
+            let labels = this.competences.map((competence) => {return competence.name});
+            console.log(labels);
+
             var winName='MyWindow';
             var winURL= route('reports.assessmentPDF');
             var windowOption='resizable=yes,height=600,width=800,location=0,menubar=0,scrollbars=1';
             var params = { _token: this.token,
-                assessmentPeriodId: this.assessmentPeriod
+                assessmentPeriodId: this.assessmentPeriod,
+                labels: JSON.stringify(labels),
+                functionaryName:this.graphFunctionary.name,
+                graph:base64Graph,
+                grades: JSON.stringify(functionaryGrades),
             };
+
+
+            console.log(labels);
+
 
             var form = document.createElement("form");
             form.setAttribute("method", "post");
@@ -408,7 +510,7 @@ export default {
                 })
                 return {
                     Funcionario :item.name,
-                    NombreUnidad: item.dependency_name,
+                    Dependencia: item.dependency_name,
                     rol: item.role,
                     ...competencesData
                 }
@@ -585,7 +687,7 @@ export default {
               return grade.user_id === functionary.user_id
           });
 
-          console.log(functionaryGrades);
+          console.log(functionaryGrades, 'functionaryGrades');
 
           functionaryGrades.forEach(grade => {
               let gradeDataset = [];
@@ -623,6 +725,19 @@ export default {
             this.showChartDialog = false
             this.chart.destroy();
             this.datasets = []
+        },
+
+        async setDialogToShowOpenAnswers(functionary){
+            this.openAnswersFunctionary = functionary.name;
+            this.showOpenAnswersDialog = true
+            console.log(functionary, "info del funcionario para comentarios abiertos")
+            await this.getOpenAnswers(functionary.user_id);
+
+        },
+
+        setDialogToCancelOpenAnswers (){
+            this.showOpenAnswersDialog = false;
+            this.openAnswers = [];
         },
 
         addAllElementSelectionItem(model, text) {

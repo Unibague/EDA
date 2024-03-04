@@ -124,7 +124,6 @@ export default {
 
     methods: {
         getAssessments: async function () {
-
             let request = await axios.get(route('api.tests.index'));
             console.log(request.data);
             this.assessments = request.data;

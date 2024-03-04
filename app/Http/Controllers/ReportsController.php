@@ -33,25 +33,18 @@ class ReportsController extends Controller
 
 
     public function getAssessmentPDF(Request $request){
-
-        dd("Llegamos a la disco");
-
         $assessmentPeriodId = $request->input('assessmentPeriodId');
+
         if($assessmentPeriodId == null){
             $assessmentPeriodId = AssessmentPeriod::getActiveAssessmentPeriod()->id;
         }
-
         $assessmentPeriodName = AssessmentPeriod::select(['name'])->where('id', '=',  $assessmentPeriodId)->first()->name;
+        $labels = json_decode($request->input('labels'));
+        $functionaryName = $request->input('functionaryName');
+        $graph = $request->input('graph');
+        $grades = json_decode($request->input('grades'));
 
-
-
-        $teacherResults = $request->input('teacherResults');
-
-        $teacherResults = json_decode($teacherResults);
-
-        $timestamp = Carbon::now('GMT-5');
-
-        return view('report360', compact( 'assessmentPeriodName',  'teacherResults',  'timestamp'));
+        return view('assessmentReport', compact( 'assessmentPeriodName','labels','functionaryName','grades','graph'));
     }
 
 

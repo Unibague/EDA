@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
@@ -29,6 +30,8 @@ class Assessment extends Model
     public static function getUserAssessments($user = null){
 
         $activeAssessmentPeriodId = AssessmentPeriod::getActiveAssessmentPeriod()->id;
+        $now = Carbon::now('GMT-5');
+        $date = $now->toDateString();
 
         if ($user !== null){
             return  DB::table('assessments as a')->select(['a.id', 'a.pending','u.name', 'a.role', 'a.evaluator_id', 'a.evaluated_id', 'a.assessment_period_id'])
@@ -38,13 +41,15 @@ class Assessment extends Model
 
         $user = auth()->user();
 
-        if($user->role()->name == "funcionario" || $user->role()->name == "administrador" || $user->role()->name == "cliente externo") {
+        if($user->role()->name == "funcionario" || $user->role()->name == "cliente externo") {
 
             return  DB::table('assessments as a')
                 ->select(['a.id', 'a.pending','u.name', 'a.role', 'a.evaluator_id', 'a.evaluated_id', 'a.assessment_period_id', 'fp.dependency_name'])
                 ->where('evaluator_id','=', $user['id'])->where('a.assessment_period_id','=', $activeAssessmentPeriodId)
                 ->join('users as u', 'u.id', '=', 'a.evaluated_id')
                 ->join('functionary_profiles as fp', 'fp.user_id', '=', 'u.id')
+                ->join('assessment_periods as ap','ap.id', '=','a.assessment_period_id')
+                ->where('ap.assessment_start_date','>=',$date)->where('ap.assessment_end_date','<=',$date)
                 ->where('fp.assessment_period_id','=', $activeAssessmentPeriodId)->get();
         }
 
