@@ -3,6 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\AssessmentPeriod;
+use App\Models\FormAnswer;
+use App\Models\FunctionaryProfile;
+use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -58,6 +61,14 @@ class FormAnswersController extends Controller
             ->join('positions as p','p.id','=','pu.position_id')
             ->where('ar.assessment_period_id', '=', $assessmentPeriodId)->get();
     }
+
+    public function getOpenAnswers (User $functionary, Request $request)
+    {
+        $assessmentPeriodId = $request->input('assessmentPeriodId');
+        return response()->json(FormAnswer::getFunctionaryOpenAnswers($functionary, $assessmentPeriodId));
+    }
+
+
 
 
     /**

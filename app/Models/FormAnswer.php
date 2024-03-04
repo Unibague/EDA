@@ -107,5 +107,29 @@ class FormAnswer extends Model
             ]);
     }
 
+    public static function getFunctionaryOpenAnswers($functionary, $assessmentPeriodId)
+    {
+        if ($assessmentPeriodId === null){
+            $assessmentPeriodId = AssessmentPeriod::getActiveAssessmentPeriod()->id;
+        }
+        $answers = DB::table('form_answers as fa')->select(['fa.answers', 'a.dependency_identifier','a.role', 'u.name as functionary_name'])
+            ->where('fa.evaluated_id', '=', $functionary['id'])
+            ->join('forms as f', 'f.id', '=', 'fa.form_id')
+            ->join('users as u', 'u.id', '=', 'fa.user_id')
+            ->join('assessments as a', 'a.form_answer_id','=','fa.id')
+            ->where('f.assessment_period_id', '=', $assessmentPeriodId)
+            ->where('fa.assessment_period_id', '=', $assessmentPeriodId)->get();
+
+        return self::mapOpenAnswersToArray($answers,$assessmentPeriodId);
+
+    }
+
+
+    public static function mapOpenAnswersToArray($answers, $assessmentPeriodId)
+    {
+        return "gjrjrgejgrejg";
+    }
+
+
 
 }

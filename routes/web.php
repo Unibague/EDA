@@ -124,6 +124,8 @@ Route::resource('api/answers', \App\Http\Controllers\FormAnswersController::clas
 ])->middleware('auth');
 Route::get('answers/aggregateGrades', [\App\Http\Controllers\FormAnswersController::class, 'indexAggregateGrades'])->name('api.answers.aggregateGrades')
     ->middleware(['auth', 'isAdmin']);
+Route::get('answers/{functionary}/openAnswers', [\App\Http\Controllers\FormAnswersController::class, 'getOpenAnswers'])->name('api.answers.openAnswers')
+    ->middleware(['auth', 'isAdmin']);
 
 
 /* >>>>>FunctionaryProfile routes <<<<<< */
