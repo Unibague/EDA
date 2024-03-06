@@ -161,26 +161,21 @@
             persistent
         >
             <v-card>
-<!--                <v-card-text v-if="openAnswersColleagues.length > 0 || openAnswersStudents.length > 0">
-                    <h2 class="black&#45;&#45;text pt-5" style="text-align: center"> Visualizando comentarios hacia el docente: {{ this.capitalize(this.selectedTeacherOpenAnswers) }}</h2>
-                    <div v-if="openAnswersColleagues.length > 0">
-                        <h3 class="black&#45;&#45;text pt-5"> Comentarios por parte de profesores:</h3>
-                        <div v-for="question in openAnswersColleagues" class="mt-3">
-                            <h4 class="black&#45;&#45;text pt-3"> Pregunta: </h4>
-                            <h4 style="font-weight: bold">{{question.question_name}}</h4>
+                <v-card-text v-if="openAnswers.length > 0">
+                    <h2 class="black--text pt-5" style="text-align: center"> Visualizando comentarios hacia el funcionario: {{ this.capitalize(this.openAnswersFunctionary) }}</h2>
+                        <div v-for="question in openAnswers" class="mt-3">
+                            <h4 class="black--text pt-3"> Pregunta: </h4>
+                            <h4 style="font-weight: bold">{{question.name}}</h4>
                             <div style="margin-left: 20px">
                                 <div v-for="person in question.answers" class="mt-3">
-                                    <h4 class="black&#45;&#45;text"> {{person.name}} - ({{person.unit_role}}): </h4>
-                                    <div v-for="answer in person.answers" class="mt-3">
-                                        <h4> {{answer}}</h4>
-                                    </div>
+                                    <h4 class="black--text"> {{person.name}} - ({{person.role}}): </h4>
+                                        <h4> {{person.answer}}</h4>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                </v-card-text>-->
+                </v-card-text>
 
-                <v-card-text >
+                <v-card-text v-else>
                     <h2 class="black--text pt-5" style="text-align: center"> No hay comentarios disponibles para este funcionario</h2>
                 </v-card-text>
 
@@ -443,8 +438,8 @@ export default {
             })
         },
 
-        getOpenAnswers: async function (functionary){
-            let url = route('api.answers.openAnswers', {functionary,assessmentPeriodId: this.assessmentPeriod});
+        getOpenAnswers: async function (functionaryUserId){
+            let url = route('api.answers.openAnswers', {functionaryUserId, assessmentPeriodId: this.assessmentPeriod});
             let request = await axios.get(url);
             this.openAnswers = request.data;
             console.log(this.openAnswers, 'openAnswers');
@@ -469,7 +464,8 @@ export default {
             var params = { _token: this.token,
                 assessmentPeriodId: this.assessmentPeriod,
                 labels: JSON.stringify(labels),
-                functionaryName:this.graphFunctionary.name,
+                functionaryUserId: this.graphFunctionary.user_id,
+                functionaryName: this.graphFunctionary.name,
                 graph:base64Graph,
                 grades: JSON.stringify(functionaryGrades),
             };
@@ -730,9 +726,8 @@ export default {
         async setDialogToShowOpenAnswers(functionary){
             this.openAnswersFunctionary = functionary.name;
             this.showOpenAnswersDialog = true
-            console.log(functionary, "info del funcionario para comentarios abiertos")
+            console.log(functionary, "info del funcionario para preguntas abiertas")
             await this.getOpenAnswers(functionary.user_id);
-
         },
 
         setDialogToCancelOpenAnswers (){

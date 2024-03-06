@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Reporte por docente ALETHEIA</title>
+    <title>Reporte por funcionario EDA</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous"></head>
 <body class="mx-5 my-5">
 
@@ -48,23 +48,21 @@
 
 {{--Aquí van las respuestas a las preguntas abiertas de los formularios--}}
 
-{{--@if(count($openAnswers) > 0)--}}
-{{--    <div style="margin-top: 30px">--}}
-{{--        <p style="font-weight: bold"> Comentarios de la evaluación </p>--}}
-{{--        @foreach($openAnswersFromTeachers as $question)--}}
-{{--            <p class="black--text pt-2"> Pregunta: </p>--}}
-{{--            <p style="font-weight: bold; margin-left: 10px">{{$question->question_name}}</p>--}}
-{{--            <div style="margin-left: 20px">--}}
-{{--                @foreach($question->answers as $person)--}}
-{{--                    <p style="font-weight: bold"> {{$person->name}} - ({{$person->unit_role}})</>--}}
-{{--                    @foreach($person->answers as $answer)--}}
-{{--                        <p>{{$answer}}</p>--}}
-{{--                    @endforeach--}}
-{{--                @endforeach--}}
-{{--            </div>--}}
-{{--        @endforeach--}}
-{{--    </div>--}}
-{{--@endif--}}
+@if(count($openAnswers) > 0)
+    <div style="margin-top: 30px">
+        <p style="font-weight: bold"> Comentarios de la evaluación </p>
+        @foreach($openAnswers as $question)
+            <p class="black--text pt-2"> Pregunta: </p>
+            <p style="font-weight: bold; margin-left: 10px">{{$question->name}}</p>
+            <div style="margin-left: 20px">
+                @foreach($question->answers as $person)
+                    <p style="font-weight: bold"> {{$person->name}} - ({{$person->role}})</p>
+                        <p>{{$person->answer}}</p>
+                @endforeach
+            </div>
+        @endforeach
+    </div>
+@endif
 
 
 <h6 style="margin-top: 100px; font-weight: bold" > Reporte generado en: {{\Carbon\Carbon::now('GMT-5')}}</h6>

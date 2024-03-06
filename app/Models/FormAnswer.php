@@ -107,29 +107,52 @@ class FormAnswer extends Model
             ]);
     }
 
-    public static function getFunctionaryOpenAnswers($functionary, $assessmentPeriodId)
+    public static function getFunctionaryOpenAnswers($functionaryUserId, $assessmentPeriodId)
     {
         if ($assessmentPeriodId === null){
             $assessmentPeriodId = AssessmentPeriod::getActiveAssessmentPeriod()->id;
         }
-        $answers = DB::table('form_answers as fa')->select(['fa.answers', 'a.dependency_identifier','a.role', 'u.name as functionary_name'])
-            ->where('fa.evaluated_id', '=', $functionary['id'])
+
+        $formAnswers = DB::table('form_answers as fa')->select(['fa.answers', 'a.dependency_identifier','a.role', 'u.name as functionary_name'])
+            ->where('fa.evaluated_id', '=', $functionaryUserId)
             ->join('forms as f', 'f.id', '=', 'fa.form_id')
             ->join('users as u', 'u.id', '=', 'fa.user_id')
             ->join('assessments as a', 'a.form_answer_id','=','fa.id')
             ->where('f.assessment_period_id', '=', $assessmentPeriodId)
             ->where('fa.assessment_period_id', '=', $assessmentPeriodId)->get();
 
-        return self::mapOpenAnswersToArray($answers,$assessmentPeriodId);
+        return self::mapOpenAnswersToArray($formAnswers);
 
     }
 
-
-    public static function mapOpenAnswersToArray($answers, $assessmentPeriodId)
+    public static function mapOpenAnswersToArray($formAnswers)
     {
-        return "gjrjrgejgrejg";
+        $finalOpenAnswers = [];
+        $openQuestionsNames = [];
+        foreach ($formAnswers as $formAnswer){
+            $questions = json_decode($formAnswer->answers);
+            foreach ($questions as $question){
+                if($question->type === "abierta"){
+                    if(!in_array($question->name, $openQuestionsNames, true)){
+                        $openQuestionsNames [] = $question->name;
+                        $finalOpenAnswers [] = (object)[
+                            'name' => $question->name,
+                            'answers' => [ (object)['answer' => $question->answer, 'role' => $formAnswer->role,
+                                'name' => $formAnswer->functionary_name]
+                            ]
+                        ];
+                    }
+                    else{
+                        foreach ($finalOpenAnswers as $element){
+                            if($element->name === $question->name){
+                                $element->answers [] = (object)['answer' => $question->answer, 'role' => $formAnswer->role,
+                                    'name' => $formAnswer->functionary_name];
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return $finalOpenAnswers;
     }
-
-
-
 }

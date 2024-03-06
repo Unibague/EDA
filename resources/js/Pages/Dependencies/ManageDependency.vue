@@ -99,7 +99,7 @@
                     <v-card-title>
                         <span>
                         </span>
-                        <span class="text-h4-border"> Añadir adminsitrador a la dependencia </span>
+                        <span class="text-h4-border"> Añadir administrador a la dependencia </span>
                     </v-card-title>
                     <v-card-text>
                         <span>Ingrese el nombre del funcionario</span>

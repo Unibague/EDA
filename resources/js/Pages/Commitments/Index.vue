@@ -6,7 +6,7 @@
         <v-container>
             <div class="d-flex flex-column align-end mb-8">
                 <h2 class="align-self-start" >Gestionar compromisos</h2>
-                <div  v-if="role.name === 'administrador'">
+                <div  v-if="role.name === 'administrador'" class="mt-5">
                     <v-btn
                         color="primario"
                         class="grey--text text--lighten-4"
@@ -20,7 +20,7 @@
                         class="grey--text text--lighten-4"
                         :href="route('trainings.index.view')"
                     >
-                        Capacitaciones
+                        Compromisos
                     </InertiaLink>
                     <InertiaLink
                         as="v-btn"
@@ -30,6 +30,23 @@
                     >
                         Configurar Notificación
                     </InertiaLink>
+                    <v-btn
+                        color="primario"
+                        class="grey--text text--lighten-4"
+                        @click="downloadExcel"
+                    >
+                        Descargar Excel
+                    </v-btn>
+                </div>
+
+                <div  v-if="role.name === 'funcionario'" class="mt-5">
+                    <v-btn
+                        color="primario"
+                        class="grey--text text--lighten-4"
+                        @click="getCommitmentsStatus"
+                    >
+                        Visualizar Estado Actual
+                    </v-btn>
                 </div>
             </div>
 
@@ -191,6 +208,7 @@ import ConfirmDialog from "@/Components/ConfirmDialog";
 import AssessmentPeriod from "@/models/AssessmentPeriod";
 import Snackbar from "@/Components/Snackbar";
 import Commitment from "@/models/Commitment";
+import Papa from "papaparse";
 
 export default {
     components: {
@@ -251,7 +269,6 @@ export default {
     methods: {
 
         async getCommitments () {
-
             console.log(this.role, "The role")
             let request = await axios.get(route('commitments.index', {role: this.role.id}));
             this.commitments = request.data;
@@ -345,6 +362,77 @@ export default {
                 this.createOrEditDialog.dialogStatus = true;
             }
         },
+
+        getCommitmentsStatus(){
+
+            var winName='MyWindow';
+            var winURL= route('reports.commitmentPDF');
+            var windowOption='resizable=yes,height=600,width=800,location=0,menubar=0,scrollbars=1';
+            var params = { _token: this.token};
+
+            var form = document.createElement("form");
+            form.setAttribute("method", "post");
+            form.setAttribute("action", winURL);
+            form.setAttribute("target",winName);
+            for (var i in params) {
+                if (params.hasOwnProperty(i)) {
+                    var input = document.createElement('input');
+                    input.type = 'hidden';
+                    input.name = i;
+                    input.value = params[i];
+                    form.appendChild(input);
+                }
+            }
+            document.body.appendChild(form);
+            window.open('', winName, windowOption);
+            form.target = winName;
+            form.submit();
+            document.body.removeChild(form);
+        },
+
+
+        downloadExcel (){
+            if (this.commitments.length === 0){
+                showSnackbar(this.snackbar, "No hay datos para guardar", 'alert');
+            }
+
+/*            console.log(this.commitments);
+            console.log(this.headers);*/
+
+            let headers = this.headers.filter(header => {
+                return !header.hasOwnProperty('sortable')
+            })
+
+            let excelInfo = this.commitments.map(item =>{
+                let data = {}
+                headers.forEach( header =>{
+                    data[header.text] = item[header.value]
+                })
+                return {
+                    ...data
+                }
+            })
+
+            console.log(excelInfo)
+
+            let csv = Papa.unparse(excelInfo, {delimiter:';'});
+            var csvData = new Blob(["\uFEFF"+csv], {type: 'text/csv;charset=utf-8;'});
+            var csvURL =  null;
+            if (navigator.msSaveBlob)
+            {
+                csvURL = navigator.msSaveBlob(csvData, 'Consolidado_Compromisos.csv');
+            }
+            else
+            {
+                csvURL = window.URL.createObjectURL(csvData);
+            }
+            var tempLink = document.createElement('a');
+            tempLink.href = csvURL;
+            tempLink.setAttribute('download', 'Consolidado_Compromisos.csv');
+            tempLink.click();
+        },
+
+
     },
 }
 </script>
