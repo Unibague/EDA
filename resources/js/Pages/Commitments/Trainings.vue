@@ -5,14 +5,14 @@
 
         <v-container>
             <div class="d-flex flex-column align-end mb-8">
-                <h2 class="align-self-start">Gestionar capacitaciones</h2>
+                <h2 class="align-self-start">Gestionar compromisos</h2>
                 <div>
                     <v-btn
                         color="primario"
                         class="grey--text text--lighten-4"
                         @click="setTrainingDialogToCreateOrEdit('create')"
                     >
-                        Crear nueva capacitación
+                        Crear nuevo compromiso
                     </v-btn>
                 </div>
             </div>
@@ -23,7 +23,7 @@
                     <v-text-field
                         v-model="search"
                         append-icon="mdi-magnify"
-                        label="Filtrar por nombre de capacitación"
+                        label="Filtrar por nombre de compromiso"
                         single-line
                         hide-details
                     ></v-text-field>

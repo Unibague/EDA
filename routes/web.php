@@ -124,7 +124,7 @@ Route::resource('api/answers', \App\Http\Controllers\FormAnswersController::clas
 ])->middleware('auth');
 Route::get('answers/aggregateGrades', [\App\Http\Controllers\FormAnswersController::class, 'indexAggregateGrades'])->name('api.answers.aggregateGrades')
     ->middleware(['auth', 'isAdmin']);
-Route::get('answers/{functionary}/openAnswers', [\App\Http\Controllers\FormAnswersController::class, 'getOpenAnswers'])->name('api.answers.openAnswers')
+Route::get('answers/openAnswers', [\App\Http\Controllers\FormAnswersController::class, 'getOpenAnswers'])->name('api.answers.openAnswers')
     ->middleware(['auth', 'isAdmin']);
 
 
@@ -169,6 +169,7 @@ Route::post('api/positionsAssignment/destroy', [\App\Http\Controllers\PositionAs
 /* >>>>>Reports routes<<<<<< */
 Route::inertia('/reports/assessments', 'Reports/Assessments')->middleware(['auth', 'isAdmin'])->name('reports.assessments.index');
 Route::post('/reports/assessmentPDF', [\App\Http\Controllers\ReportsController::class, 'getAssessmentPDF'])->middleware(['auth'])->name('reports.assessmentPDF');
+Route::post('/reports/commitmentPDF', [\App\Http\Controllers\ReportsController::class, 'getCommitmentsStatusPDF'])->middleware(['auth'])->name('reports.commitmentPDF');
 
 
 /* >>>>>ResponseIdeals routes<<<<<< */

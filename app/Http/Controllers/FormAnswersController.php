@@ -62,14 +62,12 @@ class FormAnswersController extends Controller
             ->where('ar.assessment_period_id', '=', $assessmentPeriodId)->get();
     }
 
-    public function getOpenAnswers (User $functionary, Request $request)
+    public function getOpenAnswers (Request $request)
     {
         $assessmentPeriodId = $request->input('assessmentPeriodId');
-        return response()->json(FormAnswer::getFunctionaryOpenAnswers($functionary, $assessmentPeriodId));
+        $functionaryUserId = $request->input('functionaryUserId');
+        return response()->json(FormAnswer::getFunctionaryOpenAnswers($functionaryUserId, $assessmentPeriodId));
     }
-
-
-
 
     /**
      * Show the form for creating a new resource.

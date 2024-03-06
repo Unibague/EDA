@@ -35,7 +35,7 @@ class CommitmentController extends Controller
         $activeAssessmentPeriodId = AssessmentPeriod::getActiveAssessmentPeriod()->id;
 
 
-        if($role["name"] === "funcionario"){
+        if($role["name"] === "funcionario") {
 
             //            if(count($commitments) === 0){
 //                return DB::table('commitments as c')->select(['c.id', 'u.name as user_name', 'u.id as user_id', 't.name as training_name', 't.id as training_id','c.due_date','c.done'])
@@ -43,15 +43,24 @@ class CommitmentController extends Controller
 //                    ->join('users as u', 'c.user_id', '=','u.id')
 //                    ->join('trainings as t', 'c.training_id', '=','t.id')->get();
 //            }
+            $now = Carbon::now('GMT-5');
+            $date = $now->toDateString();
 
-            return DB::table('commitments as c')->select(['c.id', 'u.name as user_name', 'u.id as user_id', 't.name as training_name',
-                't.id as training_id','c.due_date','c.done', 'c.done_date'])
-                ->where('c.assessment_period_id','=', $activeAssessmentPeriodId)
-                ->where('a.evaluator_id', '=', $user['id'])
-                ->where('a.role','=', 'jefe')->orWhere('c.user_id','=', $user['id'])
-                ->join('assessments as a', 'c.user_id','=','a.evaluated_id')
-                ->join('users as u', 'c.user_id', '=','u.id')
-                ->join('trainings as t', 'c.training_id', '=','t.id')->orderBy('u.name','ASC')->get()->unique();
+            $validDate = DB::table('assessment_periods as ap')->where('ap.active','=',1)
+                ->where('ap.commitment_start_date','<=',$date)->where('ap.commitment_end_date','>=',$date)->first();
+
+            if($validDate){
+                return DB::table('commitments as c')->select(['c.id', 'u.name as user_name', 'u.id as user_id', 't.name as training_name',
+                    't.id as training_id','c.due_date','c.done', 'c.done_date'])
+                    ->where('a.evaluator_id', '=', $user['id'])
+                    ->where('a.role','=', 'jefe')->orWhere('c.user_id','=', $user['id'])
+                    ->join('assessments as a', 'c.user_id','=','a.evaluated_id')
+                    ->join('users as u', 'c.user_id', '=','u.id')
+                    ->join('trainings as t', 'c.training_id', '=','t.id')
+                    ->orderBy('u.name','ASC')->get()->unique();
+            }
+
+            return response()->json([]);
         }
 
         if($role["name"] === "administrador") {
@@ -59,7 +68,7 @@ class CommitmentController extends Controller
                 't.id as training_id','c.due_date','c.done', 'c.done_date'])
                 ->where('c.assessment_period_id','=', $activeAssessmentPeriodId)
                 ->join('users as u', 'c.user_id', '=','u.id')
-                ->join('trainings as t', 'c.training_id', '=','t.id')->get();
+                ->join('trainings as t', 'c.training_id', '=','t.id')->orderBy('u.name','ASC')->get();
         }
 
     }
