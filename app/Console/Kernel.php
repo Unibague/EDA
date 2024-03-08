@@ -29,9 +29,9 @@ class Kernel extends ConsoleKernel
         $schedule->command('commitmentReminder:send')->dailyAt('10:00');
         $schedule->command('aggregate_grades:update')->everyThirtyMinutes();
         $schedule->command('assessmentReminder:send')->dailyAt('08:00');
-        $schedule->call(function () {
+/*        $schedule->call(function () {
             Log::info("Crontab working correctly");
-        })->everyMinute();
+        })->everyMinute();*/
 //        $schedule->command('assessmentReminder:send')->cron('48 5 8 3 *');
     }
 
