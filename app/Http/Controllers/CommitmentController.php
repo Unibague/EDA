@@ -43,7 +43,7 @@ class CommitmentController extends Controller
 //                    ->join('users as u', 'c.user_id', '=','u.id')
 //                    ->join('trainings as t', 'c.training_id', '=','t.id')->get();
 //            }
-            $now = Carbon::now('GMT-5');
+            $now = Carbon::now();
             $date = $now->toDateString();
 
             $validDate = DB::table('assessment_periods as ap')->where('ap.active','=',1)

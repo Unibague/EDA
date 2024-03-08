@@ -42,7 +42,7 @@ class FormAnswer extends Model
             'user_id' => auth()->user()->id,
             'form_id' => $form->id,
             'answers' => json_encode($request->input('answers')),
-            'submitted_at' => Carbon::now('GMT-5')->toDateTimeString(),
+            'submitted_at' => Carbon::now()->toDateTimeString(),
             'evaluated_id' => $request->input('evaluatedId'),
             'first_competence_average' => $competencesAverage['C1'] ?? null,
             'second_competence_average' => $competencesAverage['C2'] ?? null,

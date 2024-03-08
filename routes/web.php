@@ -1,5 +1,7 @@
 <?php
 
+use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use Laravel\Socialite\Facades\Socialite;
@@ -220,7 +222,19 @@ Route::post('/logout', [\App\Http\Controllers\AuthController::class, 'logout'])-
 Route::get('/google/callback', [\App\Http\Controllers\AuthController::class, 'handleGoogleCallback']);
 Route::get('/pickRole', [\App\Http\Controllers\AuthController::class, 'pickRole'])->name('pickRole');
 
+Route::get('realTest', function (){
 
+    $assessmentStartDate = DB::table('assessment_periods as ap')->where('active','=',1)->first()->assessment_start_date;
+
+    $now = Carbon::now();
+    dd($now);
+    $date = $now->toDateString();
+
+    dd($date, $assessmentStartDate);
+
+
+
+});
 
 
 

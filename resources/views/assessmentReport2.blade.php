@@ -71,7 +71,7 @@
         @endforeach
     </div>
 @endif
-<h6 style="margin-top: 100px; font-weight: bold" > Reporte generado en: {{\Carbon\Carbon::now('GMT-5')}}</h6>
+<h6 style="margin-top: 100px; font-weight: bold" > Reporte generado en: {{\Carbon\Carbon::now()}}</h6>
 </body>
 
 

@@ -240,10 +240,11 @@
             @confirmed-dialog="getPDF()"
         >
             <template v-slot:title>
-                Ahora serás redirigido a la pantalla para guardar el PDF
+                Reporte en PDF
             </template>
 
-            Una vez allí, lo único que debes hacer es darle click al botón de <strong class="black--text"> Guardar </strong> en la parte inferior derecha de tu pantal.la
+            Ahora serás redirigido a la pantalla para guardar el PDF. Allí, lo único que debes hacer es darle click al botón de
+            <strong class="black--text"> Guardar </strong> en la parte inferior derecha de tu pantalla
 
             <template v-slot:confirm-button-text>
                 Descargar PDF
