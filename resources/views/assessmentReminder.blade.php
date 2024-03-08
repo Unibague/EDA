@@ -7,20 +7,14 @@
 
 
 <section style="width:75%; padding: 5% 10%">
-    <h2 style="text-align: center"> Creación de compromiso - Evaluación de Desempeño </h2>
+    <h2 style="text-align: center"> Inicio proceso de evaluación de desempeño - EDA </h2>
     <div style="background: #ffffff; padding: 5% 5%">
-        <p> Apreciado(a) <strong>{{$data['user_name']}}</strong></p>
 
-        <p> Mediante este correo se le informa atentamente que se acaba de registar un nuevo compromiso a su nombre desde la plataforma de Evaluación de Desempeño EDA:</p>
-
-        <p> Información del compromiso:  <strong>{{$data['training_name']}}</strong></p>
-
-        <p> Recuerde que el plazo máximo para dar cumplimiento a este compromiso es el <strong> {{$data['due_date']}} </strong></p>
-
-        <p>Para observar a detalle esta información, ingrese a <span style="text-underline: #00acc1">https://eda.unibague.edu.co/</span> con su cuenta de la Universidad </p>
+        <p>Estimados funcionarios, hoy iniciamos el proceso de evaluación de desempeño, los invitamos a que ingresen al link
+            <span style="text-underline: #00acc1">https://eda.unibague.edu.co</span> y realizar las evaluaciones asignadas </p>
 
         <div style="margin-top: 30px">
-            <p> Saludos cordiales,
+            <p> Cordial saludo,
                 <br> Gestión Humana - Universidad de Ibagué.
                 <br> Tel.: (57) + 8 2760010 ext.: 1202</p>
 
