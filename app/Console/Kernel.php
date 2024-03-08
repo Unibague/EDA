@@ -31,7 +31,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('assessmentReminder:send')->dailyAt('08:00');
         $schedule->call(function () {
             Log::info("Crontab working correctly");
-        })->daily();
+        })->everyMinute();
 //        $schedule->command('assessmentReminder:send')->cron('48 5 8 3 *');
     }
 
