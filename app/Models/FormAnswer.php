@@ -121,11 +121,14 @@ class FormAnswer extends Model
             ->where('f.assessment_period_id', '=', $assessmentPeriodId)
             ->where('fa.assessment_period_id', '=', $assessmentPeriodId)->get();
 
-        return self::mapOpenAnswersToArray($formAnswers);
+
+        $user = auth()->user();
+
+        return self::mapOpenAnswersToArray($formAnswers, $user->role()['name']);
 
     }
 
-    public static function mapOpenAnswersToArray($formAnswers)
+    public static function mapOpenAnswersToArray($formAnswers, $role)
     {
         $finalOpenAnswers = [];
         $openQuestionsNames = [];
@@ -135,18 +138,40 @@ class FormAnswer extends Model
                 if($question->type === "abierta"){
                     if(!in_array($question->name, $openQuestionsNames, true)){
                         $openQuestionsNames [] = $question->name;
-                        $finalOpenAnswers [] = (object)[
-                            'name' => $question->name,
-                            'answers' => [ (object)['answer' => $question->answer, 'role' => $formAnswer->role,
-                                'name' => $formAnswer->functionary_name]
-                            ]
-                        ];
+
+                        if($role === 'administrador'){
+                            $finalOpenAnswers [] = (object)[
+                                'name' => $question->name,
+                                'answers' => [ (object)['answer' => $question->answer, 'role' => $formAnswer->role,
+                                    'name' => $formAnswer->functionary_name]
+                                ]
+                            ];
+                        }
+
+                        else{
+                            $finalOpenAnswers [] = (object)[
+                                'name' => $question->name,
+                                'answers' => [ (object)['answer' => $question->answer]
+                                ]
+                            ];
+                        }
+
                     }
                     else{
-                        foreach ($finalOpenAnswers as $element){
-                            if($element->name === $question->name){
-                                $element->answers [] = (object)['answer' => $question->answer, 'role' => $formAnswer->role,
-                                    'name' => $formAnswer->functionary_name];
+
+                        if($role === 'administrador'){
+                            foreach ($finalOpenAnswers as $element){
+                                if($element->name === $question->name){
+                                    $element->answers [] = (object)['answer' => $question->answer, 'role' => $formAnswer->role,
+                                        'name' => $formAnswer->functionary_name];
+                                }
+                            }
+                        }
+                        else{
+                            foreach ($finalOpenAnswers as $element){
+                                if($element->name === $question->name){
+                                    $element->answers [] = (object)['answer' => $question->answer];
+                                }
                             }
                         }
                     }

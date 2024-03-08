@@ -20,7 +20,7 @@
                         class="grey--text text--lighten-4"
                         :href="route('trainings.index.view')"
                     >
-                        Compromisos
+                        Tipos de Compromisos
                     </InertiaLink>
                     <InertiaLink
                         as="v-btn"
@@ -140,9 +140,9 @@
                                     ></v-autocomplete>
                                 </v-col>
                                 <v-col cols="12">
-                                    <span>Ingrese el tipo de capacitación</span>
+                                    <span>Ingrese el tipo de compromiso</span>
                                     <v-autocomplete
-                                        label="Por favor selecciona un tipo de capacitación"
+                                        label="Por favor selecciona un tipo de compromiso"
                                         :items="trainings"
                                         v-model="$data[createOrEditDialog.model].training_id"
                                         item-text="name"

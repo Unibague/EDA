@@ -145,14 +145,14 @@
                 </v-card>
             </v-dialog>
 
-            <!--Confirmar borrar assessmentPeriod-->
+            <!--Confirmar borrar recordatorio-->
             <confirm-dialog
                 :show="deleteReminderDialog"
                 @canceled-dialog="deleteReminderDialog = false"
                 @confirmed-dialog="deleteReminder(deletedReminderId)"
             >
                 <template v-slot:title>
-                    Estas a punto de eliminar la capacitación seleccionada
+                    Estas a punto de eliminar la notificación seleccionada
                 </template>
 
                 ¡Cuidado! esta acción es irreversible
