@@ -168,6 +168,7 @@ Route::post('api/positionsAssignment/destroy', [\App\Http\Controllers\PositionAs
 
 /* >>>>>Reports routes<<<<<< */
 Route::inertia('/reports/assessments', 'Reports/Assessments')->middleware(['auth', 'isAdmin'])->name('reports.assessments.index');
+Route::get('/reports/assessments/available', [\App\Http\Controllers\ReportsController::class, 'hasAssessmentReportAvailable'])->middleware(['auth'])->name('reports.assessment.available');
 Route::post('/reports/assessmentPDF', [\App\Http\Controllers\ReportsController::class, 'getAssessmentPDF'])->middleware(['auth'])->name('reports.assessmentPDF');
 Route::post('/reports/commitmentPDF', [\App\Http\Controllers\ReportsController::class, 'getCommitmentsStatusPDF'])->middleware(['auth'])->name('reports.commitmentPDF');
 

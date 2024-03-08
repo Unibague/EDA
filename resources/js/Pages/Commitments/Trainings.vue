@@ -5,7 +5,7 @@
 
         <v-container>
             <div class="d-flex flex-column align-end mb-8">
-                <h2 class="align-self-start">Gestionar compromisos</h2>
+                <h2 class="align-self-start">Gestionar tipos de compromisos</h2>
                 <div>
                     <v-btn
                         color="primario"
@@ -71,14 +71,14 @@
                     <v-card-title>
                         <span>
                         </span>
-                        <span class="text-h5">Crear/Editar capacitación</span>
+                        <span class="text-h5">Crear/Editar tipo de compromiso</span>
                     </v-card-title>
                     <v-card-text>
                         <v-container>
                             <v-row>
                                 <v-col cols="12">
                                     <v-text-field
-                                        label="Nombre de la capacitación"
+                                        label="Nombre del tipo de compromiso"
                                         required
                                         v-model="$data[createOrEditDialog.model].name"
                                     ></v-text-field>
@@ -107,14 +107,14 @@
                 </v-card>
             </v-dialog>
 
-            <!--Confirmar borrar assessmentPeriod-->
+            <!--Confirmar borrar tipo de compromiso-->
             <confirm-dialog
                 :show="deleteTrainingDialog"
                 @canceled-dialog="deleteTrainingDialog = false"
                 @confirmed-dialog="deleteTraining(deletedTrainingId)"
             >
                 <template v-slot:title>
-                    Estas a punto de eliminar la capacitación seleccionada
+                    Estas a punto de eliminar el tipo de compromiso seleccionado
                 </template>
 
                 ¡Cuidado! esta acción es irreversible

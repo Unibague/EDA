@@ -32,18 +32,71 @@ class ReportsController extends Controller
     }
 
 
-
     public function getAssessmentPDF(Request $request){
+
         $assessmentPeriodId = $request->input('assessmentPeriodId');
         if($assessmentPeriodId == null){
             $assessmentPeriodId = AssessmentPeriod::getActiveAssessmentPeriod()->id;
         }
+        $assessmentPeriodName = AssessmentPeriod::select(['name'])->where('id', '=',  $assessmentPeriodId)->first()->name;
+        $labels = DB::table('competences')->where('assessment_period_id', '=', $assessmentPeriodId)
+            ->orderBy('position', 'ASC')->get();
 
+
+        //Check the user role and based on that generate the report
+        $user = auth()->user();
+        $role = $user->role()['name'];
+
+
+        if( $role === "administrador"){
+            $functionaryUserId = $request->input('functionaryUserId');
+            $functionaryName = $request->input('functionaryName');
+            $graph = $request->input('graph');
+            $grades = json_decode($request->input('grades'));
+            $openAnswers = FormAnswer::getFunctionaryOpenAnswers($functionaryUserId, $assessmentPeriodId);
+            return view('assessmentReport', compact( 'assessmentPeriodName','labels','functionaryName','grades','graph', 'openAnswers'));
+        }
+
+
+        //TODO Traer el dataset del ideal de respuesta y junto con el del promedio final, ponerlos en la gráfica que se renderiza en blade
+        //TODO NO OLVIDAAAAAAAAAAR
+        //TODO NO OLVIDAAAAAAAAAAR
+        //TODO NO OLVIDAAAAAAAAAAR
+        //TODO NO OLVIDAAAAAAAAAAR
+        //TODO NO OLVIDAAAAAAAAAAR
+        //TODO NO OLVIDAAAAAAAAAAR
+        //TODO NO OLVIDAAAAAAAAAAR
+        //TODO NO OLVIDAAAAAAAAAAR
+
+
+        $userId = $user['id'];
+        $functionaryName = $user['name'];
+
+        $labels = array_unique(array_column($labels->toArray(), 'name'));
+
+
+        $grades = DB::table('aggregate_assessment_results')->select(['role' ,'first_competence', 'second_competence','third_competence',
+            'fourth_competence' , 'fifth_competence', 'sixth_competence'])->where('assessment_period_id', '=', $assessmentPeriodId)
+            ->where('user_id','=',$userId)->get();
+
+        $openAnswers = FormAnswer::getFunctionaryOpenAnswers($userId, $assessmentPeriodId);
+
+        return view('assessmentReport2', compact( 'assessmentPeriodName','labels','functionaryName','grades', 'openAnswers', 'role'));
+    }
+
+
+    public function getAssessmentPDFDraft(Request $request){
+
+        $assessmentPeriodId = $request->input('assessmentPeriodId');
+        if($assessmentPeriodId == null){
+            $assessmentPeriodId = AssessmentPeriod::getActiveAssessmentPeriod()->id;
+        }
+        $assessmentPeriodName = AssessmentPeriod::select(['name'])->where('id', '=',  $assessmentPeriodId)->first()->name;
+
+        //Check the user role and based on that generate the report
         $user = auth()->user();
 
-
         if($user->role()['name'] === "administrador"){
-            $assessmentPeriodName = AssessmentPeriod::select(['name'])->where('id', '=',  $assessmentPeriodId)->first()->name;
             $labels = json_decode($request->input('labels'));
             $functionaryUserId = $request->input('functionaryUserId');
             $functionaryName = $request->input('functionaryName');
@@ -53,12 +106,21 @@ class ReportsController extends Controller
             return view('assessmentReport', compact( 'assessmentPeriodName','labels','functionaryName','grades','graph', 'openAnswers'));
         }
 
-/*        $userId = $user['id'];
-        $labels = DB::table('competences')->where('assessment_period_id', '=', $activeAssessmentPeriodId)
-            ->where('position','>',$deletedCompetencePosition)->orderBy('position', 'DESC')->get();
-        dd($labels)*/
+        $userId = $user['id'];
+        $functionaryName = $user['name'];
+        $labels = DB::table('competences')->where('assessment_period_id', '=', $assessmentPeriodId)
+            ->orderBy('position', 'ASC')->get();
+        $grades = DB::table('aggregate_assessment_results')->select(['role' ,'first_competence', 'second_competence','third_competence',
+            'fourth_competence' , 'fifth_competence', 'sixth_competence'])->where('assessment_period_id', '=', $assessmentPeriodId)
+            ->where('user_id','=',$userId)->get();
+
+//        dd($grades);
 
 
+        $openAnswers = FormAnswer::getFunctionaryOpenAnswers($userId, $assessmentPeriodId);
+
+
+        return view('assessmentReport2', compact( 'assessmentPeriodName','labels','functionaryName','grades', 'openAnswers'));
     }
 
     public function getCommitmentsStatusPDF(Request $request){
@@ -76,13 +138,16 @@ class ReportsController extends Controller
             ->join('trainings as t', 'c.training_id', '=','t.id')->get();
 
         return view('commitmentReport', compact( 'assessmentPeriodName','functionaryName', 'commitments'));
-
-        /*        $userId = $user['id'];
-                $labels = DB::table('competences')->where('assessment_period_id', '=', $activeAssessmentPeriodId)
-                    ->where('position','>',$deletedCompetencePosition)->orderBy('position', 'DESC')->get();
-                dd($labels)*/
+    }
 
 
+    public function hasAssessmentReportAvailable(){
+
+        $activeAssessmentPeriodId = AssessmentPeriod::getActiveAssessmentPeriod()->id;
+        $user = auth()->user();
+
+        return DB::table('aggregate_assessment_results')->where('assessment_period_id', '=', $activeAssessmentPeriodId)
+            ->where('user_id','=',$user['id'])->first();
     }
 
 

@@ -6,6 +6,18 @@
         <v-container>
             <div class="d-flex flex-column align-end mb-8">
                 <h2 class="align-self-start">Evaluaciones asignadas</h2>
+
+<!--                <div v-if="$page.props.user.customRoleId === 3" class="mt-5">
+                    <v-btn
+                        v-if="hasFinalReport"
+                        color="primario"
+                        class="grey&#45;&#45;text text&#45;&#45;lighten-4"
+                        @click="getReport"
+                    >
+                        Descargar Reporte Final de Evaluación
+                    </v-btn>
+                </div>-->
+
             </div>
 
             <!--Inicia tabla-->
@@ -111,6 +123,7 @@ export default {
                 timeout: 2000,
             },
             isLoading: true,
+            hasFinalReport: false,
         }
     },
     props: {
@@ -119,6 +132,7 @@ export default {
 
     async created() {
         await this.getAssessments();
+/*        await this.userHasReportAvailable();*/
         this.isLoading = false;
     },
 
@@ -128,6 +142,39 @@ export default {
             console.log(request.data);
             this.assessments = request.data;
         },
+
+        async getReport(){
+            var winName='MyWindow';
+            var winURL= route('reports.assessmentPDF');
+            var windowOption='resizable=yes,height=600,width=800,location=0,menubar=0,scrollbars=1';
+            var params = { _token: this.token,
+            };
+
+            var form = document.createElement("form");
+            form.setAttribute("method", "post");
+            form.setAttribute("action", winURL);
+            form.setAttribute("target",winName);
+            for (var i in params) {
+                if (params.hasOwnProperty(i)) {
+                    var input = document.createElement('input');
+                    input.type = 'hidden';
+                    input.name = i;
+                    input.value = params[i];
+                    form.appendChild(input);
+                }
+            }
+            document.body.appendChild(form);
+            window.open('', winName, windowOption);
+            form.target = winName;
+            form.submit();
+            document.body.removeChild(form);
+        },
+
+        async userHasReportAvailable(){
+            let request = await axios.get(route('reports.assessment.available'));
+            this.hasFinalReport = request.data
+            console.log(request.data);
+        }
     },
 
 }

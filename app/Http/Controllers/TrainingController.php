@@ -36,7 +36,7 @@ class TrainingController extends Controller
     public function store(Request $request)
     {
         Training::create($request->all());
-        return response()->json(['message' => 'Capacitación creada exitosamente']);
+        return response()->json(['message' => 'Tipo de compromiso creado exitosamente']);
     }
 
     /**
@@ -71,7 +71,7 @@ class TrainingController extends Controller
     public function update(Request $request, Training $training)
     {
         $training->update($request->all());
-        return response()->json(['message' => 'Capacitación actualizada exitosamente']);
+        return response()->json(['message' => 'Tipo de compromiso actualizado exitosamente']);
     }
 
     /**
@@ -85,8 +85,8 @@ class TrainingController extends Controller
         try{
             $training->delete();
         } catch (\Exception $exception){
-            return response()->json(['message' => 'No puedes borrar una capacitación si ya existen compromisos asociados a esta!'],400);
+            return response()->json(['message' => 'No puedes borrar un tipo de compromiso si ya se encuentra asociado a una asignación!'],400);
         }
-        return response()->json(['message' => 'Capacitación eliminada exitosamente']);
+        return response()->json(['message' => 'Tipo de compromiso eliminado exitosamente']);
     }
 }

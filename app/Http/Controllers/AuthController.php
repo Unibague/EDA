@@ -97,7 +97,7 @@ class AuthController extends Controller
             $unibagueString = strrpos($email, "unibague", $indexOfAtSymbol);
 
             if ($unibagueString == false) {
-                return redirect()->route('login');
+                return response('Tu tipo de cuenta no es el adecuado para ingresar a esta plataforma', 403);
             }
         } catch (\Exception $e) {
             return redirect()->route('login');

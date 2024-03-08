@@ -329,7 +329,7 @@ export default {
 
             //Graph data
             chartColors: [{role: 'autoevaluación', name: 'blue'}, {role: 'jefe', name: 'red'}, {role: 'par', name: 'green'},
-                {role: 'cliente interno', name: 'purple'}, {role: 'cliente externo', name: '#00BFA5'}, {role: 'promedio final', name: 'black'}],
+                {role: 'cliente interno', name: 'purple'}, {role: 'cliente externo', name: '#00BFA5'}, {role: 'Promedio final', name: 'black'}],
             datasets:[]
         }
     },
@@ -685,10 +685,11 @@ export default {
 
           console.log(functionaryGrades, 'functionaryGrades');
 
+
           functionaryGrades.forEach(grade => {
               let gradeDataset = [];
               let borderWidth = 3;
-              if(grade.role === "promedio final"){
+              if(grade.role === "Promedio final"){
                   borderWidth = 7;
               }
               let color = this.chartColors.find(color => color.role === grade.role);
