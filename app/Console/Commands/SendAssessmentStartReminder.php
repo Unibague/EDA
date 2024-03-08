@@ -2,10 +2,12 @@
 
 namespace App\Console\Commands;
 
+use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 
 class SendAssessmentStartReminder extends Command
 {
@@ -40,14 +42,24 @@ class SendAssessmentStartReminder extends Command
      */
     public function handle()
     {
+
+        set_time_limit(10000);
+
         $assessmentStartDate = DB::table('assessment_periods as ap')->where('active','=',1)->first()->assessment_start_date;
         $now = Carbon::now();
-/*        dd($now);
-
         $date = $now->toDateString();
 
-        if($date === )*/
-        Log::info("Entrando correctamente cronjob correo recordatorio");
+        if($date === $assessmentStartDate){
+            $users = User::all();
+            $users = array_unique(array_column($users->toArray(),'email'));
+
+            foreach ($users as $user){
+                $email = new \App\Mail\AssessmentReminderMailable();
+                Mail::bcc($user)->send($email);
+            }
+        }
+
+        Log::info("Cronjob correo recordatorio enviado correctamente");
 
         return 0;
     }

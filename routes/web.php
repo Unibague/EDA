@@ -1,7 +1,9 @@
 <?php
 
+use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use Laravel\Socialite\Facades\Socialite;
@@ -225,14 +227,20 @@ Route::get('/pickRole', [\App\Http\Controllers\AuthController::class, 'pickRole'
 Route::get('realTest', function (){
 
     $assessmentStartDate = DB::table('assessment_periods as ap')->where('active','=',1)->first()->assessment_start_date;
-
     $now = Carbon::now();
-    dd($now);
     $date = $now->toDateString();
 
-    dd($date, $assessmentStartDate);
+/*    if($date === $assessmentStartDate){
+        $users = User::all()->take(5);
+        $users = array_unique(array_column($users->toArray(),'email'));
+        dd($users);
 
 
+        foreach ($users as $user){
+            $email = new \App\Mail\AssessmentReminderMailable();
+            Mail::bcc($user)->send($email);
+        }
+    }*/
 
 });
 

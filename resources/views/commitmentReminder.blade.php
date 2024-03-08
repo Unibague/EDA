@@ -20,7 +20,7 @@
         <div style="margin-top: 30px">
             <p> Saludos cordiales,
                 <br> Gestión Humana - Universidad de Ibagué.
-                <br> Tel.: (57) + 8 2760010 ext.: 3004</p>
+                <br> Tel.: (57) + 8 2760010 ext.: 1202</p>
 
             <img src="{{$message->embed(public_path().'/images/bigLogo.png')}}" style="max-width:80%; object-fit: contain; margin-top: 0px">
         </div>

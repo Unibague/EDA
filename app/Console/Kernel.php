@@ -25,10 +25,10 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {      //02:00 significa 8:00 am en el horario de aquí en el mundo real
-        $schedule->command('commitmentReminder:send')->dailyAt('04:00');
+        $schedule->command('commitmentReminder:send')->dailyAt('10:00');
         $schedule->command('aggregate_grades:update')->everyThirtyMinutes();
-/*        $schedule->command('assessmentReminder:send')->everyMinute();*/
-//        $schedule->command('assessmentReminder:send')->cron('48 20 8 3 *');
+        $schedule->command('assessmentReminder:send')->dailyAt('08:00');
+//        $schedule->command('assessmentReminder:send')->cron('48 5 8 3 *');
     }
 
     /**
