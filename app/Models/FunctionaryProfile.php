@@ -209,8 +209,8 @@ class FunctionaryProfile extends Model
                 ['evaluated_id' => $userId, 'evaluator_id' => $userId, 'role' => 'autoevaluación'],
                 ['pending' => 1, 'dependency_identifier' => $dependencyIdentifier,
                     'assessment_period_id' => $activeAssessmentPeriod,
-                    'created_at' => Carbon::now('GMT-5')->toDateTimeString(),
-                    'updated_at' => Carbon::now('GMT-5')->toDateTimeString()]);
+                    'created_at' => Carbon::now()->toDateTimeString(),
+                    'updated_at' => Carbon::now()->toDateTimeString()]);
         }
     }
 }

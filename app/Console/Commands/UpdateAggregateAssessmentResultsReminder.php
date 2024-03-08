@@ -118,8 +118,8 @@ class UpdateAggregateAssessmentResultsReminder extends Command
                         'sixth_competence' => $sixthCompetenceTotal,
                         'dependency_identifier' => $dependencyIdentifier,
                         'role' => 'promedio final',
-                        'created_at' => Carbon::now('GMT-5')->toDateTimeString(),
-                        'updated_at' => Carbon::now('GMT-5')->toDateTimeString()]);
+                        'created_at' => Carbon::now()->toDateTimeString(),
+                        'updated_at' => Carbon::now()->toDateTimeString()]);
             }
         }
 

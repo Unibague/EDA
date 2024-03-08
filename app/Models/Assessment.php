@@ -30,7 +30,7 @@ class Assessment extends Model
     public static function getUserAssessments($user = null){
 
         $activeAssessmentPeriodId = AssessmentPeriod::getActiveAssessmentPeriod()->id;
-        $now = Carbon::now('GMT-5');
+        $now = Carbon::now();
         $date = $now->toDateString();
 
         if ($user !== null){
