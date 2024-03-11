@@ -226,20 +226,16 @@ Route::get('/pickRole', [\App\Http\Controllers\AuthController::class, 'pickRole'
 
 Route::get('realTest', function (){
 
-    $assessmentStartDate = DB::table('assessment_periods as ap')->where('active','=',1)->first()->assessment_start_date;
+/*    $assessmentStartDate = DB::table('assessment_periods as ap')->where('active','=',1)->first()->assessment_start_date;
     $now = Carbon::now();
     $date = $now->toDateString();
 
-/*    if($date === $assessmentStartDate){
-        $users = User::all()->take(5);
-        $users = array_unique(array_column($users->toArray(),'email'));
-        dd($users);
+    $users = User::all()->take(7);
+    $users = array_unique(array_column($users->toArray(),'email'));
 
-
-        foreach ($users as $user){
-            $email = new \App\Mail\AssessmentReminderMailable();
-            Mail::bcc($user)->send($email);
-        }
+    foreach ($users as $user){
+        $email = new \App\Mail\AssessmentReminderMailable();
+        Mail::bcc([$user])->send($email);
     }*/
 
 });
