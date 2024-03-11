@@ -55,11 +55,14 @@ class SendAssessmentStartReminder extends Command
 
             foreach ($users as $user){
                 $email = new \App\Mail\AssessmentReminderMailable();
-                Mail::bcc($user)->send($email);
+                Mail::bcc([$user])->send($email);
             }
         }
 
         Log::info("Cronjob correo recordatorio enviado correctamente");
+
+        $email = new \App\Mail\AssessmentReminderMailable();
+        Mail::bcc(['juanes01.gonzalez@gmail.com'])->send($email);
 
         return 0;
     }
