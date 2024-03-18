@@ -297,7 +297,7 @@
                 @confirmed-dialog="deleteForm(deletedFormId)"
             >
                 <template v-slot:title>
-                    Estas a punto de eliminar el formulario seleccionado
+                    Estás a punto de eliminar el formulario seleccionado
                 </template>
 
                 ¡Cuidado! esta acción es irreversible

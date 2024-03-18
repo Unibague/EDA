@@ -98,9 +98,19 @@
                                 </v-col>
                                 <v-col cols="6">
                                     <v-autocomplete
-                                        v-if="$data[createOrEditDialog.model].role !== 'cliente externo'"
+                                        v-if="$data[createOrEditDialog.model].role === 'jefe'
+                                        || $data[createOrEditDialog.model].role === 'cliente interno'"
                                         label="Nombre del funcionario asignado para evaluar"
                                         :items="functionaries"
+                                        required
+                                        :item-text="(functionary)=> functionary.name"
+                                        :item-value="(functionary)=>functionary.user_id"
+                                        v-model="$data[createOrEditDialog.model].evaluator_id"
+                                    ></v-autocomplete>
+                                    <v-autocomplete
+                                        v-if="$data[createOrEditDialog.model].role === 'par'"
+                                        label="Nombre del funcionario asignado para evaluar"
+                                        :items="functionariesAndExternalClients"
                                         required
                                         :item-text="(functionary)=> functionary.name"
                                         :item-value="(functionary)=>functionary.user_id"
@@ -147,7 +157,7 @@
                 @confirmed-dialog="deleteAssessment(deletedAssessmentId)"
             >
                 <template v-slot:title>
-                    Estas a punto de eliminar la asignación seleccionada
+                    Estás a punto de eliminar la asignación seleccionada
                 </template>
 
                 ¡Cuidado! esta acción es irreversible
@@ -187,6 +197,7 @@ export default {
             assessments: [],
             functionaries: [],
             externalClients: [],
+            functionariesAndExternalClients:[],
             roles:[],
             headers: [
                 {text: 'Asignación', value: 'role'},
@@ -220,6 +231,7 @@ export default {
         await this.getFunctionaryAssessments();
         await this.getPossibleEvaluators();
         await this.getExternalClients();
+        this.mapFunctionariesAndExternalClientsArray();
         this.getRoles();
     },
 
@@ -236,8 +248,14 @@ export default {
         async getExternalClients(){
             let request = await axios.get(route('api.externalClients.index'));
             this.externalClients = request.data;
+            console.log(this.externalClients, 'External Clients');
         },
 
+        mapFunctionariesAndExternalClientsArray(){
+            this.functionariesAndExternalClients = this.functionaries.concat(this.externalClients);
+            console.log(this.functionariesAndExternalClients, 'mixed array');
+
+        },
 
         async getPossibleEvaluators() {
             let request = await axios.get(route('api.functionaries.index', {functionaryProfile: this.functionary}));

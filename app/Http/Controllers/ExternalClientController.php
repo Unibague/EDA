@@ -24,7 +24,7 @@ class ExternalClientController extends Controller
      */
     public function index()
     {
-        return response()->json(User::where('is_external_client','=', 1)->get());
+        return response()->json(User::where('is_external_client','=', 1)->select(['*', 'id as user_id'])->get());
     }
 
 
@@ -127,11 +127,20 @@ class ExternalClientController extends Controller
      */
     public function destroy(User $externalClient)
     {
-        try {
-            $externalClient->delete();
-        } catch (QueryException $e) {
-            return response()->json(['message' => 'No puedes eliminar a un cliente externo si ya tiene alguna asignación'], 400);
-        }
-        return response()->json(['message' => 'Cliente externo eliminado exitosamente']);
+            $externalClientAssignments = DB::table('assessments')->where('evaluator_id','=', $externalClient['id'])->get();
+
+            if(count($externalClientAssignments) === 0){
+                //The external client has no assignments, so we can delete all the registers associated to it.
+                DB::table('role_user')->where('user_id','=',$externalClient['id'])->delete();
+                try {
+                    $externalClient->delete();
+                } catch (QueryException $e) {
+                    return response()->json(['message' => 'Ha ocurrido un error al intentar borrar al cliente externo'], 400);
+                }
+                return response()->json(['message' => 'Cliente externo eliminado exitosamente']);
+            }
+
+            return response()->json(['message' => 'No puedes eliminar a un cliente externo si ya tiene alguna asignación para evaluar a otro funcionario'], 400);
+
     }
 }

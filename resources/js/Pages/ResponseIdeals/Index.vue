@@ -157,7 +157,7 @@
             @confirmed-dialog="deleteResponseIdeal(deletedResponseIdealId)"
         >
             <template v-slot:title>
-                Estas a punto de eliminar el ideal de respuesta seleccionado
+                Estás a punto de eliminar el ideal de respuesta seleccionado
             </template>
 
             ¡Cuidado! esta acción es irreversible

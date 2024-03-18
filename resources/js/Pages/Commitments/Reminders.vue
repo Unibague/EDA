@@ -152,7 +152,7 @@
                 @confirmed-dialog="deleteReminder(deletedReminderId)"
             >
                 <template v-slot:title>
-                    Estas a punto de eliminar la notificación seleccionada
+                    Estás a punto de eliminar la notificación seleccionada
                 </template>
 
                 ¡Cuidado! esta acción es irreversible

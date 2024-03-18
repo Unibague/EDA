@@ -48,7 +48,7 @@ class ReportsController extends Controller
         $role = $user->role()['name'];
 
 
-        if( $role === "administrador"){
+        if($role === "administrador"){
             $functionaryUserId = $request->input('functionaryUserId');
             $functionaryName = $request->input('functionaryName');
             $graph = $request->input('graph');
@@ -74,10 +74,26 @@ class ReportsController extends Controller
 
         $labels = array_unique(array_column($labels->toArray(), 'name'));
 
+        $datasets = [];
 
-        $grades = DB::table('aggregate_assessment_results')->select(['role' ,'first_competence', 'second_competence','third_competence',
+
+
+        //AggregateGrade dataset
+        $aggregateGrade = DB::table('aggregate_assessment_results')->select(['role' ,'first_competence', 'second_competence','third_competence',
             'fourth_competence' , 'fifth_competence', 'sixth_competence'])->where('assessment_period_id', '=', $assessmentPeriodId)
             ->where('user_id','=',$userId)->get();
+
+
+
+        //Response Ideal dataset
+        $responseIdealGrade = DB::table('position_user as pu')->select(['ri.response', 'p.name'])->where('pu.user_id','=',$user['id'])
+            ->join('response_ideals as ri','ri.position_id','=','pu.position_id')
+            ->join('positions as p','p.id','=','pu.position_id')
+            ->where('ri.assessment_period_id','=',$assessmentPeriodId)->first();
+
+        dd($responseIdealGrade);
+
+
 
         $openAnswers = FormAnswer::getFunctionaryOpenAnswers($userId, $assessmentPeriodId);
 
