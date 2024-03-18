@@ -8,6 +8,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Validator;
 use Inertia\Inertia;
 use Laravel\Socialite\Facades\Socialite;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -70,6 +71,47 @@ class AuthController extends Controller
 
     public function externalClientLogin(Request $request)
     {
+        //Error messages
+        $messages = [
+            "email.required" => "El correo es obligatorio",
+            "email.email" => "Formato de correo incorrecto",
+            "email.exists" => "No se ha encontrado un usuario asociado a la cuenta de correo ingresada",
+            "password.required" => "Se requiere la contraseña para ingresar",
+        ];
+
+        // validate the form data
+        $validator = Validator::make($request->all(), [
+            'email' => 'required|email|exists:users,email',
+        ], $messages);
+
+        if ($validator->fails()) {
+            return back()->withErrors($validator)->withInput();
+        } else {
+            // attempt to log
+            if (Auth::attempt(['email' => $request->email, 'password' => $request->password ])) {
+                // if successful -> redirect to roleRedirect
+                return redirect()->route('tests.index.view');
+            }
+
+            // if unsuccessful -> redirect back
+            return redirect()->back()->withInput($request->only('email'))->withErrors([
+                'approve' => 'Contraseña incorrecta.',
+            ]);
+        }
+    }
+
+
+    public function originalExternalClientLogin(Request $request)
+    {
+
+        //Error messages
+        $messages = [
+            "email.required" => "El correo es obligatorio",
+            "email.email" => "Formato de correo incorrecto",
+            "email.exists" => "El correo ingresado no se encuentra en la base de datos",
+            "password.required" => "Se requiere la contraseña para ingresar",
+        ];
+
         $credentials = $request->validate([
             'email' => ['required', 'email'],
             'password' => ['required'],
@@ -82,6 +124,7 @@ class AuthController extends Controller
             'email' => 'Correo o contraseñas incorrectas, inténtelo nuevamente.',
         ]);
     }
+
 
     public function redirectGoogleLogin()
     {

@@ -107,7 +107,7 @@
                 @confirmed-dialog="deleteAssignment(deletedAssignment)"
             >
                 <template v-slot:title>
-                    Estas a punto de eliminar la asignación seleccionada
+                    Estás a punto de eliminar la asignación seleccionada
                 </template>
 
                 ¡Cuidado! esta acción es irreversible

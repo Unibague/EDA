@@ -187,7 +187,7 @@
                 @confirmed-dialog="deleteCommitment(deletedCommitmentId)"
             >
                 <template v-slot:title>
-                    Estas a punto de eliminar el compromiso seleccionado
+                    Estás a punto de eliminar el compromiso seleccionado
                 </template>
 
                 ¡Cuidado! esta acción es irreversible

@@ -113,7 +113,7 @@
                 @confirmed-dialog="deleteFile(deletedFileId)"
             >
                 <template v-slot:title>
-                    Estas a punto de eliminar el archivo seleccionado
+                    Estás a punto de eliminar el archivo seleccionado
                 </template>
 
                 ¡Cuidado! esta acción es irreversible

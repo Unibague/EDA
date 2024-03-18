@@ -150,7 +150,7 @@
                 @confirmed-dialog="deleteAssessmentPeriod(deletedAssessmentPeriodId)"
             >
                 <template v-slot:title>
-                    Estas a punto de eliminar el periodo de evaluación seleccionado
+                    Estás a punto de eliminar el periodo de evaluación seleccionado
                 </template>
 
                 ¡Cuidado! esta acción es irreversible

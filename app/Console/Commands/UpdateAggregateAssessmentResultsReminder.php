@@ -54,9 +54,11 @@ class UpdateAggregateAssessmentResultsReminder extends Command
 
         //Now iterate over every evaluatedId and filter the $formAnswers array and do the calculations
         foreach ($evaluatedIds as $evaluatedId){
+
             $localFormAnswers = array_filter($formAnswers, function ($formAnswer) use($evaluatedId){
                 return $formAnswer->evaluated_id === $evaluatedId;
             });
+
 
             //In order to calculate the final aggregate results, four (or more) actors have to submit the answer
             if(count($localFormAnswers) >= 4){

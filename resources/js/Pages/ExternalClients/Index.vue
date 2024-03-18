@@ -163,10 +163,10 @@
                 @confirmed-dialog="deleteExternalClient(deletedExternalClientId)"
             >
                 <template v-slot:title>
-                    Estas a punto de eliminar al cliente externo seleccionado
+                    Eliminar cliente externo
                 </template>
-
-                ¡Cuidado! esta acción es irreversible
+                Estás a punto de eliminar al cliente externo seleccionado.
+                ¡Cuidado! esta acción es irreversible.
 
                 <template v-slot:confirm-button-text>
                     Borrar

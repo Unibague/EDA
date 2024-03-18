@@ -114,7 +114,7 @@
                 @confirmed-dialog="deleteTraining(deletedTrainingId)"
             >
                 <template v-slot:title>
-                    Estas a punto de eliminar el tipo de compromiso seleccionado
+                    Estás a punto de eliminar el tipo de compromiso seleccionado
                 </template>
 
                 ¡Cuidado! esta acción es irreversible

@@ -172,7 +172,7 @@
                 @confirmed-dialog="deleteDependency(deletedDependencyId)"
             >
                 <template v-slot:title>
-                    Estas a punto de eliminar la dependencia seleccionada
+                    Estás a punto de eliminar la dependencia seleccionada
                 </template>
 
                 ¡Cuidado! esta acción es irreversible

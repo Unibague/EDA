@@ -113,7 +113,7 @@
                 @confirmed-dialog="deletePosition(deletedPositionId)"
             >
                 <template v-slot:title>
-                    Estas a punto de eliminar la posición seleccionada
+                    Estás a punto de eliminar la posición seleccionada
                 </template>
 
                 ¡Cuidado! esta acción es irreversible

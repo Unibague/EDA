@@ -140,7 +140,7 @@
                 @confirmed-dialog="deleteAdmin(deletedAdminId)"
             >
                 <template v-slot:title>
-                    Estas a punto de eliminar al administrador seleccionado
+                    Estás a punto de eliminar al administrador seleccionado
                 </template>
 
                 ¡Cuidado! esta acción es irreversible

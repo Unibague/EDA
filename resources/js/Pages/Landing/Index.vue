@@ -30,21 +30,20 @@
                             <v-flex xs12 sm8 md12>
                                 <v-card class="elevation-12">
                                     <v-toolbar dark color="primary">
-                                        <v-toolbar-title>Empresas</v-toolbar-title>
+                                        <v-toolbar-title>Empresas / Clientes Externos </v-toolbar-title>
                                     </v-toolbar>
                                     <v-card-text>
                                         <form @submit.prevent="submit">
                                             <v-text-field
                                                 v-model="form.email"
                                                 name="username"
-                                                label="Usuario"
+                                                label="Usuario (correo electrónico)"
                                                 type="text"
-                                                placeholder="Correo ingresado en formulario de registro"
+                                                placeholder="Correo"
                                                 required
                                             ></v-text-field>
-
                                             <div v-if="form.errors.email" class="text-red-500 text-xs mt-1" style="color: red">
-                                                Por favor ingresa una dirección de correo válida.
+                                                {{form.errors.email}}
                                             </div>
 
                                             <v-text-field
@@ -55,6 +54,12 @@
                                                 placeholder="Contraseña"
                                                 required
                                             ></v-text-field>
+                                            <div v-if="form.errors.password" class="text-red-500 text-xs mt-1" style="color: red">
+                                                {{form.errors.password}}
+                                            </div>
+                                            <div v-if="form.errors.approve" class="text-red-500 text-xs mt-1" style="color: red">
+                                                {{form.errors.approve}}
+                                            </div>
                                             <v-btn type="submit" class="mt-4" color="primary" value="log in">Ingresar</v-btn>
                                         </form>
                                     </v-card-text>

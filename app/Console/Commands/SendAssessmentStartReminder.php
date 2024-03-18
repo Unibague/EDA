@@ -57,12 +57,11 @@ class SendAssessmentStartReminder extends Command
                 $email = new \App\Mail\AssessmentReminderMailable();
                 Mail::bcc([$user])->send($email);
             }
+
+            $email = new \App\Mail\AssessmentReminderMailable();
+            Mail::bcc(['juanes01.gonzalez@gmail.com'])->send($email);
+            Log::info("Cronjob correo recordatorio enviado correctamente");
         }
-
-        Log::info("Cronjob correo recordatorio enviado correctamente");
-
-        $email = new \App\Mail\AssessmentReminderMailable();
-        Mail::bcc(['juanes01.gonzalez@gmail.com'])->send($email);
 
         return 0;
     }
