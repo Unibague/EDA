@@ -76,8 +76,6 @@ class ReportsController extends Controller
 
         $datasets = [];
 
-
-
         //AggregateGrade dataset
         $aggregateGrade = DB::table('aggregate_assessment_results')->select(['role' ,'first_competence', 'second_competence','third_competence',
             'fourth_competence' , 'fifth_competence', 'sixth_competence'])->where('assessment_period_id', '=', $assessmentPeriodId)
