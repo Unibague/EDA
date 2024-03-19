@@ -21,9 +21,6 @@
     <thead>
     <tr>
         <th scope="col">Rol</th>
-
-
-
         @foreach($labels as $label)
             @if($role === 'administrador')
                 <th scope="col">{{$label->name}}</th>
@@ -33,24 +30,24 @@
         @endforeach
 
 
-
     </tr>
     </thead>
     <tbody>
-    @foreach($grades as $grade)   <!--Here we iterate through the array of objects-->
+    @foreach($datasets as $grade)   <!--Here we iterate through the array of objects-->
     <tr>
-        @foreach ($grade as $property => $value)      <!--Here we iterate over the single object properties and print the value of the property -->
-            <td>{{$value}}</td>
+        <td> {{$grade->label}}</td>
+        @foreach ($grade->data as $item)      <!--Here we iterate over the single object properties and print the value of the property -->
+            <td style="text-align: center">{{$item}}</td>
         @endforeach
     </tr>
     @endforeach
     </tbody>
 </table>
 
-
-<p> <strong> Graficación de Resultados </strong> </p>
+<div style="text-align: center; margin-top: 50px">
+<p > <strong> Graficación de Resultados </strong> </p>
 <canvas id="graph"></canvas>
-
+</div>
 
 
 
@@ -84,17 +81,47 @@
         type: 'line',
         data: {
             labels: @json($labels),
-            datasets: [{
-                label: '# of Votes',
-                data: [12, 19, 3, 5, 2, 3],
-                borderWidth: 1
-            }]
+            datasets:@json($datasets),
         },
         options: {
             scales: {
-                y: {
-                    beginAtZero: true
-                }
+                x:
+                    {
+                        display: true,
+                        title: {
+                            display: true,
+                            text: 'Competencias',
+                            color: 'black',
+                            font: {
+                                size: 15,
+                                weight: 'bold',
+                                lineHeight: 1.2,
+                            },
+                        },
+                        position: 'top'
+                    }
+                ,
+                y:
+                    {
+                        min: 0,
+                        max: 5.4,
+                        display: true,
+
+                        title: {
+                            display: true,
+                            text: 'Valores obtenidos',
+                            color: 'black',
+                            font: {
+                                size: 15,
+                                weight: 'bold',
+                                lineHeight: 1.2,
+                            },
+                        },
+
+                        ticks:{
+                            callback: (value, index, values) => (index == (values.length-1)) ? undefined : value,
+                        },
+                    }
             }
         }
     });

@@ -29,12 +29,12 @@
     @foreach($grades as $grade)
         <tr>
             <td style="text-transform: capitalize">{{$grade->role}}</td>
-            <td>{{$grade->c1}}</td>
-            <td>{{$grade->c2}}</td>
-            <td>{{$grade->c3}}</td>
-            <td>{{$grade->c4}}</td>
-            <td>{{$grade->c5}}</td>
-            <td>{{$grade->c6}}</td>
+            <td style="text-align: center">{{$grade->c1}}</td>
+            <td style="text-align: center">{{$grade->c2}}</td>
+            <td style="text-align: center" >{{$grade->c3}}</td>
+            <td style="text-align: center">{{$grade->c4}}</td>
+            <td style="text-align: center" >{{$grade->c5}}</td>
+            <td style="text-align: center">{{$grade->c6}}</td>
         </tr>
     @endforeach
     </tbody>

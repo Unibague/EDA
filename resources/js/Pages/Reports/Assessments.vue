@@ -153,8 +153,6 @@
             </v-card>
         </v-container>
 
-
-
 <!--        //Respuestas abiertas-->
         <v-dialog
             v-model="showOpenAnswersDialog"
@@ -190,10 +188,6 @@
                 </v-card-actions>
             </v-card>
         </v-dialog>
-
-
-
-
 
 
         <!--Canvas para la gráfica-->
@@ -305,9 +299,7 @@ export default {
             //selected
             graphFunctionary:'',
             graphFunctionaryDatasets: [],
-
             openAnswersFunctionary:'',
-
 
             snackbar: {
                 text: "",
@@ -319,7 +311,6 @@ export default {
             //Snackbars
             showChartDialog: false,
             showOpenAnswersDialog: false,
-
 
 
             //Dialogs
@@ -457,8 +448,6 @@ export default {
 
             console.log(functionaryGrades);
             let labels = this.competences.map((competence) => {return competence.name});
-            console.log(labels);
-
             var winName='MyWindow';
             var winURL= route('reports.assessmentPDF');
             var windowOption='resizable=yes,height=600,width=800,location=0,menubar=0,scrollbars=1';
@@ -470,10 +459,6 @@ export default {
                 graph:base64Graph,
                 grades: JSON.stringify(functionaryGrades),
             };
-
-
-            console.log(labels);
-
 
             var form = document.createElement("form");
             form.setAttribute("method", "post");
