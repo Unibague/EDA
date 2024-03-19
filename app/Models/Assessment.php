@@ -73,5 +73,15 @@ class Assessment extends Model
             ]);
     }
 
+    public static function userHasPeerAssessment($userFormAnswers, $key, $value): bool
+    {
+        foreach ($userFormAnswers as $userFormAnswer){
+            if (isset($userFormAnswer->$key) && $userFormAnswer->$key === $value) {
+                return true; // The user has a peer assessment, therefore it is a regular type of assessment (the assessment weights are ok)
+            }
+        }
+        return false;
+    }
+
     use HasFactory;
 }
