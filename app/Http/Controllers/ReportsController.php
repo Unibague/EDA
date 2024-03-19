@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\AssessmentPeriod;
 use App\Models\FormAnswer;
 use App\Models\FormAnswers;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -47,27 +48,15 @@ class ReportsController extends Controller
         $user = auth()->user();
         $role = $user->role()['name'];
 
-
         if($role === "administrador"){
             $functionaryUserId = $request->input('functionaryUserId');
             $functionaryName = $request->input('functionaryName');
             $graph = $request->input('graph');
             $grades = json_decode($request->input('grades'));
             $openAnswers = FormAnswer::getFunctionaryOpenAnswers($functionaryUserId, $assessmentPeriodId);
+
             return view('assessmentReport', compact( 'assessmentPeriodName','labels','functionaryName','grades','graph', 'openAnswers'));
         }
-
-
-        //TODO Traer el dataset del ideal de respuesta y junto con el del promedio final, ponerlos en la gráfica que se renderiza en blade
-        //TODO NO OLVIDAAAAAAAAAAR
-        //TODO NO OLVIDAAAAAAAAAAR
-        //TODO NO OLVIDAAAAAAAAAAR
-        //TODO NO OLVIDAAAAAAAAAAR
-        //TODO NO OLVIDAAAAAAAAAAR
-        //TODO NO OLVIDAAAAAAAAAAR
-        //TODO NO OLVIDAAAAAAAAAAR
-        //TODO NO OLVIDAAAAAAAAAAR
-
 
         $userId = $user['id'];
         $functionaryName = $user['name'];
@@ -76,26 +65,51 @@ class ReportsController extends Controller
 
         $datasets = [];
 
-        //AggregateGrade dataset
-        $aggregateGrade = DB::table('aggregate_assessment_results')->select(['role' ,'first_competence', 'second_competence','third_competence',
-            'fourth_competence' , 'fifth_competence', 'sixth_competence'])->where('assessment_period_id', '=', $assessmentPeriodId)
-            ->where('user_id','=',$userId)->get();
-
-
-
         //Response Ideal dataset
         $responseIdealGrade = DB::table('position_user as pu')->select(['ri.response', 'p.name'])->where('pu.user_id','=',$user['id'])
             ->join('response_ideals as ri','ri.position_id','=','pu.position_id')
             ->join('positions as p','p.id','=','pu.position_id')
             ->where('ri.assessment_period_id','=',$assessmentPeriodId)->first();
 
-        dd($responseIdealGrade);
+        $mapResponseIdealArray = array_map(function ($responseIdeal){
+            return $responseIdeal->value;
+        }, json_decode($responseIdealGrade->response));
+
+        $datasets [] = (object)
+        [       'label' => "Nivel Esperado ($responseIdealGrade->name)",
+                'data' => $mapResponseIdealArray,
+                'backgroundColor' => 'orange',
+                'borderColor' => 'orange',
+                'borderWidth'=> 2,
+                'borderDash'=> [5, 5],
+        ];
+
+        //AggregateGrade dataset
+        $aggregateGrade = DB::table('aggregate_assessment_results as ar')->select(['ar.role' ,'ar.first_competence as c1','ar.second_competence as c2',
+            'ar.third_competence as c3','ar.fourth_competence as c4', 'ar.fifth_competence as c5','ar.sixth_competence as c6'])
+            ->where('ar.assessment_period_id', '=', $assessmentPeriodId)
+            ->where('ar.user_id','=',$userId)->first();
 
 
+        for ($i = 1; $i < 7; $i++){
+            $competence = "c${i}";
+            $mapAggregateGradeArray [] = $aggregateGrade->$competence;
+        }
+
+//        dd($aggregateGrade);
+
+        $datasets [] = (object)
+        [    'label' => ucfirst($aggregateGrade->role),
+            'data' => $mapAggregateGradeArray,
+            'backgroundColor' => 'black',
+            'borderColor' => 'black',
+            'borderWidth'=> 7,
+
+        ];
 
         $openAnswers = FormAnswer::getFunctionaryOpenAnswers($userId, $assessmentPeriodId);
 
-        return view('assessmentReport2', compact( 'assessmentPeriodName','labels','functionaryName','grades', 'openAnswers', 'role'));
+        return view('assessmentReport2', compact( 'assessmentPeriodName','labels','functionaryName', 'datasets', 'openAnswers', 'role'));
     }
 
 
