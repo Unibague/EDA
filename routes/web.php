@@ -34,6 +34,8 @@ Route::resource('api/assessmentPeriods', \App\Http\Controllers\AssessmentPeriodC
 ])->middleware('auth');
 Route::post('/api/assessmentPeriods/{assessmentPeriod}/setActive', [\App\Http\Controllers\AssessmentPeriodController::class, 'setActive'])
     ->middleware(['auth', 'isAdmin'])->name('api.assessmentPeriods.setActive');
+Route::post('/api/assessmentPeriods/{assessmentPeriod}/migrateActiveAssessmentPeriod', [\App\Http\Controllers\AssessmentPeriodController::class, 'migrateActiveAssessmentPeriodInfo'])
+    ->middleware(['auth', 'isAdmin'])->name('api.assessmentPeriods.migrateActive');
 
 
 

@@ -119,6 +119,18 @@
                                     <v-date-picker v-model="$data[createOrEditDialog.model].commitmentEndDate" full-width>
                                     </v-date-picker>
                                 </v-col>
+                                <v-col cols="12" :md="12" class="d-flex flex-column">
+                                <v-btn
+                                    v-if="$data[createOrEditDialog.model].id !== null && $data[createOrEditDialog.model].active === 0"
+                                    color="primario"
+                                    class="grey--text text--lighten-4"
+                                    @click="migrateActiveAssessmentPeriodInfo($data[createOrEditDialog.model])"
+                                >
+                                    Migrar información periodo activo
+                                </v-btn>
+                                </v-col>
+
+
                             </v-row>
                         </v-container>
                         <small>Los campos con * son obligatorios</small>
@@ -218,6 +230,16 @@ export default {
     },
 
     methods: {
+
+        migrateActiveAssessmentPeriodInfo: async function(item){
+            try{
+                let request = await axios.post(route('api.assessmentPeriods.migrateActive', {assessmentPeriod: item}));
+                showSnackbar(this.snackbar, request.data.message, 'success');
+            } catch (e) {
+                showSnackbar(this.snackbar, prepareErrorText(e), 'alert');
+            }
+        },
+
         setAssessmentPeriodAsActive: async function (assessmentPeriodId) {
             try {
                 let request = await axios.post(route('api.assessmentPeriods.setActive', {'assessmentPeriod': assessmentPeriodId}));
@@ -248,7 +270,6 @@ export default {
                 this.createOrEditDialog.dialogStatus = false;
                 showSnackbar(this.snackbar, request.data.message, 'success');
                 this.getAllAssessmentPeriods();
-
                 //Clear role information
                 this.editedAssessmentPeriod = new AssessmentPeriod();
             } catch (e) {
@@ -274,6 +295,7 @@ export default {
         getAllAssessmentPeriods: async function () {
             let request = await axios.get(route('api.assessmentPeriods.index'));
             this.assessmentPeriods = request.data;
+            console.log(this.assessmentPeriods);
         },
         setAssessmentPeriodDialogToCreateOrEdit(which, item = null) {
             if (which === 'create') {
@@ -287,6 +309,9 @@ export default {
                 this.createOrEditDialog.method = 'editAssessmentPeriod';
                 this.createOrEditDialog.model = 'editedAssessmentPeriod';
                 this.createOrEditDialog.dialogStatus = true;
+
+                console.log(this.editedAssessmentPeriod);
+
             }
 
         },
