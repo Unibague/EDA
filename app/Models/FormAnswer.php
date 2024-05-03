@@ -38,8 +38,6 @@ class FormAnswer extends Model
         $activeAssessmentPeriodId = AssessmentPeriod::getActiveAssessmentPeriod()->id;
         $competencesAverage = self::getCompetencesAverage(json_decode(json_encode($request->input('answers'), JSON_THROW_ON_ERROR), false, 512, JSON_THROW_ON_ERROR));
 
-        dd($competencesAverage);
-
         $formAnswer = self::create([
             'user_id' => auth()->user()->id,
             'form_id' => $form->id,
@@ -69,9 +67,6 @@ class FormAnswer extends Model
         $competences = [];
         try{
             foreach ($formAnswers as $answer) {
-
-                dd($answer);
-
                 if (isset($competences[$answer->competence]) === true) {
                     $competences[$answer->competence]['totalAnswers']++;
                 } else {
