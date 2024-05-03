@@ -39,6 +39,7 @@
                             mdi-pencil
                         </v-icon>
                         <v-icon
+                            v-if="item.position_id !== null"
                             class="primario--text"
                             @click="confirmDeleteAssignment(item)"
                         >
@@ -219,7 +220,6 @@ export default {
         },
 
         deleteAssignment: async function (assignment) {
-
             try {
                 let request = await axios.post(route('api.positionsAssignment.destroy') , {data: assignment});
                 this.deleteAssignmentDialog = false;
@@ -234,6 +234,7 @@ export default {
                 this.editedAssignment = item
                 this.createOrEditDialog.method = 'editAssignment';
                 this.createOrEditDialog.dialogStatus = true;
+                console.log(item)
             }
         },
     },

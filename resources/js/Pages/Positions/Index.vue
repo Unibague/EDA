@@ -183,31 +183,6 @@ export default {
             this[this.createOrEditDialog.method]();
         },
 
-        async test(){
-            let data = {
-                "requestId": 1234,
-                "currentDateTime": "2022-04-26",
-                "ingDate": "2022-04-26",
-                "paidInvoices": [
-                    {
-                        "invoiceId": 654987,
-                        "paidValue": 50000000,
-                        "bankSrc": "Bancolombia",
-                        "bankAuthCode": "Banco1234"
-                    },
-                    {
-                        "invoiceId": 999888,
-                        "paidValue": 40000000,
-                        "bankSrc": "Davivienda",
-                        "bankAuthCode": "Dav4321"
-                    }
-                ]
-            }
-
-            let request = await axios.post(route('webService.test'), {data})
-
-        },
-
         createPosition: async function () {
             if (this.newPosition.hasEmptyProperties()) {
                 showSnackbar(this.snackbar, 'Debes diligenciar todos los campos obligatorios', 'red', 2000);
@@ -260,7 +235,7 @@ export default {
                 let request = await axios.delete(route('api.positions.destroy', {position: position}));
                 this.deletePositionDialog = false;
                 showSnackbar(this.snackbar, request.data.message, 'success');
-                await this.getAllPositions();
+                await this.getPositions();
             } catch (e) {
                 showSnackbar(this.snackbar, e.response.data.message, 'red', 3000);
             }

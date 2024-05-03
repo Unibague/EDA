@@ -23,6 +23,22 @@ class AssessmentPeriodController extends Controller
         return response()->json(AssessmentPeriod::all());
     }
 
+    public function migrateActiveAssessmentPeriodInfo(AssessmentPeriod $assessmentPeriod): JsonResponse
+    {
+        //Get the activeAssessmentPeriod
+        $active = AssessmentPeriod::getActiveAssessmentPeriod();
+        $destinationAssessmentPeriod = $assessmentPeriod;
+        try{
+            $done = AssessmentPeriod::migrateActiveAssessmentPeriodInformation($active, $destinationAssessmentPeriod);
+            if ($done){
+                return response()->json(['message' => 'Información migrada de manera exitosa']);
+            }
+            return response()->json(['message' => 'Ya existe información asociada al periodo al que intentas migrar, no puedes proceder con la migración'], 500);
+        } catch (\Exception $exception) {
+            return response()->json(['message' => 'Ocurrió un error durante el proceso de migrar la información, por favor contacta con el administrador'], 400);
+        }
+    }
+
     public function setActive(SetActiveAssessmentPeriodRequest $request, AssessmentPeriod $assessmentPeriod): JsonResponse
     {
         //Detect previous assessment period

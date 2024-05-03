@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
@@ -62,6 +63,35 @@ class AssessmentPeriod extends Model
     public function assessmentReminders(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(AssessmentReminder::class);
+    }
+
+    public static function migrateActiveAssessmentPeriodInformation($activeAssessmentPeriod, $destinationAssessmentPeriod)
+    {
+        //We have to migrate the competences, response ideals, position_user and job_title_positions
+        $tablesName = ['forms'];
+
+        foreach ($tablesName as $tableName){
+            //First validate that there are no records associated to the desired assessmentPeriod to migrate to on the selected table
+            $destinationAssessmentPeriodRecords = DB::table($tableName)->where('assessment_period_id','=',$destinationAssessmentPeriod->id)
+                ->get();
+            //If, in fact, there are no records in the new assessmentPeriod, then proceed with the insert of the data
+            if(count($destinationAssessmentPeriodRecords)  === 0){
+                $activeAssessmentPeriodRecords = DB::table($tableName)->where('assessment_period_id','=',$activeAssessmentPeriod->id)
+                    ->get()->map(function ($item) {
+                        return collect($item)->except(['id','created_at', 'updated_at'])->all();
+                    })->toArray();
+                foreach ($activeAssessmentPeriodRecords as &$activeAssessmentPeriodRecord){
+                    $activeAssessmentPeriodRecord['assessment_period_id'] = $destinationAssessmentPeriod['id'];
+                    $activeAssessmentPeriodRecord['created_at'] = Carbon::now()->toDateTimeString();
+                    $activeAssessmentPeriodRecord['updated_at'] = Carbon::now()->toDateTimeString();
+                    DB::table($tableName)->insert($activeAssessmentPeriodRecord);
+                }
+            }
+            else {
+                return false;
+            }
+        }
+        return true;
     }
 
     public static function getActiveAssessmentPeriod()

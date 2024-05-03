@@ -17,7 +17,8 @@ class CompetenceController extends Controller
      */
     public function index()
     {
-        return response()->json(Competence::orderBy('position')->get());
+        $activeAssessmentPeriodId = AssessmentPeriod::getActiveAssessmentPeriod()->id;
+        return response()->json(Competence::where('assessment_period_id','=',$activeAssessmentPeriodId)->orderBy('position')->get());
     }
 
     /**

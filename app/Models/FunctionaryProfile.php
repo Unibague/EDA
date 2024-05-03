@@ -68,16 +68,13 @@ class FunctionaryProfile extends Model
         $assessmentPeriodAsString = (string)$activeAssessmentPeriodId;
         $functionaryRoleId = Role::getRoleIdByName('funcionario');
 
-//        array_shift($functionaries);
 
         /**First we check those users who are no longer on the university but still appear on functionary_profiles DB
         and proceed to save the info on functionaries_data_changes */
-
         self::checkForNoLongerFunctionaries($functionaries, $activeAssessmentPeriodId);
 
         $finalFunctionaries = [];
         foreach ($functionaries as $functionary){
-
             /** Here we check if the users that really exist in endpoint have any information changed
              (position, program) and if so, we save the info on functionaries_data_changes and do not proceed to sync directly
              */
@@ -134,9 +131,9 @@ class FunctionaryProfile extends Model
     {
         //Iterate from every user on funtionary_profiles table and check if exists on the $functionaries endPoint.
         $functionariesOnDB = DB::table('functionary_profiles')->where("assessment_period_id", '=', $activeAssessmentPeriodId)->get();
-        $noLongerFunctionariesArray = [];
         $functionaries = collect($functionaries);
 
+        $noLongerFunctionariesArray = [];
         foreach ($functionariesOnDB as $functionary){
                 $existsInEndPoint = $functionaries->contains('identification', '=',$functionary->identification_number);
                 if(!$existsInEndPoint){

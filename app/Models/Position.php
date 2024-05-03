@@ -43,12 +43,10 @@ class Position extends Model
     public static function syncJobTitles($jobTitles)
     {
         $activeAssessmentPeriodId = AssessmentPeriod::getActiveAssessmentPeriod()->id;
-        $upsertData = [];
         foreach ($jobTitles as $jobTitle){
-            $upsertData [] = ['job_title' => $jobTitle,
-                                'assessment_period_id' => $activeAssessmentPeriodId];
+            DB::table('job_title_positions')->updateOrInsert(['job_title' => $jobTitle,
+                'assessment_period_id' => $activeAssessmentPeriodId], ['job_title' => $jobTitle]);
         }
-        DB::table('job_title_positions')->upsert($upsertData, ['job_title', 'assessment_period_id']);
     }
 
     use HasFactory;
