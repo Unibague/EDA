@@ -274,40 +274,30 @@ export default {
             //Table info
             search: '',
             headers: [],
-
             //Display data
             assessments: [],
             assessmentPeriod: '',
             assessmentPeriods: [],
             competences: [],
-
             dependency: '',
             dependencies:[],
-
             functionary: '',
             functionaries:[],
-
             grades: [],
-
             responseIdeals: [],
-
             role: "",
             roles: [],
-
             openAnswers: [],
-
             //selected
             graphFunctionary:'',
             graphFunctionaryDatasets: [],
             openAnswersFunctionary:'',
-
             snackbar: {
                 text: "",
                 type: 'alert',
                 status: false,
                 timeout: 2000,
             },
-
             //Snackbars
             showChartDialog: false,
             showOpenAnswersDialog: false,
@@ -355,6 +345,7 @@ export default {
 
         getTableHeaders: async function (){
             this.headers.push({text:"Funcionario", value:"name", width: "15%"})
+            this.headers.push({text:"Posición", value:"position_name", width: "15%"})
             this.headers.push({text:"Dependencia", value:"dependency_name", width: "10%"})
             this.headers.push({text:"Rol", value:"role", width: "10%"})
             await this.getCompetences();
@@ -492,6 +483,7 @@ export default {
                 })
                 return {
                     Funcionario :item.name,
+                    Posición: item.position_name,
                     Dependencia: item.dependency_name,
                     rol: item.role,
                     ...competencesData
