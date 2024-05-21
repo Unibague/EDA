@@ -47,7 +47,7 @@ class UpdateAggregateAssessmentResultsReminder extends Command
         $now = Carbon::now();
         $date = $now->toDateString();
         $inRangeOfSuitableDates = DB::table('assessment_periods as ap')->where('active','=',1)
-            ->where('assessment_end_date','<=',$date)->where('commitment_end_date','>=',$date)->first();
+            ->where('assessment_end_date','<=',$date)->where('commitment_start_date','>=',$date)->first();
 
         if($inRangeOfSuitableDates){
             $activeAssessmentPeriodId = AssessmentPeriod::getActiveAssessmentPeriod()->id;
