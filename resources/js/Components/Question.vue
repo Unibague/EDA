@@ -59,29 +59,6 @@
                 </template>
                 <span>Añadir otra opción de respuesta</span>
             </v-tooltip>
-
-            <v-tooltip bottom>
-                <template v-slot:activator="{ on, attrs }">
-                    <v-btn icon large v-bind="attrs" v-on="on"
-                           @click="$emit('copyQuestion', {name,competence,type,options})">
-                        <v-icon>
-                            mdi-content-copy
-                        </v-icon>
-                    </v-btn>
-                </template>
-                <span>Copiar pregunta</span>
-            </v-tooltip>
-            <v-tooltip bottom>
-                <template v-slot:activator="{ on, attrs }">
-                    <v-btn icon large v-bind="attrs" v-on="on"
-                           @click="$emit('deleteQuestion', baseIndex)">
-                        <v-icon>
-                            mdi-delete
-                        </v-icon>
-                    </v-btn>
-                </template>
-                <span>Borrar pregunta</span>
-            </v-tooltip>
         </v-card-actions>
     </v-card>
 

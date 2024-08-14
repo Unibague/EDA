@@ -7,7 +7,7 @@
             <div class="d-flex flex-column align-end mb-8">
                 <h2 class="align-self-start">Evaluaciones asignadas</h2>
 
-<!--                <div v-if="$page.props.user.customRoleId === 3" class="mt-5">
+                <div v-if="$page.props.user.customRoleId === 3" class="mt-5">
                     <v-btn
                         v-if="hasFinalReport"
                         color="primario"
@@ -16,7 +16,7 @@
                     >
                         Descargar Reporte Final de Evaluación
                     </v-btn>
-                </div>-->
+                </div>
 
             </div>
 

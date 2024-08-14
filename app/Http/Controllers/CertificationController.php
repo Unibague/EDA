@@ -61,9 +61,7 @@ class CertificationController extends Controller
      */
     public function store(Request $request): JsonResponse
     {
-
         if($request->hasFile('file')){
-
             $file = $request->file('file');
             $commitmentId = $request->input("commitment_id");
             $userId = auth()->user()->id;
