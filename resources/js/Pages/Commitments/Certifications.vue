@@ -200,7 +200,6 @@ export default {
         },
 
         addFile: function (e){
-            console.log(e, "info obtenida");
             if (e === null){
                 return;
             }
@@ -211,7 +210,6 @@ export default {
             const file = new FormData();
             file.append("file", this.fileSelected)
             file.append("commitment_id", this.commitment.id)
-
             try {
                 let request = await axios.post(route('api.certifications.store'), file,
                     {headers:{'content-type': 'multipart/form-data'}});
