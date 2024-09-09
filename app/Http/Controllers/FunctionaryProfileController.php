@@ -45,7 +45,9 @@ class FunctionaryProfileController extends Controller
         }
 
         return response()->json(FunctionaryProfile::where('assessment_period_id', '=', $assessmentPeriodId)
-            ->with('user')->get()->sortBy('user.name')->values()->all());
+            ->with(['user', 'user.commitments' => function($query) use ($assessmentPeriodId) {
+                $query->where('assessment_period_id', $assessmentPeriodId);
+            }])->get()->sortBy('user.name')->values()->all());
 
     }
 

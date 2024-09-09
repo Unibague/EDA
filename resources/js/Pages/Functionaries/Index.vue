@@ -52,6 +52,10 @@
                     :item-class="getRowColor"
                 >
 
+                    <template v-slot:item.user.commitments="{ item }">
+                        {{item.user.commitments.length}}
+                    </template>
+
                     <template v-slot:item.is_active="{ item }">
                         {{item.is_active === 1 ? 'Activo' : 'Inactivo'}}
                     </template>
@@ -107,6 +111,7 @@ export default {
                 {text: 'Dependencia', value: 'dependency_name'},
                 {text: 'Posición', value: 'job_title'},
                 {text: 'Estado', value: 'is_active'},
+                {text: 'Compromisos asignados', value: 'user.commitments'},
                 {text: 'Acciones', value: 'actions', sortable: false},
             ],
             functionaries: [],
