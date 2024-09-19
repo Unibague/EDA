@@ -11,7 +11,7 @@
                     <v-btn
                         v-if="hasFinalReport"
                         color="primario"
-                        class="grey&#45;&#45;text text&#45;&#45;lighten-4 ml-4"
+                        class="grey--text text--lighten-4"
                         @click="getReport"
                     >
                         Descargar Reporte Final de Evaluación
