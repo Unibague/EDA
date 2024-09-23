@@ -18,9 +18,6 @@ class CommitmentController extends Controller
     public function landing()
     {
         $userRole = auth()->user()->role();
-
-//        dd($userRole);
-
         return Inertia::render('Commitments/Index', ['role' => $userRole]);
     }
 
@@ -33,7 +30,6 @@ class CommitmentController extends Controller
     {
         $user = auth()->user();
         $activeAssessmentPeriodId = AssessmentPeriod::getActiveAssessmentPeriod()->id;
-
 
         if($role["name"] === "funcionario") {
 
@@ -50,14 +46,23 @@ class CommitmentController extends Controller
                 ->where('ap.commitment_start_date','<=',$date)->where('ap.commitment_end_date','>=',$date)->first();
 
             if($validDate){
-                return DB::table('commitments as c')->select(['c.id', 'u.name as user_name', 'u.id as user_id', 't.name as training_name',
+
+                $commitments = DB::table('commitments as c')->select(['c.id', 'u.name as user_name', 'u.id as user_id', 't.name as training_name',
                     't.id as training_id','c.due_date','c.done', 'c.done_date'])
-                    ->where('a.evaluator_id', '=', $user['id'])
-                    ->where('a.role','=', 'jefe')->orWhere('c.user_id','=', $user['id'])
-                    ->join('assessments as a', 'c.user_id','=','a.evaluated_id')
+                    ->where('c.user_id', '=', $user['id'])
                     ->join('users as u', 'c.user_id', '=','u.id')
-                    ->join('trainings as t', 'c.training_id', '=','t.id')
-                    ->orderBy('u.name','ASC')->get()->unique();
+                    ->join('trainings as t', 'c.training_id', '=','t.id')->get();
+
+                return $commitments;
+
+//                return DB::table('commitments as c')->select(['c.id', 'u.name as user_name', 'u.id as user_id', 't.name as training_name',
+//                    't.id as training_id','c.due_date','c.done', 'c.done_date'])
+//                    ->where('a.evaluator_id', '=', $user['id'])
+//                    ->where('a.role','=', 'jefe')->orWhere('c.user_id','=', $user['id'])
+//                    ->join('assessments as a', 'c.user_id','=','a.evaluated_id')
+//                    ->join('users as u', 'c.user_id', '=','u.id')
+//                    ->join('trainings as t', 'c.training_id', '=','t.id')
+//                    ->orderBy('u.name','ASC')->get()->unique();
             }
 
             return response()->json([]);
@@ -125,15 +130,12 @@ class CommitmentController extends Controller
         $user = auth()->user();
 
         if($role['name'] === 'funcionario'){
-
-            $userCommitments = DB::table('commitments as c')->select(['c.id'])
-                ->where('c.assessment_period_id','=', $activeAssessmentPeriodId)
-                ->where('a.evaluator_id', '=', $user['id'])
-                ->where('a.role','=', 'jefe')->orWhere('c.user_id','=', $user['id'])
-                ->join('assessments as a', 'c.user_id','=','a.evaluated_id')
+            $userCommitments = DB::table('commitments as c')->
+            select(['c.id', 'u.name as user_name', 'u.id as user_id', 't.name as training_name',
+                't.id as training_id','c.due_date','c.done', 'c.done_date'])
+                ->where('c.user_id', '=', $user['id'])
                 ->join('users as u', 'c.user_id', '=','u.id')
-                ->join('trainings as t', 'c.training_id', '=','t.id')->orderBy('u.name','ASC')->get();
-
+                ->join('trainings as t', 'c.training_id', '=','t.id')->get();
             if(!$userCommitments->contains('id','=',$commitment['id'])){
                 return response('No tienes permisos suficientes para realizar esta acción', 403);
             }
