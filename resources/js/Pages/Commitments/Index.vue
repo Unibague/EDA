@@ -291,10 +291,8 @@ export default {
                 return;
             }
             let data = this.newCommitment.toObjectRequest();
-
             //Clear role information
             this.newCommitment = new Commitment();
-
             try {
                 let request = await axios.post(route('api.commitments.store'), data);
                 this.createOrEditDialog.dialogStatus = false;
@@ -364,7 +362,6 @@ export default {
         },
 
         getCommitmentsStatus(){
-
             var winName='MyWindow';
             var winURL= route('reports.commitmentPDF');
             var windowOption='resizable=yes,height=600,width=800,location=0,menubar=0,scrollbars=1';
@@ -396,9 +393,6 @@ export default {
                 showSnackbar(this.snackbar, "No hay datos para guardar", 'alert');
             }
 
-/*            console.log(this.commitments);
-            console.log(this.headers);*/
-
             let headers = this.headers.filter(header => {
                 return !header.hasOwnProperty('sortable')
             })
@@ -412,9 +406,6 @@ export default {
                     ...data
                 }
             })
-
-            console.log(excelInfo)
-
             let csv = Papa.unparse(excelInfo, {delimiter:';'});
             var csvData = new Blob(["\uFEFF"+csv], {type: 'text/csv;charset=utf-8;'});
             var csvURL =  null;
@@ -431,8 +422,6 @@ export default {
             tempLink.setAttribute('download', 'Consolidado_Compromisos.csv');
             tempLink.click();
         },
-
-
     },
 }
 </script>
