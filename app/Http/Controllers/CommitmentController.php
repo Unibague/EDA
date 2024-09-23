@@ -50,6 +50,7 @@ class CommitmentController extends Controller
                 $commitments = DB::table('commitments as c')->select(['c.id', 'u.name as user_name', 'u.id as user_id', 't.name as training_name',
                     't.id as training_id','c.due_date','c.done', 'c.done_date'])
                     ->where('c.user_id', '=', $user['id'])
+                    ->where('c.assessment_period_id','=', $activeAssessmentPeriodId)
                     ->join('users as u', 'c.user_id', '=','u.id')
                     ->join('trainings as t', 'c.training_id', '=','t.id')->get();
 
@@ -134,6 +135,7 @@ class CommitmentController extends Controller
             select(['c.id', 'u.name as user_name', 'u.id as user_id', 't.name as training_name',
                 't.id as training_id','c.due_date','c.done', 'c.done_date'])
                 ->where('c.user_id', '=', $user['id'])
+                ->where('c.assessment_period_id','=', $activeAssessmentPeriodId)
                 ->join('users as u', 'c.user_id', '=','u.id')
                 ->join('trainings as t', 'c.training_id', '=','t.id')->get();
             if(!$userCommitments->contains('id','=',$commitment['id'])){
