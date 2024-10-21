@@ -13,6 +13,29 @@ class Commitment extends Model
 
     protected $guarded = [];
 
+    public static function getCommitments($assessmentPeriodId){
+
+        if(!$assessmentPeriodId){
+            $assessmentPeriodId = AssessmentPeriod::getActiveAssessmentPeriod()->id;
+        }
+
+        return DB::table('commitments as c')
+            ->select(
+                ['c.id','u.name as user_name', 'd.name as dependency_name',
+                    't.name as training_name','co.name as competence_name',
+                    'c.due_date', 'c.done', 'c.done_date'])
+            ->where('c.assessment_period_id','=',$assessmentPeriodId)
+            ->where('du.role_id','=',2)
+            ->where('du.is_active','=',true)
+            ->join('users as u', 'c.user_id', '=','u.id')
+            ->join('trainings as t', 'c.training_id', '=','t.id')
+            ->join('competences as co','t.competence_id','=','co.id')
+            ->join('dependency_user as du','c.user_id','=','du.user_id')
+            ->join('dependencies as d','du.dependency_identifier','=','d.identifier')
+            ->orderBy('d.name','ASC')->get();
+    }
+
+
     public function user(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(User::class);

@@ -56,8 +56,12 @@ Route::inertia('/commitments', 'Commitments/Index')->name('commitments.index.vie
 Route::get('/commitments/landing', [\App\Http\Controllers\CommitmentController::class, 'landing'])->middleware(['auth'])->name('commitments.landing');
 Route::resource('api/commitments', \App\Http\Controllers\CommitmentController::class, [
     'as' => 'api'])->middleware('auth');
+Route::get('/commitments/dependencies', [\App\Http\Controllers\CommitmentController::class, 'getCommitmentsWithDependencies'])->middleware(['auth'])->name('commitments.dependencies');
+Route::get('/commitments/report', [\App\Http\Controllers\CommitmentController::class, 'getCommitmentsReport'])->middleware('auth')->name('commitments.report');
 Route::get('/commitments/{role}', [\App\Http\Controllers\CommitmentController::class, 'indexCommitments'])->middleware(['auth'])->name('commitments.index');
 Route::get('/commitments/{commitment}/finish', [\App\Http\Controllers\CommitmentController::class, 'setCommitmentAsDone'])->middleware(['auth', 'isAdmin'])->name('commitments.setDone');
+
+
 
 /* >>>>>>>>>>>>>>>>>>>>>>>>>>>> Commitment Reminder routes <<<<<<<<<<<<<<<<<<<<<<<<<<< */
 Route::inertia('/commitments/landing/reminders', 'Commitments/Reminders')->middleware(['auth', 'isAdmin'])->name('reminders.index.view');
@@ -178,6 +182,8 @@ Route::inertia('/reports/assessments', 'Reports/Assessments')->middleware(['auth
 Route::get('/reports/assessments/available', [\App\Http\Controllers\ReportsController::class, 'hasAssessmentReportAvailable'])->middleware(['auth'])->name('reports.assessment.available');
 Route::post('/reports/assessmentPDF', [\App\Http\Controllers\ReportsController::class, 'getAssessmentPDF'])->middleware(['auth'])->name('reports.assessmentPDF');
 Route::post('/reports/commitmentPDF', [\App\Http\Controllers\ReportsController::class, 'getCommitmentsStatusPDF'])->middleware(['auth'])->name('reports.commitmentPDF');
+
+
 
 
 /* >>>>>ResponseIdeals routes<<<<<< */
