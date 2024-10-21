@@ -96,8 +96,6 @@ class ReportsController extends Controller
             $mapAggregateGradeArray [] = $aggregateGrade->$competence;
         }
 
-//        dd($aggregateGrade);
-
         $datasets [] = (object)
         [    'label' => ucfirst($aggregateGrade->role),
             'data' => $mapAggregateGradeArray,

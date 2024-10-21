@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\CommitmentsReport;
 use App\Models\AssessmentPeriod;
 use App\Models\Commitment;
+use App\Models\Report;
 use App\Models\Role;
 use Carbon\Carbon;
 use Illuminate\Database\QueryException;
@@ -11,6 +13,9 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
+use Maatwebsite\Excel\Facades\Excel;
+use PhpParser\Error;
+use PHPUnit\Exception;
 
 class CommitmentController extends Controller
 {
@@ -32,51 +37,26 @@ class CommitmentController extends Controller
         $activeAssessmentPeriodId = AssessmentPeriod::getActiveAssessmentPeriod()->id;
 
         if($role["name"] === "funcionario") {
-
-            //            if(count($commitments) === 0){
-//                return DB::table('commitments as c')->select(['c.id', 'u.name as user_name', 'u.id as user_id', 't.name as training_name', 't.id as training_id','c.due_date','c.done'])
-//                    ->where('c.assessment_period_id','=', $activeAssessmentPeriodId)->where('c.user_id','=', $user['id'])
-//                    ->join('users as u', 'c.user_id', '=','u.id')
-//                    ->join('trainings as t', 'c.training_id', '=','t.id')->get();
-//            }
             $now = Carbon::now();
             $date = $now->toDateString();
-
             $validDate = DB::table('assessment_periods as ap')->where('ap.active','=',1)
                 ->where('ap.commitment_start_date','<=',$date)->where('ap.commitment_end_date','>=',$date)->first();
 
-            if($validDate){
-
-                $commitments = DB::table('commitments as c')->select(['c.id', 'u.name as user_name', 'u.id as user_id', 't.name as training_name',
-                    't.id as training_id','c.due_date','c.done', 'c.done_date'])
+            if($validDate) {
+                return DB::table('commitments as c')->select(['c.id', 'u.name as user_name', 'u.id as user_id', 't.name as training_name',
+                    't.id as training_id', 'c.due_date', 'c.done', 'c.done_date'])
                     ->where('c.user_id', '=', $user['id'])
-                    ->where('c.assessment_period_id','=', $activeAssessmentPeriodId)
-                    ->join('users as u', 'c.user_id', '=','u.id')
-                    ->join('trainings as t', 'c.training_id', '=','t.id')->get();
-
-                return $commitments;
-
-//                return DB::table('commitments as c')->select(['c.id', 'u.name as user_name', 'u.id as user_id', 't.name as training_name',
-//                    't.id as training_id','c.due_date','c.done', 'c.done_date'])
-//                    ->where('a.evaluator_id', '=', $user['id'])
-//                    ->where('a.role','=', 'jefe')->orWhere('c.user_id','=', $user['id'])
-//                    ->join('assessments as a', 'c.user_id','=','a.evaluated_id')
-//                    ->join('users as u', 'c.user_id', '=','u.id')
-//                    ->join('trainings as t', 'c.training_id', '=','t.id')
-//                    ->orderBy('u.name','ASC')->get()->unique();
+                    ->where('c.assessment_period_id', '=', $activeAssessmentPeriodId)
+                    ->join('users as u', 'c.user_id', '=', 'u.id')
+                    ->join('trainings as t', 'c.training_id', '=', 't.id')->get();
             }
-
             return response()->json([]);
         }
 
         if($role["name"] === "administrador") {
-            return DB::table('commitments as c')->select(['c.id', 'u.name as user_name', 'u.id as user_id', 't.name as training_name',
-                't.id as training_id','c.due_date','c.done', 'c.done_date'])
-                ->where('c.assessment_period_id','=', $activeAssessmentPeriodId)
-                ->join('users as u', 'c.user_id', '=','u.id')
-                ->join('trainings as t', 'c.training_id', '=','t.id')->orderBy('u.name','ASC')->get();
+           return Commitment::getCommitments($activeAssessmentPeriodId);
         }
-
+        return response()->json([]);
     }
 
     /**
@@ -183,6 +163,17 @@ class CommitmentController extends Controller
         $commitment->save();
 
         return response()->json(['message' => 'Compromiso marcado como finalizado, ya no se podrá editar ni borrar información del mismo']);
+    }
+
+
+    public function getCommitmentsReport(Request $request){
+        $assessmentPeriodId = $request->get('assessmentPeriodId');
+        $commitments = Commitment::getCommitments($assessmentPeriodId);
+        try{
+            return Report::downloadCommitmentsExcel($commitments);
+        } catch (Error $error){
+            return response()->json(['error' => $error->getMessage()]);
+        }
     }
 
 

@@ -33,7 +33,8 @@
                     <v-btn
                         color="primario"
                         class="grey--text text--lighten-4"
-                        @click="downloadExcel"
+                        @click="downloadExcelReport"
+                        v-if="commitments.length > 0"
                     >
                         Descargar Excel
                     </v-btn>
@@ -229,6 +230,7 @@ export default {
             search: '',
             headers: [
                 {text: 'Funcionario', value: 'user_name'},
+                {text: 'Dependencia', value:'dependency_name'},
                 {text: 'Tipo de compromiso', value: 'training_name'},
                 {text: 'Fecha máxima', value: 'due_date'},
                 {text: 'Realizado', value: 'done'},
@@ -267,7 +269,6 @@ export default {
     },
 
     methods: {
-
         async getCommitments () {
             console.log(this.role, "The role")
             let request = await axios.get(route('commitments.index', {role: this.role.id}));
@@ -339,7 +340,6 @@ export default {
             } catch (e) {
                 showSnackbar(this.snackbar, e.response.data.message, 'red', 5000);
             }
-
         },
 
         handleSelectedMethod: function () {
@@ -387,10 +387,29 @@ export default {
             document.body.removeChild(form);
         },
 
+        async downloadExcelReport(){
+            try {
+                const response = await axios.get(route(`commitments.report`), {
+                    responseType: 'blob' // This is important for binary data (like files)
+                });
+                // Create a blob and download the file
+                const url = window.URL.createObjectURL(new Blob([response.data]));
+                const link = document.createElement('a');
+                link.href = url;
+                link.setAttribute('download', 'Reporte_Compromisos_EDA.xlsx')
+                document.body.appendChild(link);
+                link.click();
+                // Cleanup
+                link.remove();
+            } catch (e){
+                showSnackbar(this.snackbar, e.response.data.message, 'red', 5000);
+            }
+        },
+
 
         downloadExcel (){
             if (this.commitments.length === 0){
-                showSnackbar(this.snackbar, "No hay datos para guardar", 'alert');
+                showSnackbar(this.snackbar, "No hay datos para descargar", 'alert');
             }
 
             let headers = this.headers.filter(header => {
