@@ -18,8 +18,11 @@ class PositionAssignmentController extends Controller
     public function index()
     {
         $activeAssessmentPeriodId = AssessmentPeriod::getActiveAssessmentPeriod()->id;
-        $assignments = DB::table('job_title_positions as jtp')->select(['jtp.job_title', 'jtp.position_id', 'p.name as name'])->where('jtp.assessment_period_id', '=', $activeAssessmentPeriodId)->
-        leftJoin('positions as p', 'p.id', '=', 'jtp.position_id')->get();
+        $assignments = DB::table('job_title_positions as jtp')
+            ->select(['jtp.job_title',
+                'jtp.position_id',
+                'p.name as name'])->where('jtp.assessment_period_id', '=', $activeAssessmentPeriodId)
+            ->leftJoin('positions as p', 'p.id', '=', 'jtp.position_id')->get();
         return response()->json($assignments);
     }
 
@@ -36,7 +39,7 @@ class PositionAssignmentController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param \Illuminate\Http\Request $request
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
@@ -47,7 +50,7 @@ class PositionAssignmentController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
+     * @param int $id
      * @return \Illuminate\Http\Response
      */
     public function show($id)
@@ -58,7 +61,7 @@ class PositionAssignmentController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  int  $id
+     * @param int $id
      * @return \Illuminate\Http\Response
      */
     public function edit($id)
@@ -69,8 +72,8 @@ class PositionAssignmentController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
+     * @param \Illuminate\Http\Request $request
+     * @param int $id
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, JobTitlePosition $assignment)
@@ -84,15 +87,15 @@ class PositionAssignmentController extends Controller
         $upsertData = [];
         try {
             //First we do the assignment of the job_title_positions table
-            DB::table('job_title_positions')->updateOrInsert(['job_title' => $assignment['job_title'] , 'assessment_period_id' => $activeAssessmentPeriodId],
+            DB::table('job_title_positions')->updateOrInsert(['job_title' => $assignment['job_title'], 'assessment_period_id' => $activeAssessmentPeriodId],
                 ['position_id' => $assignment['position_id']]);
             //Now we have to assign this position to all the functionaries with that job_title
-            $functionaries = DB::table('functionary_profiles')->where('job_title','=', $assignment['job_title'])
+            $functionaries = DB::table('functionary_profiles')->where('job_title', '=', $assignment['job_title'])
                 ->where('assessment_period_id', '=', $activeAssessmentPeriodId)->get();
 
             //Now let's insert the data in the array
-            foreach ($functionaries as $functionary){
-                DB::table('position_user')->updateOrInsert(['user_id' =>$functionary->user_id, 'assessment_period_id' => $activeAssessmentPeriodId],
+            foreach ($functionaries as $functionary) {
+                DB::table('position_user')->updateOrInsert(['user_id' => $functionary->user_id, 'assessment_period_id' => $activeAssessmentPeriodId],
                     ['position_id' => $assignment['position_id']]);
             }
 
@@ -136,7 +139,7 @@ class PositionAssignmentController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
+     * @param int $id
      * @return \Illuminate\Http\Response
      */
     public function destroy($id)

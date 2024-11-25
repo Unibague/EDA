@@ -11,6 +11,7 @@ class Competence extends Model
     protected $guarded = [];
     use HasFactory;
 
+
     public static function createCompetence($request)
     {
         $activeAssessmentPeriodId = AssessmentPeriod::getActiveAssessmentPeriod()->id;

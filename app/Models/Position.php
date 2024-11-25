@@ -45,7 +45,7 @@ class Position extends Model
         $activeAssessmentPeriodId = AssessmentPeriod::getActiveAssessmentPeriod()->id;
         foreach ($jobTitles as $jobTitle){
             DB::table('job_title_positions')->updateOrInsert(['job_title' => $jobTitle,
-                'assessment_period_id' => $activeAssessmentPeriodId], ['job_title' => $jobTitle]);
+                'assessment_period_id' => $activeAssessmentPeriodId]);
         }
     }
 

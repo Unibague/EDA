@@ -23,7 +23,9 @@ class Commitment extends Model
             ->select(
                 ['c.id','u.name as user_name', 'd.name as dependency_name',
                     't.name as training_name','co.name as competence_name',
-                    'c.due_date', 'c.done', 'c.done_date'])
+                    'c.due_date', 'c.done', 'c.done_date',
+                    DB::raw('COUNT(certifications.id) as amount_of_files') // Subquery for counting certifications
+                    ])
             ->where('c.assessment_period_id','=',$assessmentPeriodId)
             ->where('du.role_id','=',2)
             ->where('du.is_active','=',true)
@@ -32,7 +34,19 @@ class Commitment extends Model
             ->join('competences as co','t.competence_id','=','co.id')
             ->join('dependency_user as du','c.user_id','=','du.user_id')
             ->join('dependencies as d','du.dependency_identifier','=','d.identifier')
-            ->orderBy('d.name','ASC')->get();
+            ->leftJoin('certifications', 'certifications.commitment_id', '=', 'c.id') // Join with certifications table
+            ->groupBy(
+                'c.id',
+                'u.name',
+                'd.name',
+                't.name',
+                'co.name',
+                'c.due_date',
+                'c.done',
+                'c.done_date'
+            ) // Ensure grouping for non-aggregated columns
+            ->orderBy('d.name', 'ASC')
+            ->get();
     }
 
 

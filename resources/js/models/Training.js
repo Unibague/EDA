@@ -10,16 +10,18 @@ export default class Training{
     }
 
     static fromModel(model) {
-        return new Training(model.id, model.name);
+        return new Training(model.id, model.name, model.competence_id);
     }
 
-    constructor(id = null, name = '') {
+    constructor(id = null, name = '', competenceId = null) {
         this.id = id;
         this.name = name;
+        this.competenceId = competenceId
 
         this.dataStructure = {
             id: null,
             name: 'required',
+            competenceId: 'required'
         }
     }
 }

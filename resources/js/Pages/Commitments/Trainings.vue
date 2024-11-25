@@ -12,7 +12,7 @@
                         class="grey--text text--lighten-4"
                         @click="setTrainingDialogToCreateOrEdit('create')"
                     >
-                        Crear nuevo compromiso
+                        Crear nuevo
                     </v-btn>
                 </div>
             </div>
@@ -23,7 +23,7 @@
                     <v-text-field
                         v-model="search"
                         append-icon="mdi-magnify"
-                        label="Filtrar por nombre de compromiso"
+                        label="Filtrar por nombre"
                         single-line
                         hide-details
                     ></v-text-field>
@@ -61,7 +61,7 @@
 
             <!------------Seccion de dialogos ---------->
 
-            <!--Crear o editar posición -->
+            <!--Crear o editar tipo de compromiso -->
             <v-dialog
                 v-model="createOrEditDialog.dialogStatus"
                 persistent
@@ -82,6 +82,18 @@
                                         required
                                         v-model="$data[createOrEditDialog.model].name"
                                     ></v-text-field>
+                                </v-col>
+                            </v-row>
+                            <v-row>
+                                <v-col cols="12">
+                                    <v-select
+                                        :items="competences"
+                                        label="Competencia a la que pertenece el tipo de compromiso"
+                                        :item-text="(competence) => competence.name"
+                                        :item-value="(competence) => competence.id"
+                                        required
+                                        v-model="$data[createOrEditDialog.model].competenceId"
+                                    ></v-select>
                                 </v-col>
                             </v-row>
                         </v-container>
@@ -150,9 +162,11 @@ export default {
             search: '',
             headers: [
                 {text: 'Nombre', value: 'name'},
+                {text:'Competencia', value:'competence_name'},
                 {text: 'Acciones', value: 'actions', sortable: false},
             ],
             trainings: [],
+            competences: [],
             //AssessmentPeriods models
             newTraining: new Training(),
             editedTraining: new Training(),
@@ -176,10 +190,17 @@ export default {
     },
     async created() {
         await this.getAllTrainings();
+        await this.getCompetences();
         this.isLoading = false;
     },
 
     methods: {
+
+        async getCompetences(){
+          let response = await axios.get(route('api.competences.index'))
+          console.log(response.data, 'Competencias');
+          this.competences = response.data;
+        },
 
         handleSelectedMethod: function () {
             this[this.createOrEditDialog.method]();
@@ -235,10 +256,16 @@ export default {
             }
 
             if (which === 'edit') {
+
+                console.log(item, 'item antes de convertirlo a estructura del front');
+
                 this.editedTraining = Training.fromModel(item);
                 this.createOrEditDialog.method = 'editTraining';
                 this.createOrEditDialog.model = 'editedTraining';
                 this.createOrEditDialog.dialogStatus = true;
+
+                console.log(this.editedTraining, 'Edited Training');
+
             }
 
         },
@@ -252,6 +279,9 @@ export default {
             let data = this.newTraining.toObjectRequest();
             //Clear competence information
             this.newTraining = new Training();
+
+
+            console.log(data);
 
             try {
                 let request = await axios.post(route('api.trainings.store'), data);

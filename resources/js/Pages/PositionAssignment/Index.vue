@@ -5,7 +5,7 @@
 
         <v-container>
             <div class="d-flex flex-column align-end mb-8">
-                <h2 class="align-self-start">Gestionar asignaciones</h2>
+                <h2 class="align-self-start">Gestionar asignaciones de cargos a posiciones</h2>
             </div>
 
             <!--Inicia tabla-->
@@ -197,10 +197,6 @@ export default {
         },
 
         editAssignment: async function () {
-            //Verify request
-            console.log(this.editedAssignment);
-            //Recollect information
-
             try {
                 let request = await axios.post(route('api.positionsAssignment.create'), {data: this.editedAssignment});
                 this.createOrEditDialog.dialogStatus = false;

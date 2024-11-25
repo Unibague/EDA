@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Training;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class TrainingController extends Controller
 {
@@ -14,7 +15,8 @@ class TrainingController extends Controller
      */
     public function index()
     {
-        return response()->json(Training::all());
+        return response()->json(DB::table('trainings as t')->select(['t.id','t.name','t.competence_id','c.name as competence_name'])
+            ->join('competences as c','t.competence_id','=','c.id')->orderBy('t.name')->get());
     }
 
     /**

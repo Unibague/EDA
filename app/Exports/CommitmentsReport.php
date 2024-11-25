@@ -41,6 +41,7 @@ class CommitmentsReport implements FromCollection, WithHeadings
                 'training_name' => $item->training_name,
                 'due_date' => $item->due_date,
                 'done' => $item->done,
+                'amount_of_files' => $item->amount_of_files,
                 'done_date' => $item->done_date,
             ];
         });

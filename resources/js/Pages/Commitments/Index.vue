@@ -5,8 +5,8 @@
 
         <v-container>
             <div class="d-flex flex-column align-end mb-8">
-                <h2 class="align-self-start" >Gestionar compromisos</h2>
-                <div  v-if="role.name === 'administrador'" class="mt-5">
+                <h2 class="align-self-start">Gestionar compromisos</h2>
+                <div v-if="role.name === 'administrador'" class="mt-5">
                     <v-btn
                         color="primario"
                         class="grey--text text--lighten-4"
@@ -40,7 +40,7 @@
                     </v-btn>
                 </div>
 
-                <div  v-if="role.name === 'funcionario'" class="mt-5">
+                <div v-if="role.name === 'funcionario'" class="mt-5">
                     <v-btn
                         color="primario"
                         class="grey--text text--lighten-4"
@@ -77,11 +77,11 @@
                 >
 
                     <template v-slot:item.done="{ item }">
-                        {{item.done === 0 ? 'No' : 'Sí'}}
+                        {{ item.done === 0 ? 'No' : 'Sí' }}
                     </template>
 
                     <template v-slot:item.actions="{ item }">
-                        <v-tooltip top >
+                        <v-tooltip top>
                             <template v-slot:activator="{on,attrs}">
                                 <InertiaLink :href="route('api.commitments.edit', {commitment:item.id})">
                                     <v-icon
@@ -97,18 +97,18 @@
                         </v-tooltip>
 
                         <div v-if="role.name === 'administrador' && item.done === 0">
-                        <v-icon
-                            class="mr-2 primario--text"
-                            @click="setCommitmentDialogToCreateOrEdit('edit',item)"
-                        >
-                            mdi-pencil
-                        </v-icon>
-                        <v-icon
-                            class="mr-2 primario--text"
-                            @click="confirmDeleteCommitment(item)"
-                        >
-                            mdi-delete
-                        </v-icon>
+                            <v-icon
+                                class="mr-2 primario--text"
+                                @click="setCommitmentDialogToCreateOrEdit('edit',item)"
+                            >
+                                mdi-pencil
+                            </v-icon>
+                            <v-icon
+                                class="mr-2 primario--text"
+                                @click="confirmDeleteCommitment(item)"
+                            >
+                                mdi-delete
+                            </v-icon>
                         </div>
                     </template>
                 </v-data-table>
@@ -230,15 +230,16 @@ export default {
             search: '',
             headers: [
                 {text: 'Funcionario', value: 'user_name'},
-                {text: 'Dependencia', value:'dependency_name'},
+                {text: 'Dependencia', value: 'dependency_name'},
                 {text: 'Tipo de compromiso', value: 'training_name'},
                 {text: 'Fecha máxima', value: 'due_date'},
                 {text: 'Realizado', value: 'done'},
+                {text: 'Archivos subidos', value: 'amount_of_files'},
                 {text: 'Fecha realizado', value: 'done_date'},
                 {text: 'Acciones', value: 'actions', sortable: false},
             ],
             functionaries: [],
-            commitments:[],
+            commitments: [],
             trainings: [],
             //AssessmentPeriods models
             newCommitment: new Commitment(),
@@ -269,7 +270,7 @@ export default {
     },
 
     methods: {
-        async getCommitments () {
+        async getCommitments() {
             console.log(this.role, "The role")
             let request = await axios.get(route('commitments.index', {role: this.role.id}));
             this.commitments = request.data;
@@ -281,7 +282,7 @@ export default {
             this.functionaries = request.data;
         },
 
-        async getTrainings(){
+        async getTrainings() {
             let request = await axios.get(route('api.trainings.index'));
             this.trainings = request.data;
         },
@@ -361,16 +362,16 @@ export default {
             }
         },
 
-        getCommitmentsStatus(){
-            var winName='MyWindow';
-            var winURL= route('reports.commitmentPDF');
-            var windowOption='resizable=yes,height=600,width=800,location=0,menubar=0,scrollbars=1';
-            var params = { _token: this.token};
+        getCommitmentsStatus() {
+            var winName = 'MyWindow';
+            var winURL = route('reports.commitmentPDF');
+            var windowOption = 'resizable=yes,height=600,width=800,location=0,menubar=0,scrollbars=1';
+            var params = {_token: this.token};
 
             var form = document.createElement("form");
             form.setAttribute("method", "post");
             form.setAttribute("action", winURL);
-            form.setAttribute("target",winName);
+            form.setAttribute("target", winName);
             for (var i in params) {
                 if (params.hasOwnProperty(i)) {
                     var input = document.createElement('input');
@@ -387,7 +388,7 @@ export default {
             document.body.removeChild(form);
         },
 
-        async downloadExcelReport(){
+        async downloadExcelReport() {
             try {
                 const response = await axios.get(route(`commitments.report`), {
                     responseType: 'blob' // This is important for binary data (like files)
@@ -401,14 +402,14 @@ export default {
                 link.click();
                 // Cleanup
                 link.remove();
-            } catch (e){
+            } catch (e) {
                 showSnackbar(this.snackbar, e.response.data.message, 'red', 5000);
             }
         },
 
 
-        downloadExcel (){
-            if (this.commitments.length === 0){
+        downloadExcel() {
+            if (this.commitments.length === 0) {
                 showSnackbar(this.snackbar, "No hay datos para descargar", 'alert');
             }
 
@@ -416,24 +417,21 @@ export default {
                 return !header.hasOwnProperty('sortable')
             })
 
-            let excelInfo = this.commitments.map(item =>{
+            let excelInfo = this.commitments.map(item => {
                 let data = {}
-                headers.forEach( header =>{
+                headers.forEach(header => {
                     data[header.text] = item[header.value]
                 })
                 return {
                     ...data
                 }
             })
-            let csv = Papa.unparse(excelInfo, {delimiter:';'});
-            var csvData = new Blob(["\uFEFF"+csv], {type: 'text/csv;charset=utf-8;'});
-            var csvURL =  null;
-            if (navigator.msSaveBlob)
-            {
+            let csv = Papa.unparse(excelInfo, {delimiter: ';'});
+            var csvData = new Blob(["\uFEFF" + csv], {type: 'text/csv;charset=utf-8;'});
+            var csvURL = null;
+            if (navigator.msSaveBlob) {
                 csvURL = navigator.msSaveBlob(csvData, 'Consolidado_Compromisos.csv');
-            }
-            else
-            {
+            } else {
                 csvURL = window.URL.createObjectURL(csvData);
             }
             var tempLink = document.createElement('a');
