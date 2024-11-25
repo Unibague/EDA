@@ -56,6 +56,7 @@ class CommitmentController extends Controller
         if($role["name"] === "administrador") {
            return Commitment::getCommitments($activeAssessmentPeriodId);
         }
+
         return response()->json([]);
     }
 

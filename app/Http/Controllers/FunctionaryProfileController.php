@@ -7,6 +7,7 @@ use App\Models\AssessmentPeriod;
 use App\Models\Dependency;
 use App\Models\FunctionaryProfile;
 use App\Models\Position;
+use App\Models\Role;
 use App\Models\TeacherProfile;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\JsonResponse;
@@ -166,20 +167,32 @@ class FunctionaryProfileController extends Controller
             $change = DB::table('functionaries_data_changes')->where('assessment_period_id', '=', $activeAssessmentPeriodId)
                 ->where('user_id','=', $userId)->first();
             $payload = json_decode($change->payload, false);
+
             //If the payload is null, then we have to remove that users functionary_profile
             if($payload->user_id === null){
-
-                //However, first we have to ensure that the user has no one assigned to evaluate.
-                if (!self::userHasNoAssignments($userId)){
+                if (self::userHasAssignments($userId)){
                     return response()->json(['message' => 'Debes eliminar las asignaciones activas de este usuario antes de eliminarlo del periodo de evaluación actual'], 400);
                 }
-
                 DB::table('functionary_profiles')->where("assessment_period_id", '=', $activeAssessmentPeriodId)
                 ->where('user_id','=', $userId)->delete();
             }
 
-            //If that's not the case, then we just have to do th upsert of the data on the functionary info.
+            //If that's not the case, then we just have to do the upsert of the data on the functionary profiles info.
             else{
+                $functionaryCurrentInfo = DB::table('functionary_profiles')->where('user_id','=',$payload->user_id)
+                    ->where("assessment_period_id", '=', $activeAssessmentPeriodId)->first();
+
+                if($payload->dependency_identifier !== $functionaryCurrentInfo->dependency_identifier){
+
+                    $functionaryRoleId= Role::getRoleIdByName('funcionario');
+                    //Then it means that the user changed dependency, so we have to perform that change
+                    DB::table('dependency_user')->where('user_id','=',$payload->user_id)
+                        ->where('role_id','=',$functionaryRoleId)
+                        ->update(['is_active' => 0]);
+
+                    DB::table('dependency_user')->updateOrInsert(['user_id' => $payload->user_id,
+                        'dependency_identifier' => $payload->dependency_identifier],['role_id' => $functionaryRoleId, 'is_active' => true]);
+                }
                 DB::table('functionary_profiles')->updateOrInsert(["user_id" => $payload->user_id, "assessment_period_id" => $activeAssessmentPeriodId],
                     ["name" => $payload->name,  "identification_number" => $payload->identification_number, "dependency_name" => $payload->dependency_name,
                         "dependency_identifier" => $payload->dependency_identifier,"job_title" => $payload->job_title,
@@ -191,7 +204,7 @@ class FunctionaryProfileController extends Controller
                 ->where('user_id','=', $userId)->delete();
 
         } catch (QueryException $e) {
-            return response()->json(['message' => 'No se pudo aprobar el cambio, intenta de nuevo más tarde.'], 400);
+            return response()->json(['message' => $e->getMessage()], 400);
         }
 
         return response()->json(['message' => 'Cambio aceptado correctamente']);
@@ -215,7 +228,7 @@ class FunctionaryProfileController extends Controller
 
     }
 
-    public function userHasNoAssignments(int $userId){
+    public function userHasAssignments(int $userId){
 
         $activeAssessmentPeriodId = AssessmentPeriod::getActiveAssessmentPeriod()->id;
 
@@ -224,9 +237,9 @@ class FunctionaryProfileController extends Controller
             ->where('a.assessment_period_id','=', $activeAssessmentPeriodId)->first();
 
         if($assignments){
-            return false;
+            return true;
         }
-        return true;
+        return false;
     }
 
     /**

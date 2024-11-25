@@ -165,8 +165,6 @@
                 </v-card>
             </v-dialog>
 
-
-            <!--Confirmar borrar assessmentPeriod-->
             <confirm-dialog
                 :show="deleteCompetenceDialog"
                 @canceled-dialog="deleteCompetenceDialog = false"
