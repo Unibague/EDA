@@ -85,6 +85,7 @@ class FunctionaryProfile extends Model
         }
 
         $jobTitles = array_unique(array_column($finalFunctionaries, 'position'));
+
         Position::syncJobTitles($jobTitles);
 
         $errorMessage = '';
