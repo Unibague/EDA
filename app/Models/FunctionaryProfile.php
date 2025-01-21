@@ -68,7 +68,6 @@ class FunctionaryProfile extends Model
         $assessmentPeriodAsString = (string)$activeAssessmentPeriodId;
         $functionaryRoleId = Role::getRoleIdByName('funcionario');
 
-
         /**First we check those users who are no longer on the university but still appear on functionary_profiles DB
         and proceed to save the info on functionaries_data_changes */
         self::checkForNoLongerFunctionaries($functionaries, $activeAssessmentPeriodId);

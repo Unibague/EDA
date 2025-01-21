@@ -51,7 +51,9 @@
 
 <script>
     window.addEventListener('load', function (){
-        window.print();
+        setTimeout(function () {
+            window.print();
+        }, 1000);
     })
 </script>
 

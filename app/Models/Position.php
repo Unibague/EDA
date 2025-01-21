@@ -43,10 +43,22 @@ class Position extends Model
     public static function syncJobTitles($jobTitles)
     {
         $activeAssessmentPeriodId = AssessmentPeriod::getActiveAssessmentPeriod()->id;
-        foreach ($jobTitles as $jobTitle){
-            DB::table('job_title_positions')->updateOrInsert(['job_title' => $jobTitle,
-                'assessment_period_id' => $activeAssessmentPeriodId]);
+
+        // Step 1: Upsert job titles
+        foreach ($jobTitles as $jobTitle) {
+            DB::table('job_title_positions')->updateOrInsert(
+                [
+                    'job_title' => $jobTitle,
+                    'assessment_period_id' => $activeAssessmentPeriodId
+                ]
+            );
         }
+
+        // Step 2: Delete job titles that are not in the provided $jobTitles array
+        DB::table('job_title_positions')
+            ->where('assessment_period_id', $activeAssessmentPeriodId)
+            ->whereNotIn('job_title', $jobTitles)
+            ->delete();
     }
 
     use HasFactory;
