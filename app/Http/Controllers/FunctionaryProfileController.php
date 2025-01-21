@@ -60,7 +60,7 @@ class FunctionaryProfileController extends Controller
             ], true);
             $finalFunctionaries = [];
             foreach ($functionaries as $functionary){
-                //Traerse a los funcionarios que no tengan position = "PROFESOR" || position = "DOCENTE TIEMPO COMPLETO"
+                //Traerse a los funcionarios que no tengan position = "PROFESOR" || "DOCENTE TIEMPO COMPLETO y que sí tengan correo"
                 if($functionary['position'] !== "PROFESOR" && $functionary['position'] !== "DOCENTE TIEMPO COMPLETO" && $functionary['email'] !== "" && $functionary['faculty'] !== ""){
                     $finalFunctionaries [] = $functionary;
                 }

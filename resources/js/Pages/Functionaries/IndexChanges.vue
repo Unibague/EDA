@@ -6,8 +6,8 @@
                 <h2 class="align-self-start">Cambios pendientes por aceptar</h2>
                 <h4 class="align-self-start grey--text mt-5"> El renglón superior de cada registro,
                     muestra la información como se encuentra directamente en nómina,
-                    mientras que el inferior muestra cómo se encuentra la información en EDA.
-                    Los renglones que no tienen datos indican que la persona ya no se encuentran vinculados con la Universidad.</h4>
+                    mientras que el inferior muestra cómo se encuentra la información en EDA. <br/> <br/>
+                    Los renglones que no tienen datos indican que la persona ya no se encuentra vinculada con la Universidad como Funcionario (Administrativo) o que en su defecto, ya no trabaja aquí.</h4>
                 <div class="table-responsive">
                     <table class="changes" id="table1">
                         <thead>

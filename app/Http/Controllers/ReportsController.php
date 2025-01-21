@@ -66,17 +66,32 @@ class ReportsController extends Controller
         $datasets = [];
 
         //Response Ideal dataset
-        $responseIdealGrade = DB::table('position_user as pu')->select(['ri.response', 'p.name'])->where('pu.user_id','=',$user['id'])
-            ->join('response_ideals as ri','ri.position_id','=','pu.position_id')
-            ->join('positions as p','p.id','=','pu.position_id')
+//        $responseIdealGrade = DB::table('position_user as pu')->select(['ri.response', 'p.name'])->where('pu.user_id','=',$user['id'])
+//            ->join('response_ideals as ri','ri.position_id','=','pu.position_id')
+//            ->join('positions as p','p.id','=','pu.position_id')
+//            ->where('ri.assessment_period_id','=',$assessmentPeriodId)->first();
+
+        $functionaryProfile = DB::table('functionary_profiles as fp')->where('fp.user_id','=', $userId)
+            ->where('fp.assessment_period_id','=',$assessmentPeriodId)->first();
+
+        $jobTitlePosition = DB::table('job_title_positions as jtp')
+            ->where('jtp.job_title','=',$functionaryProfile->job_title)
+            ->where('jtp.assessment_period_id','=',$assessmentPeriodId)
+            ->first();
+
+        $responseIdealGrade = DB::table('response_ideals as ri')
+            ->where('ri.position_id','=',$jobTitlePosition->position_id)
             ->where('ri.assessment_period_id','=',$assessmentPeriodId)->first();
+
+        $position = DB::table('positions as p')
+            ->where('id','=',$jobTitlePosition->position_id)->first();
 
         $mapResponseIdealArray = array_map(function ($responseIdeal){
             return $responseIdeal->value;
         }, json_decode($responseIdealGrade->response));
 
         $datasets [] = (object)
-        [       'label' => "Nivel Esperado ($responseIdealGrade->name)",
+        [       'label' => "Nivel Esperado ($position->name)",
                 'data' => $mapResponseIdealArray,
                 'backgroundColor' => 'orange',
                 'borderColor' => 'orange',

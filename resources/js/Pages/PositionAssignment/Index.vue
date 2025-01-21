@@ -8,6 +8,11 @@
                 <h2 class="align-self-start">Gestionar asignaciones de cargos a posiciones</h2>
             </div>
 
+            <!-- Red label warning -->
+            <v-alert v-if="hasUnassignedPositions" type="error" dense class="mb-4">
+                Recuerda que aún hay cargos sin posición asignada, el no realizar la asignación puede traer errores inesperados al momento de la generación del reporte de evaluación individual.
+            </v-alert>
+
             <!--Inicia tabla-->
             <v-card>
                 <v-card-title>
@@ -172,6 +177,13 @@ export default {
             isLoading: true,
         }
     },
+
+    computed: {
+        hasUnassignedPositions() {
+            return this.assignments.some(assignment => assignment.name === null);
+        },
+    },
+
     async created() {
         await this.getAllAssignments();
         await this.getAllPositions();
@@ -179,7 +191,6 @@ export default {
     },
 
     methods: {
-
         handleSelectedMethod: function () {
             this[this.createOrEditDialog.method]();
         },

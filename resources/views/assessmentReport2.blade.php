@@ -126,4 +126,14 @@
         }
     });
 </script>
+
+
+<script>
+    window.addEventListener('load', function () {
+        setTimeout(function () {
+            window.print();
+        }, 1000);
+    });
+</script>
+
 </html>
