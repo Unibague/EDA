@@ -1,0 +1,38 @@
+name: CI/CD for PHP & Vue
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # Install sshpass for SSH password authentication
+      - name: Install sshpass
+        run: sudo apt-get install -y sshpass
+
+      # Set environment variables explicitly
+      - name: Set environment variables
+        run: |
+          echo "SERVER_USER=${{ secrets.SERVER_USER }}" >> $GITHUB_ENV
+          echo "SERVER_HOST=${{ secrets.SERVER_HOST }}" >> $GITHUB_ENV
+          echo "SERVER_PASSWORD=${{ secrets.SERVER_PASSWORD }}" >> $GITHUB_ENV
+          echo "SERVER_PATH=${{ secrets.SERVER_PATH }}" >> $GITHUB_ENV
+
+      # Deploy to the server
+      - name: Deploy to the server using password authentication
+        run: |
+          sshpass -p "$SERVER_PASSWORD" ssh -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_HOST <<EOF
+            cd $SERVER_PATH
+            php artisan migrate --force
+            php artisan config:clear
+            php artisan cache:clear
+            php artisan route:cache
+            systemctl restart apache2
+          EOF
