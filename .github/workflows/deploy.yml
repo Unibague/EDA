@@ -56,14 +56,16 @@ jobs:
     - name: Clone repository on remote server
       run: |
           sshpass -p "${{ secrets.INTERNAL_SSH_PASSWORD }}" ssh -o StrictHostKeyChecking=no ${{ secrets.INTERNAL_USER }}@${{ secrets.INTERNAL_RESOURCE_IP }} '
-            sudo mkdir -p /var/www/EDA;
-            sudo chown -R $USER:$USER /var/www/EDA;
+            mkdir -p /var/www/EDA;
+            chown -R $USER:$USER /var/www/EDA;
             cd /var/www/EDA || exit;
+            git config --global --add safe.directory /var/www/EDA;
             if [ ! -d ".git" ]; then
               git clone https://github.com/Unibague/EDA.git .
             else
               git pull
             fi'
+      
       
 
     - name: Build project on remote server
