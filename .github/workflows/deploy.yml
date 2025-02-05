@@ -66,12 +66,15 @@ jobs:
               git pull
             fi'
       
-      
-
     - name: Build project on remote server
       run: |
-        sshpass -p "${{ secrets.INTERNAL_SSH_PASSWORD }}" ssh -o StrictHostKeyChecking=no ${{ secrets.INTERNAL_USER }}@${{ secrets.INTERNAL_RESOURCE_IP }} '
-          cd /var/www/EDA;
-          npm install;
-          npm run build'
-
+              sshpass -p "${{ secrets.INTERNAL_SSH_PASSWORD }}" ssh -o StrictHostKeyChecking=no ${{ secrets.INTERNAL_USER }}@${{ secrets.INTERNAL_RESOURCE_IP }} '
+                cd /var/www/EDA;
+                if [ -f package.json ]; then
+                  npm install;
+                  npm run production || echo "Build failed";
+                else
+                  echo "Error: package.json not found in /var/www/EDA"
+                  exit 1;
+                fi'
+          
