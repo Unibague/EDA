@@ -53,32 +53,32 @@ jobs:
       run: |
         sshpass -p "${{ secrets.INTERNAL_SSH_PASSWORD }}" ssh -o StrictHostKeyChecking=no ${{ secrets.INTERNAL_USER }}@${{ secrets.INTERNAL_RESOURCE_IP }} 'echo "SSH connection successful"'
         
-    - name: Clonar repositorio en el servidor remoto
-      run: |
+        - name: Clone repository on remote server
+        run: |
           sshpass -p "${{ secrets.INTERNAL_SSH_PASSWORD }}" ssh -o StrictHostKeyChecking=no ${{ secrets.INTERNAL_USER }}@${{ secrets.INTERNAL_RESOURCE_IP }} '
             cd /var/www/EDA || exit;
       
-            # Asegurar que Git reconoce el directorio como seguro
+            # Ensure Git recognizes the directory as safe
             git config --global --add safe.directory /var/www/EDA;
       
-            # Verificar si hay cambios locales antes de hacer stash
+            # Check if there are local changes before stashing
             if [[ $(git status --porcelain) ]]; then
               git stash;
-              echo "Cambios locales guardados con git stash";
+              echo "Local changes saved with git stash";
               STASHED=true;
             else
-              echo "No hay cambios locales para guardar";
+              echo "No local changes found";
               STASHED=false;
             fi
       
-            # Hacer git pull con rebase
+            # Perform git pull with rebase
             git pull --rebase;
       
-            # Eliminar stash solo si se creó uno
+            # Remove stash only if one was created
             if [[ "$STASHED" == "true" ]]; then
               git stash drop;
-              echo "Stash eliminado";
-            fi'
+              echo "Stash removed";
+            fi'      
       
       
     - name: Build project on remote server
