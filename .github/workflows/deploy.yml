@@ -58,17 +58,27 @@ jobs:
           sshpass -p "${{ secrets.INTERNAL_SSH_PASSWORD }}" ssh -o StrictHostKeyChecking=no ${{ secrets.INTERNAL_USER }}@${{ secrets.INTERNAL_RESOURCE_IP }} '
             cd /var/www/EDA || exit;
       
-          
+            # Asegurar que Git reconoce el directorio como seguro
             git config --global --add safe.directory /var/www/EDA;
       
-            
-            git stash;
+            # Verificar si hay cambios locales antes de hacer stash
+            if [[ $(git status --porcelain) ]]; then
+              git stash;
+              echo "Cambios locales guardados con git stash";
+              STASHED=true;
+            else
+              echo "No hay cambios locales para guardar";
+              STASHED=false;
+            fi
       
-            
+            # Hacer git pull con rebase
             git pull --rebase;
       
-            
-            git stash drop'
+            # Eliminar stash solo si se creó uno
+            if [[ "$STASHED" == "true" ]]; then
+              git stash drop;
+              echo "Stash eliminado";
+            fi'
       
       
     - name: Build project on remote server
