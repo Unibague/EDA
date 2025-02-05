@@ -7,7 +7,7 @@
                             <v-flex xs12 sm8 md12>
                                 <v-card class="elevation-1 pa-5">
                                     <p class="text-h5 text-center">
-                                        funcionario de la Universidad, por favor ingresa con tu correo en el siguiente botón
+                                        si eres funcionario de la Universidad, por favor ingresa con tu correo en el siguiente botón
                                     </p>
                                     <v-card-actions class="justify-center">
                                     <a :href="route('googleLogin')">
