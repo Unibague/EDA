@@ -60,11 +60,7 @@ jobs:
       
           
             git config --global --add safe.directory /var/www/EDA;
-      
-            
-            git stash;
-      
-            
+          
             git pull ;
       
             
