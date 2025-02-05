@@ -1,4 +1,4 @@
-name: Deploy Frontend MIRÓ
+name: Deploy Frontend EDA
 
 on:
   push:
@@ -30,11 +30,18 @@ jobs:
 
     - name: Connect to VPN
       run: |
-        echo "${{ secrets.VPN_PASSWORD }}" | sudo openconnect --protocol=gp --user=${{ secrets.VPN_USER }} --passwd-on-stdin ${{ secrets.VPN_HOST }} -b
+        echo "${{ secrets.VPN_PASSWORD }}" | sudo openconnect \
+          --protocol=gp \
+          --user="${{ secrets.VPN_USER }}" \
+          --passwd-on-stdin \
+          ${{ secrets.VPN_HOST }} \
+          --servercert pin-sha256:e+mVC0ZMBRpVuuepldqN0mN6RvimRBTzlm5zZbGbcmA= -b
       env:
         VPN_PASSWORD: ${{ secrets.VPN_PASSWORD }}
         VPN_USER: ${{ secrets.VPN_USER }}
         VPN_HOST: ${{ secrets.VPN_HOST }}
+    
+
 
     - name: Verify VPN connection
       run: ip a
@@ -48,25 +55,20 @@ jobs:
         
     - name: Clone repository on remote server
       run: |
-        sshpass -p "${{ secrets.INTERNAL_SSH_PASSWORD }}" ssh -o StrictHostKeyChecking=no ${{ secrets.INTERNAL_USER }}@${{ secrets.INTERNAL_RESOURCE_IP }} '
-          cd ~/var/www/EDA || exit;
-          if [ ! -d ".git" ]; then
-            git clone https://github.com/Unibague/EDA.git
-          else
-            git pull
-          fi'
+          sshpass -p "${{ secrets.INTERNAL_SSH_PASSWORD }}" ssh -o StrictHostKeyChecking=no ${{ secrets.INTERNAL_USER }}@${{ secrets.INTERNAL_RESOURCE_IP }} '
+            cd ~/var/www/EDA || exit;
+            if [ ! -d ".git" ]; then
+              git clone https://github.com/Unibague/EDA.git
+            else
+              git pull
+            fi'
+      
+      
 
     - name: Build project on remote server
       run: |
         sshpass -p "${{ secrets.INTERNAL_SSH_PASSWORD }}" ssh -o StrictHostKeyChecking=no ${{ secrets.INTERNAL_USER }}@${{ secrets.INTERNAL_RESOURCE_IP }} '
-          cd ~/var/www/EDA ;
+          ccd ~/var/www/EDA;
           npm install;
           npm run build'
 
-    - name: Run Semantic Release
-      working-directory: ./    
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      run: npx semantic-release
-
-    
