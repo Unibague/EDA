@@ -30,11 +30,18 @@ jobs:
 
     - name: Connect to VPN
       run: |
-        echo "${{ secrets.VPN_PASSWORD }}" | sudo openconnect --protocol=gp --user=${{ secrets.VPN_USER }} --passwd-on-stdin ${{ secrets.VPN_HOST }} -b
+        echo "${{ secrets.VPN_PASSWORD }}" | sudo openconnect \
+          --protocol=gp \
+          --user="${{ secrets.VPN_USER }}" \
+          --passwd-on-stdin \
+          ${{ secrets.VPN_HOST }} \
+          --servercert pin-sha256:e+mVC0ZMBRpVuuepldqN0mN6RvimRBTzlm5zZbGbcmA= -b
       env:
         VPN_PASSWORD: ${{ secrets.VPN_PASSWORD }}
         VPN_USER: ${{ secrets.VPN_USER }}
         VPN_HOST: ${{ secrets.VPN_HOST }}
+    
+
 
     - name: Verify VPN connection
       run: ip a
