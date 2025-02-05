@@ -53,12 +53,15 @@ jobs:
       run: |
         sshpass -p "${{ secrets.INTERNAL_SSH_PASSWORD }}" ssh -o StrictHostKeyChecking=no ${{ secrets.INTERNAL_USER }}@${{ secrets.INTERNAL_RESOURCE_IP }} 'echo "SSH connection successful"'
         
-    - name: Clone repository on remote server
+    - name: Clonar repositorio en el servidor remoto
       run: |
           sshpass -p "${{ secrets.INTERNAL_SSH_PASSWORD }}" ssh -o StrictHostKeyChecking=no ${{ secrets.INTERNAL_USER }}@${{ secrets.INTERNAL_RESOURCE_IP }} '
+            sudo chown -R $USER:www-data /var/www/EDA;
+            sudo chmod -R 775 /var/www/EDA;
             cd /var/www/EDA || exit;
+            git config --global --add safe.directory /var/www/EDA;
             if [ ! -d ".git" ]; then
-              git clone https://github.com/Unibague/EDA.git
+              git clone https://github.com/Unibague/EDA.git .
             else
               git pull
             fi'
