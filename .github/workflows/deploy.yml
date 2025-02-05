@@ -65,7 +65,7 @@ jobs:
             git stash;
       
             
-            git pull --rebase;
+            git pull ;
       
             
             git stash drop'
