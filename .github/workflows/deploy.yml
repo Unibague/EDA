@@ -1,38 +1,71 @@
-name: CI/CD for PHP & Vue
+name: Deploy Frontend EDA
 
 on:
   push:
     branches:
       - main
+  workflow_dispatch:
+
+permissions:
+  contents: write
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+    - name: Checkout repository
+      uses: actions/checkout@v2
 
-      # Install sshpass for SSH password authentication
-      - name: Install sshpass
-        run: sudo apt-get install -y sshpass
+    - name: Install Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '20.14.0'
 
-      # Set environment variables explicitly
-      - name: Set environment variables
-        run: |
-          echo "SERVER_USER=${{ secrets.SERVER_USER }}" >> $GITHUB_ENV
-          echo "SERVER_HOST=${{ secrets.SERVER_HOST }}" >> $GITHUB_ENV
-          echo "SERVER_PASSWORD=${{ secrets.SERVER_PASSWORD }}" >> $GITHUB_ENV
-          echo "SERVER_PATH=${{ secrets.SERVER_PATH }}" >> $GITHUB_ENV
+    - name: Install OpenConnect
+      run: sudo apt-get install -y openconnect
 
-      # Deploy to the server
-      - name: Deploy to the server using password authentication
-        run: |
-          sshpass -p "$SERVER_PASSWORD" ssh -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_HOST <<EOF
-            cd $SERVER_PATH
-            php artisan migrate --force
-            php artisan config:clear
-            php artisan cache:clear
-            php artisan route:cache
-            systemctl restart apache2
-          EOF
+    - name: Install sshpass
+      run: sudo apt-get install -y sshpass
+
+    - name: Connect to VPN
+      run: |
+        echo "${{ secrets.VPN_PASSWORD }}" | sudo openconnect --protocol=gp --user=${{ secrets.VPN_USER }} --passwd-on-stdin ${{ secrets.VPN_HOST }} -b
+      env:
+        VPN_PASSWORD: ${{ secrets.VPN_PASSWORD }}
+        VPN_USER: ${{ secrets.VPN_USER }}
+        VPN_HOST: ${{ secrets.VPN_HOST }}
+
+    - name: Verify VPN connection
+      run: ip a
+
+    - name: List network routes
+      run: ip route
+
+    - name: Test internal connectivity with SSH
+      run: |
+        sshpass -p "${{ secrets.INTERNAL_SSH_PASSWORD }}" ssh -o StrictHostKeyChecking=no ${{ secrets.INTERNAL_USER }}@${{ secrets.INTERNAL_RESOURCE_IP }} 'echo "SSH connection successful"'
+        
+    - name: Clone repository on remote server
+      run: |
+        sshpass -p "${{ secrets.INTERNAL_SSH_PASSWORD }}" ssh -o StrictHostKeyChecking=no ${{ secrets.INTERNAL_USER }}@${{ secrets.INTERNAL_RESOURCE_IP }} '
+          cd ~/EDA/Front_EDA || exit;
+          if [ ! -d ".git" ]; then
+            git clone https://github.com/Unibague/EDA.git
+          else
+            git pull
+          fi'
+
+    - name: Build project on remote server
+      run: |
+        sshpass -p "${{ secrets.INTERNAL_SSH_PASSWORD }}" ssh -o StrictHostKeyChecking=no ${{ secrets.INTERNAL_USER }}@${{ secrets.INTERNAL_RESOURCE_IP }} '
+          cd ~/EDA/Front_EDA;
+          npm install;
+          npm run build'
+
+    - name: Restart PM2
+      run: |
+        sshpass -p "${{ secrets.INTERNAL_SSH_PASSWORD }}" ssh -o StrictHostKeyChecking=no ${{ secrets.INTERNAL_USER }}@${{ secrets.INTERNAL_RESOURCE_IP }} 'cd ~/EDA/Front_EDA && pm2 restart Front_EDA'
+
+    - name: Post Checkout repository
+      run: echo "Deployment complete"
