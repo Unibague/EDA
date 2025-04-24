@@ -154,6 +154,7 @@
                             Cancelar
                         </v-btn>
                         <v-btn
+                            :disabled="isProcessing"
                             color="primario"
                             text
                             @click="handleSelectedMethod"
@@ -202,6 +203,7 @@ export default {
     data: () => {
         return {
             //Table info
+            isProcessing: false,
             search: '',
             headers: [
                 {text: 'Nombre del periodo', value: 'name'},
@@ -337,7 +339,10 @@ export default {
             this.newAssessmentPeriod = new AssessmentPeriod();
 */
             try {
+
+                this.isProcessing = true;
                 let request = await axios.post(route('api.assessmentPeriods.store'), {migrateFromPreviousPeriod: this.migrateFromPreviousPeriod, ...data });
+                this.isProcessing= false;
                 this.createOrEditDialog.dialogStatus = false;
                 showSnackbar(this.snackbar, request.data.message, 'success', 2000);
                 this.getAllAssessmentPeriods();
