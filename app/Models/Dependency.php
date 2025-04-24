@@ -19,19 +19,18 @@ class Dependency extends Model
         return $this->BelongsToMany(User::class);
     }
 
-    public static function createOrUpdateFromArray(array $dependencies): void
+    public static function createOrUpdateFromArray(array $dependencies, $assessmentPeriodId): void
     {
         $upsertData = [];
-        $assessmentPeriodId = AssessmentPeriod::getActiveAssessmentPeriod()->id;
         foreach ($dependencies as $dependency) {
-            $dependencyAsString = (string)$dependency->code;
+            $dependencyAsString = (string)$dependency->dep_code;
             $assessmentPeriodAsString = (string)$assessmentPeriodId;
             $identifier = $dependencyAsString.'-'.$assessmentPeriodAsString;
 
             $upsertData[] = [
                 'identifier' => $identifier,
-                'code' => $dependency->code,
-                'name' => $dependency->name,
+                'code' => $dependency->dep_code,
+                'name' => $dependency->dep_name,
                 'is_custom' => 0,
                 'assessment_period_id' => $assessmentPeriodId
             ];

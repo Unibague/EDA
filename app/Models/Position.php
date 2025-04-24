@@ -40,23 +40,25 @@ class Position extends Model
         }
     }
 
-    public static function syncJobTitles($jobTitles)
+    public static function syncJobTitles($jobTitles, $assessmentPeriodId = null)
     {
-        $activeAssessmentPeriodId = AssessmentPeriod::getActiveAssessmentPeriod()->id;
+        if ($assessmentPeriodId === null){
+            $assessmentPeriodId = AssessmentPeriod::getActiveAssessmentPeriod()->id;
+        }
 
         // Step 1: Upsert job titles
         foreach ($jobTitles as $jobTitle) {
             DB::table('job_title_positions')->updateOrInsert(
                 [
                     'job_title' => $jobTitle,
-                    'assessment_period_id' => $activeAssessmentPeriodId
+                    'assessment_period_id' => $assessmentPeriodId
                 ]
             );
         }
 
         // Step 2: Delete job titles that are not in the provided $jobTitles array
         DB::table('job_title_positions')
-            ->where('assessment_period_id', $activeAssessmentPeriodId)
+            ->where('assessment_period_id', $assessmentPeriodId)
             ->whereNotIn('job_title', $jobTitles)
             ->delete();
     }

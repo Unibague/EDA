@@ -28,10 +28,12 @@ class DependencyController extends Controller
 
     public function sync(): JsonResponse
     {
+        $assessmentPeriodId = AssessmentPeriod::getActiveAssessmentPeriod()->id;
         $data = [];
         try {
-            $dependencies = AtlanteProvider::get('units', $data);
-            Dependency::createOrUpdateFromArray($dependencies);
+            $dependencies = AtlanteProvider::get('functionariesChart/dependencies');
+            dd($dependencies);
+            Dependency::createOrUpdateFromArray($dependencies, $assessmentPeriodId);
         } catch (\JsonException $e) {
             return response()->json(['message' => 'Ha ocurrido un error con la fuente de datos']);
         } catch (\Exception $e) {

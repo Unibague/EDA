@@ -10,6 +10,7 @@ use App\Models\AssessmentPeriod;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class AssessmentPeriodController extends Controller
 {
@@ -74,9 +75,29 @@ class AssessmentPeriodController extends Controller
      */
     public function store(StoreAssessmentPeriodRequest $request): JsonResponse
     {
-        AssessmentPeriod::create($request->all());
-        $assessmentPeriod = AssessmentPeriod::whereName($request->input('name'))->first();
-        return response()->json(['message' => 'Periodo de evaluación creado exitosamente']);
+
+        DB::beginTransaction(); // Inicia la transacción
+
+        try {
+            $createdAssessmentPeriod = AssessmentPeriod::create($request->all());
+
+            if ($request->input('migrateFromPreviousPeriod')) {
+                AssessmentPeriod::migrateActiveAssessmentPeriodInformation($createdAssessmentPeriod);
+            }
+
+            DB::commit(); // Si todo va bien, se confirman los cambios
+
+            return response()->json(['message' => 'Periodo de evaluación creado exitosamente']);
+
+        } catch (\Throwable $e) {
+            DB::rollBack(); // Si algo falla, se revierte todo
+
+            // Puedes retornar el error o loguearlo
+            return response()->json([
+                'message' => 'Error al crear el periodo de evaluación',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
     }
 
     /**

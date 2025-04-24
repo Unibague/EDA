@@ -58,23 +58,13 @@ class FunctionaryProfileController extends Controller
             $functionaries = AtlanteProvider::get('functionaries', [
                 'type_employee' => 'ADM',
             ], true);
-            $finalFunctionaries = [];
-            foreach ($functionaries as $functionary){
-                //Traerse a los funcionarios que no tengan position = "PROFESOR" || "DOCENTE TIEMPO COMPLETO y que sí tengan correo"
-                if($functionary['position'] !== "PROFESOR" && $functionary['position'] !== "DOCENTE TIEMPO COMPLETO" && $functionary['email'] !== "" && $functionary['faculty'] !== ""){
-                    $finalFunctionaries [] = $functionary;
-                }
-            }
+
+        FunctionaryProfile::createOrUpdateFromArray($functionaries);
 
         } catch (\JsonException $e) {
             return response()->json(['message' => 'Ha ocurrido un error con la fuente de datos: ' . $e->getMessage()], 400);
         } catch (\RuntimeException $e) {
             return response()->json(['message' => 'Ha ocurrido el siguiente error: ' . $e->getMessage()], 400);
-        }
-        try {
-            FunctionaryProfile::createOrUpdateFromArray($finalFunctionaries);
-        } catch (RuntimeException $e) {
-            return response()->json(['message' => $e->getMessage()], 500);
         }
         return response()->json(['message' => 'Los funcionarios se han sincronizado exitosamente']);
     }

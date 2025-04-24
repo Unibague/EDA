@@ -132,6 +132,15 @@
 
 
                             </v-row>
+
+                            <v-col cols="12" :md="12">
+                                <v-checkbox
+                                    v-model="migrateFromPreviousPeriod"
+                                    label="¿Migrar información del periodo activo?"
+                                    color="primario"
+                                ></v-checkbox>
+                            </v-col>
+
                         </v-container>
                         <small>Los campos con * son obligatorios</small>
                     </v-card-text>
@@ -203,6 +212,7 @@ export default {
                 {text: 'Acciones', value: 'actions', sortable: false},
             ],
             assessmentPeriods: [],
+            migrateFromPreviousPeriod: false,
             //AssessmentPeriods models
             newAssessmentPeriod: new AssessmentPeriod(),
             editedAssessmentPeriod: new AssessmentPeriod(),
@@ -322,11 +332,12 @@ export default {
             }
             let data = this.newAssessmentPeriod.toObjectRequest();
 
+/*
             //Clear role information
             this.newAssessmentPeriod = new AssessmentPeriod();
-
+*/
             try {
-                let request = await axios.post(route('api.assessmentPeriods.store'), data);
+                let request = await axios.post(route('api.assessmentPeriods.store'), {migrateFromPreviousPeriod: this.migrateFromPreviousPeriod, ...data });
                 this.createOrEditDialog.dialogStatus = false;
                 showSnackbar(this.snackbar, request.data.message, 'success', 2000);
                 this.getAllAssessmentPeriods();

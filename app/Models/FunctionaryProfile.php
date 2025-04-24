@@ -62,22 +62,33 @@ class FunctionaryProfile extends Model
         return $dataFromFunctionaries;
     }
 
-    public static function createOrUpdateFromArray(array $functionaries): void
+    public static function createOrUpdateFromArray(array $functionaries, $assessmentPeriodId = null): void
     {
-        $activeAssessmentPeriodId = AssessmentPeriod::getActiveAssessmentPeriod()->id;
-        $assessmentPeriodAsString = (string)$activeAssessmentPeriodId;
+        if ($assessmentPeriodId === null){
+            $assessmentPeriodId = AssessmentPeriod::getActiveAssessmentPeriod()->id;
+        }
+
+        $assessmentPeriodAsString = (string)$assessmentPeriodId;
         $functionaryRoleId = Role::getRoleIdByName('funcionario');
+
+        $excludedPositions = ['PROFESOR', 'DOCENTE TIEMPO COMPLETO'];
+
+        $functionaries = array_filter($functionaries, function ($functionary) use ($excludedPositions) {
+            return !in_array($functionary['position'], $excludedPositions) &&
+                !empty($functionary['email']) &&
+                !empty($functionary['faculty']);
+        });
 
         /**First we check those users who are no longer on the university but still appear on functionary_profiles DB
         and proceed to save the info on functionaries_data_changes */
-        self::checkForNoLongerFunctionaries($functionaries, $activeAssessmentPeriodId);
+        self::checkForNoLongerFunctionaries($functionaries, $assessmentPeriodId);
 
         $finalFunctionaries = [];
         foreach ($functionaries as $functionary){
             /** Here we check if the users that really exist in endpoint have any information changed
              (position, program) and if so, we save the info on functionaries_data_changes and do not proceed to sync directly
              */
-            if (self::functionaryHasNoPendingChanges($functionary, $activeAssessmentPeriodId))
+            if (self::functionaryHasNoPendingChanges($functionary, $assessmentPeriodId))
             {
                 $finalFunctionaries [] = $functionary;
             }
@@ -85,7 +96,7 @@ class FunctionaryProfile extends Model
 
         $jobTitles = array_unique(array_column($finalFunctionaries, 'position'));
 
-        Position::syncJobTitles($jobTitles);
+        Position::syncJobTitles($jobTitles, $assessmentPeriodId);
 
         $errorMessage = '';
         foreach ($finalFunctionaries as $functionary) {
@@ -109,14 +120,14 @@ class FunctionaryProfile extends Model
                         'dependency_name' => $functionary['faculty'] === '' ? null : $functionary['faculty'],
                         'job_title' => $functionary['position'] === '' ? null : $functionary['position'],
                         'hire_date' => $functionary['date_admission'] === '' ? null : $functionary['date_admission'],
-                        'assessment_period_id' => $activeAssessmentPeriodId
+                        'assessment_period_id' => $assessmentPeriodId
                     ]);
 
                 DB::table('role_user')->updateOrInsert(
                     ['user_id' => $user->id,
                         'role_id' => $functionaryRoleId]
                 );
-                self::assignFunctionaryToDependency($user->id, $dependencyIdentifier);
+                self::assignFunctionaryToDependency($user->id, $dependencyIdentifier, $assessmentPeriodId);
             } catch (\Exception $e) {
                 $errorMessage .= nl2br("Ha ocurrido el siguiente error mirando al funcionario $functionary[full_name] : {$e->getMessage()}");
             }
@@ -188,10 +199,13 @@ class FunctionaryProfile extends Model
         return true;
     }
 
-    public static function assignFunctionaryToDependency($userId, $dependencyIdentifier): void
+    public static function assignFunctionaryToDependency($userId, $dependencyIdentifier, $assessmentPeriodId = null): void
     {
         $functionaryRoleId = Role::getRoleIdByName('funcionario');
-        $activeAssessmentPeriod = AssessmentPeriod::getActiveAssessmentPeriod()->id;
+
+        if ($assessmentPeriodId === null){
+            $assessmentPeriodId = AssessmentPeriod::getActiveAssessmentPeriod()->id;
+        }
 
         DB::table('dependency_user')->updateOrInsert(
             ['user_id' => $userId, 'dependency_identifier' => $dependencyIdentifier, 'role_id' => $functionaryRoleId],
@@ -199,13 +213,13 @@ class FunctionaryProfile extends Model
         );
 
         $user = DB::table('assessments')->where('evaluated_id', $userId)
-            ->where('evaluator_id', $userId)->where('assessment_period_id', '=', $activeAssessmentPeriod)->first();
+            ->where('evaluator_id', $userId)->where('assessment_period_id', '=', $assessmentPeriodId)->first();
 
         if (!$user) {
             DB::table('assessments')->updateOrInsert(
                 ['evaluated_id' => $userId, 'evaluator_id' => $userId, 'role' => 'autoevaluación'],
                 ['pending' => 1, 'dependency_identifier' => $dependencyIdentifier,
-                    'assessment_period_id' => $activeAssessmentPeriod,
+                    'assessment_period_id' => $assessmentPeriodId,
                     'created_at' => Carbon::now()->toDateTimeString(),
                     'updated_at' => Carbon::now()->toDateTimeString()]);
         }
