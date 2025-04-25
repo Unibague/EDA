@@ -217,9 +217,8 @@ class FunctionaryProfile extends Model
 
         if (!$user) {
             DB::table('assessments')->updateOrInsert(
-                ['evaluated_id' => $userId, 'evaluator_id' => $userId, 'role' => 'autoevaluación'],
+                ['evaluated_id' => $userId, 'evaluator_id' => $userId, 'role' => 'autoevaluación', 'assessment_period_id' => $assessmentPeriodId,],
                 ['pending' => 1, 'dependency_identifier' => $dependencyIdentifier,
-                    'assessment_period_id' => $assessmentPeriodId,
                     'created_at' => Carbon::now()->toDateTimeString(),
                     'updated_at' => Carbon::now()->toDateTimeString()]);
         }
