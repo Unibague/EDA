@@ -22,7 +22,7 @@ class Form extends Model
     public static function getCurrentForms()
     {
         $assessmentPeriodId = (int)AssessmentPeriod::getActiveAssessmentPeriod()->id;
-        return self::where('creation_assessment_period_id', '=', $assessmentPeriodId)
+        return self::where('assessment_period_id', '=', $assessmentPeriodId)
             ->with(['assessmentPeriod'])->get();
     }
 

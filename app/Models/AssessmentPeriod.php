@@ -66,35 +66,6 @@ class AssessmentPeriod extends Model
         return $this->hasMany(AssessmentReminder::class);
     }
 
-/*    public static function migrateActiveAssessmentPeriodInformation($activeAssessmentPeriod, $destinationAssessmentPeriod)
-    {
-        //We have to migrate the competences, response ideals, position_user and job_title_positions
-        $tablesName = ['forms'];
-
-        foreach ($tablesName as $tableName){
-            //First validate that there are no records associated to the desired assessmentPeriod to migrate to on the selected table
-            $destinationAssessmentPeriodRecords = DB::table($tableName)->where('assessment_period_id','=',$destinationAssessmentPeriod->id)
-                ->get();
-            //If, in fact, there are no records in the new assessmentPeriod, then proceed with the insert of the data
-            if(count($destinationAssessmentPeriodRecords)  === 0){
-                $activeAssessmentPeriodRecords = DB::table($tableName)->where('assessment_period_id','=',$activeAssessmentPeriod->id)
-                    ->get()->map(function ($item) {
-                        return collect($item)->except(['id','created_at', 'updated_at'])->all();
-                    })->toArray();
-                foreach ($activeAssessmentPeriodRecords as &$activeAssessmentPeriodRecord){
-                    $activeAssessmentPeriodRecord['assessment_period_id'] = $destinationAssessmentPeriod['id'];
-                    $activeAssessmentPeriodRecord['created_at'] = Carbon::now()->toDateTimeString();
-                    $activeAssessmentPeriodRecord['updated_at'] = Carbon::now()->toDateTimeString();
-                    DB::table($tableName)->insert($activeAssessmentPeriodRecord);
-                }
-            }
-            else {
-                return false;
-            }
-        }
-        return true;
-    }*/
-
     public static function migrateActiveAssessmentPeriodInformation($createdAssessmentPeriod)
     {
         $activeAssessmentPeriodId = self::getActiveAssessmentPeriod()->id;
@@ -135,13 +106,32 @@ class AssessmentPeriod extends Model
             //
         }
 
+        // Forms
+
+        $activeForms = DB::table('forms')
+            ->where('assessment_period_id', $activeAssessmentPeriodId)->get();
+
+        $formsToInsert = $activeForms->map(function ($form) use ($createdAssessmentPeriod, $now) {
+            return [
+                'name' => $form->name,
+                'description' => $form->description,
+                'dependency_role' => $form->dependency_role,
+                'position' => $form->position,
+                'questions' => $form->questions,
+                'assessment_period_id' => $createdAssessmentPeriod->id,
+                'creation_assessment_period_id' => $form->assessment_period_id,
+                'created_at' => $now,
+                'updated_at' => $now,
+            ];
+        })->toArray();
+
+        DB::table('forms')->insert($formsToInsert);
+
         //competences
         // Obtener las competencias del periodo activo
         $activeCompetences = DB::table('competences')
             ->where('assessment_period_id', $activeAssessmentPeriodId)
             ->get();
-
-
 
         $competencesToInsert = $activeCompetences->map(function ($competence) use ($createdAssessmentPeriod, $now) {
             return [
@@ -209,14 +199,21 @@ class AssessmentPeriod extends Model
 
         //assessments (jefe, par, cliente interno / externo) de solo users con un functionary_profile existente en el createdAssessmentPeriodId
 
-
-        // 1. Obtener los user_id válidos del nuevo periodo
-        $validUserIds = DB::table('functionary_profiles')
+// 1. Obtener los perfiles válidos del nuevo periodo
+        $validProfiles = DB::table('functionary_profiles')
             ->where('assessment_period_id', $createdAssessmentPeriod->id)
-            ->pluck('user_id')
+            ->get();
+
+// 1.1 Mapear user_id => dependency_identifier para validación rápida
+        $userDependencyMap = $validProfiles->pluck('dependency_identifier', 'user_id')->toArray();
+
+// 1.2 Obtener los dependency_identifier válidos en la tabla dependencies
+        $validDependencyIdentifiers = DB::table('dependencies')
+            ->where('assessment_period_id', $createdAssessmentPeriod->id)
+            ->pluck('identifier')
             ->toArray();
 
-// 2. Traer todos los assessments del periodo activo
+// 2. Traer los assessments del periodo activo
         $assessments = DB::table('assessments')
             ->where('assessment_period_id', $activeAssessmentPeriodId)
             ->get();
@@ -225,48 +222,56 @@ class AssessmentPeriod extends Model
         $assessmentsToInsert = [];
 
         foreach ($assessments as $assessment) {
-
             $role = $assessment->role;
 
-            // Omitir autoevaluación y roles no permitidos
             if ($role === 'autoevaluación') {
                 continue;
             }
 
-            $evaluatedInProfile = in_array($assessment->evaluated_id, $validUserIds);
-            $evaluatorInProfile = in_array($assessment->evaluator_id, $validUserIds);
+            // Validar que el evaluado está en los perfiles válidos
+            if (!array_key_exists($assessment->evaluated_id, $userDependencyMap)) {
+                continue;
+            }
 
+            $evaluatedInProfile = true;
+            $evaluatorInProfile = in_array($assessment->evaluator_id, array_keys($userDependencyMap));
+
+            // Construir el nuevo dependency_identifier
+            $prefix = explode('-', $assessment->dependency_identifier)[0];
+            $newDependencyIdentifier = $prefix . '-' . $createdAssessmentPeriod->id;
+
+            // Validar que exista en dependencies y que corresponda al evaluated_id
+            if (
+                !in_array($newDependencyIdentifier, $validDependencyIdentifiers) ||
+                $userDependencyMap[$assessment->evaluated_id] !== $newDependencyIdentifier
+            ) {
+                continue; // Saltar si no es válido
+            }
+
+            // Insertar si cumple todas las condiciones
             if (in_array($role, ['jefe', 'par', 'cliente interno'])) {
-                if (!$evaluatedInProfile) {
-                    continue;
-                }
-
                 $assessmentsToInsert[] = [
                     'evaluated_id' => $assessment->evaluated_id,
                     'evaluator_id' => $evaluatorInProfile ? $assessment->evaluator_id : null,
                     'role' => $assessment->role,
-                    'pending' => $assessment->pending,
+                    'pending' => 1,
                     'assessment_period_id' => $createdAssessmentPeriod->id,
-                    'dependency_identifier' => $assessment->dependency_identifier,
-                    'form_answer_id' => $assessment->form_answer_id,
+                    'dependency_identifier' => $newDependencyIdentifier,
+                    'form_answer_id' => null,
                     'created_at' => $now,
                     'updated_at' => $now,
                 ];
             }
 
             if ($role === 'cliente externo') {
-                if (!$evaluatedInProfile) {
-                    continue;
-                }
-
                 $assessmentsToInsert[] = [
                     'evaluated_id' => $assessment->evaluated_id,
                     'evaluator_id' => $assessment->evaluator_id,
                     'role' => $assessment->role,
-                    'pending' => $assessment->pending,
+                    'pending' => 1,
                     'assessment_period_id' => $createdAssessmentPeriod->id,
-                    'dependency_identifier' => $assessment->dependency_identifier,
-                    'form_answer_id' => $assessment->form_answer_id,
+                    'dependency_identifier' => $newDependencyIdentifier,
+                    'form_answer_id' => null,
                     'created_at' => $now,
                     'updated_at' => $now,
                 ];
@@ -277,19 +282,19 @@ class AssessmentPeriod extends Model
         DB::table('assessments')->insert($assessmentsToInsert);
 
 
-
     }
 
     public static function getActiveAssessmentPeriod()
     {
-        return self::where('active', '=',   1)->firstOrFail();
+        return self::where('active', '=', 1)->firstOrFail();
     }
 
-    public static function importResponseIdeals($assessmentPeriodId){
+    public static function importResponseIdeals($assessmentPeriodId)
+    {
 
         $previousResponseIdeals = DB::table('response_ideals')->where('assessment_period_id', '=', self::getActiveAssessmentPeriod()->id)->get();
 
-        foreach ($previousResponseIdeals as $responseIdeal){
+        foreach ($previousResponseIdeals as $responseIdeal) {
             $responseIdeal = ResponseIdeal::find($responseIdeal->id);
             $newResponseIdeal = $responseIdeal->replicate(['assessment_period_id']);
             $newResponseIdeal->assessment_period_id = $assessmentPeriodId;
