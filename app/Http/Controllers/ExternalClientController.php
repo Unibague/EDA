@@ -49,24 +49,47 @@ class ExternalClientController extends Controller
         $passwordToExternalClient = Str::random(12);
         $externalClientRoleId = Role::getRoleIdByName('cliente externo');
 
-        $user = User::create([
-            'name' => $request->input(['name']),
-            'email' => $request->input(['email']),
-            'is_external_client' => true,
-            'password' => Hash::make($passwordToExternalClient),
-        ]);
+        // Buscar si ya existe un usuario con el mismo correo
+        $existingUser = User::where('email', $request->input('email'))->first();
 
+        if ($existingUser) {
+            // Si ya existe, actualizamos sus datos
+            $existingUser->update([
+                'is_external_client' => true,
+                'password' => Hash::make($passwordToExternalClient),
+            ]);
+
+            $userId = $existingUser->id;
+        } else {
+            // Si no existe, creamos un nuevo usuario
+            $newUser = User::create([
+                'name' => $request->input('name'),
+                'email' => $request->input('email'),
+                'is_external_client' => true,
+                'password' => Hash::make($passwordToExternalClient),
+            ]);
+
+            $userId = $newUser->id;
+        }
+
+        // Asignar el rol de cliente externo (o asegurarse de que ya lo tiene)
         DB::table('role_user')->updateOrInsert(
-            ['user_id' => $user['id'],
-                'role_id' => $externalClientRoleId]
+            ['user_id' => $userId, 'role_id' => $externalClientRoleId]
         );
 
-        $data = ['name' => $request->input(['name']),'email' => $request->input(['email']), 'password' => $passwordToExternalClient];
+        // Preparar y enviar el correo
+        $data = [
+            'name' => $request->input('name'),
+            'email' => $request->input('email'),
+            'password' => $passwordToExternalClient
+        ];
 
         $email = new \App\Mail\ExternalClientCreated($data);
+        Mail::bcc([$request->input('email')])->send($email);
 
-        Mail::bcc([$request->input(['email'])])->send($email);
-        return response()->json(['message' => 'Cliente externo creado exitosamente, al correo ingresado se han enviado las credenciales de acceso para EDA']);
+        return response()->json([
+            'message' => 'Cliente externo creado o actualizado exitosamente. Se han enviado las credenciales al correo ingresado.'
+        ]);
     }
 
     /**
