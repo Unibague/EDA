@@ -101,7 +101,7 @@
                                         v-if="$data[createOrEditDialog.model].role === 'jefe'
                                         || $data[createOrEditDialog.model].role === 'cliente interno'"
                                         label="Nombre del funcionario asignado para evaluar"
-                                        :items="functionaries"
+                                        :items="functionariesAndExternalClients"
                                         required
                                         :item-text="(functionary)=> functionary.name"
                                         :item-value="(functionary)=>functionary.user_id"
