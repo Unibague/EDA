@@ -43,7 +43,6 @@ class ReportsController extends Controller
         $labels = DB::table('competences')->where('assessment_period_id', '=', $assessmentPeriodId)
             ->orderBy('position', 'ASC')->get();
 
-
         //Check the user role and based on that generate the report
         $user = auth()->user();
         $role = $user->role()['name'];
@@ -91,7 +90,7 @@ class ReportsController extends Controller
         }, json_decode($responseIdealGrade->response));
 
         $datasets [] = (object)
-        [       'label' => "Nivel Esperado ($position->name)",
+        [       'label' => "Nivel de dominio (esperado) ($position->name)",
                 'data' => $mapResponseIdealArray,
                 'backgroundColor' => 'orange',
                 'borderColor' => 'orange',
@@ -112,7 +111,7 @@ class ReportsController extends Controller
         }
 
         $datasets [] = (object)
-        [    'label' => ucfirst($aggregateGrade->role),
+        [    'label' => 'Niveles de dominio',
             'data' => $mapAggregateGradeArray,
             'backgroundColor' => 'black',
             'borderColor' => 'black',

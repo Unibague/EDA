@@ -60,6 +60,7 @@ class FormAnswersController extends Controller
             ->join('dependencies as d', 'ar.dependency_identifier','=','d.identifier')
             ->join('position_user as pu','u.id','=','pu.user_id')
             ->join('positions as p','p.id','=','pu.position_id')
+            ->where('pu.assessment_period_id','=',$assessmentPeriodId)
             ->where('ar.assessment_period_id', '=', $assessmentPeriodId)->get();
     }
 

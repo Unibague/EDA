@@ -81,47 +81,53 @@
         type: 'line',
         data: {
             labels: @json($labels),
-            datasets:@json($datasets),
+            datasets: @json($datasets),
         },
         options: {
             scales: {
-                x:
-                    {
+                x: {
+                    display: true,
+                    title: {
                         display: true,
-                        title: {
-                            display: true,
-                            text: 'Competencias',
-                            color: 'black',
-                            font: {
-                                size: 15,
-                                weight: 'bold',
-                                lineHeight: 1.2,
-                            },
+                        text: 'Competencias',
+                        color: 'black',
+                        font: {
+                            size: 15,
+                            weight: 'bold',
+                            lineHeight: 1.2,
                         },
-                        position: 'top'
-                    }
-                ,
-                y:
-                    {
-                        min: 0,
-                        max: 5.4,
+                    },
+                    position: 'top'
+                },
+                y: {
+                    min: 1,
+                    max: 5,
+                    stepSize: 1,
+                    display: true,
+                    title: {
                         display: true,
-
-                        title: {
-                            display: true,
-                            text: 'Valores obtenidos',
-                            color: 'black',
-                            font: {
-                                size: 15,
-                                weight: 'bold',
-                                lineHeight: 1.2,
-                            },
+                        text: 'Valores obtenidos',
+                        color: 'black',
+                        font: {
+                            size: 15,
+                            weight: 'bold',
+                            lineHeight: 1.2,
                         },
-
-                        ticks:{
-                            callback: (value, index, values) => (index == (values.length-1)) ? undefined : value,
-                        },
+                    },
+                    ticks: {
+                        stepSize: 1,
+                        callback: function(value) {
+                            const labels = {
+                                1: 'Limitado (1)',
+                                2: 'Básico (2)',
+                                3: 'Progresivo (3)',
+                                4: 'Avanzado (4)',
+                                5: 'Experto (5)'
+                            };
+                            return labels[value] || '';
+                        }
                     }
+                }
             }
         }
     });
