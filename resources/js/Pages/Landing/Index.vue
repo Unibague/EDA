@@ -2,22 +2,30 @@
     <GeneralLayout>
             <div style="margin:auto">
                 <v-row>
+
+                    <!-- Login Funcionarios -->
                     <v-col cols="6" class="d-flex justify-center" align-self="center">
-                        <v-layout>
-                            <v-flex xs12 sm8 md12>
-                                <v-card class="elevation-1 pa-5">
-                                    <p class="text-h5 text-center">
-                                        Si eres funcionario de la Universidad, por favor ingresa con tu correo en el siguiente botón
-                                    </p>
-                                    <v-card-actions class="justify-center">
-                                    <a :href="route('googleLogin')">
-                                        <v-btn
-                                            class="mr-2 primario--text"
-                                        >
-                                            INGRESAR
-                                        </v-btn>
-                                    </a>
-                                    </v-card-actions>
+                        <v-layout >
+                            <v-flex xs12 sm8 md12 >
+                                <v-card class="elevation-12">
+                                    <v-toolbar dark color="primario">
+                                        <v-toolbar-title>Funcionarios</v-toolbar-title>
+                                    </v-toolbar>
+                                    <v-card-text class="text-center">
+                                        <p class="text-h6 mb-4">
+                                            Si eres funcionario de la Universidad, ingresa a continuación con tu cuenta institucional
+                                        </p>
+
+                                        <a :href="route('googleLogin')" style="text-decoration: none">
+                                            <v-btn color="white" class="elevation-2" style="text-transform: none; color: #444;" block>
+                                                <v-avatar left size="24" class="mr-2">
+                                                    <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" />
+                                                </v-avatar>
+                                                Ingresar con Google
+                                            </v-btn>
+                                        </a>
+
+                                    </v-card-text>
                                 </v-card>
                             </v-flex>
                         </v-layout>
@@ -29,7 +37,7 @@
                         <v-layout>
                             <v-flex xs12 sm8 md12>
                                 <v-card class="elevation-12">
-                                    <v-toolbar dark color="primary">
+                                    <v-toolbar dark color="primario">
                                         <v-toolbar-title>Empresas / Clientes Externos </v-toolbar-title>
                                     </v-toolbar>
                                     <v-card-text>
@@ -60,7 +68,7 @@
                                             <div v-if="form.errors.approve" class="text-red-500 text-xs mt-1" style="color: red">
                                                 {{form.errors.approve}}
                                             </div>
-                                            <v-btn type="submit" class="mt-4" color="primary" value="log in">Ingresar</v-btn>
+                                            <v-btn type="submit" class="mt-4 white--text" color="primario" value="log in">Ingresar</v-btn>
                                         </form>
                                     </v-card-text>
                                 </v-card>
