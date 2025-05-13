@@ -4,12 +4,14 @@ namespace App\Http\Controllers;
 
 use App\Models\Assessment;
 use App\Models\AssessmentPeriod;
+use App\Models\Dependency;
 use App\Models\FunctionaryProfile;
 use App\Models\User;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Inertia\Inertia;
 use Psy\Util\Json;
 
 class AssessmentController extends Controller
@@ -140,4 +142,14 @@ class AssessmentController extends Controller
         }
         return response()->json(['message' => 'Asignación eliminada exitosamente']);
     }
+
+    public function dependencyAssessmentStatus (Request $request){
+
+        $dependency = $request->input('dependency');
+        if ($dependency !== null){
+            return response()->json(FunctionaryProfile::getFunctionariesAssessments($dependency['identifier']));
+        }
+        return response()->json(FunctionaryProfile::getFunctionariesAssessments());
+    }
+
 }

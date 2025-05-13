@@ -265,6 +265,12 @@ export default {
                         icon: 'mdi-account-cog'
                     },
                     {
+                        name: 'Estado de la evaluación',
+                        href: route('api.dependencies.all.assessmentStatus.view'),
+                        role: 10,
+                        icon: 'mdi-account-cog'
+                    },
+                    {
                         name: 'Posiciones',
                         href: route('positions.index.view'),
                         role: 10,

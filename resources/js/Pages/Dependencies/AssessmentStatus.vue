@@ -5,8 +5,21 @@
 
         <v-container>
             <div class="d-flex flex-column align-end mb-8">
-                <h2 class="align-self-start">Estado de evaluación para la dependencia {{this.dependency.name}}</h2>
+                <h2 class="align-self-start">
+                    <span v-if="dependency">Estado de evaluación para la dependencia {{ dependency.name }}</span>
+                    <span v-else>Estado de evaluación para todas las dependencias</span>
+                </h2>
             </div>
+
+            <!-- Campo de búsqueda -->
+            <v-text-field
+                v-model="search"
+                append-icon="mdi-magnify"
+                label="Buscar"
+                single-line
+                hide-details
+                class="mb-4"
+            />
 
             <!--Inicia tabla-->
             <v-card>
@@ -15,7 +28,7 @@
                     loading-text="Cargando, por favor espere..."
                     :loading="isLoading"
                     :headers="headers"
-                    :items="functionaries"
+                    :items="assessments"
                     :items-per-page="20"
                     :footer-props="{
                         'items-per-page-options': [20,50,100,-1]
@@ -126,7 +139,7 @@ export default {
                 {text: 'Cliente Interno / Externo', value: 'client'},
                 {text: 'Autoevaluación', value: 'auto'}
             ],
-            functionaries: [],
+            assessments: [],
             //Snackbars
             snackbar: {
                 text: "",
@@ -138,17 +151,15 @@ export default {
         }
     },
     async created() {
-        await this.getFunctionariesFromDependency();
+        await this.getAssessmentsFromDependency();
         this.isLoading = false;
     },
 
     methods: {
 
-        async getFunctionariesFromDependency() {
-            let request = await axios.get(route('api.functionaries.index', {dependency:this.dependency}));
-            console.log(request.data);
-            console.log(this.dependency);
-            this.functionaries = request.data;
+        async getAssessmentsFromDependency() {
+            let request = await axios.get(route('api.dependencies.assessmentStatus', {dependency:this.dependency}));
+            this.assessments = request.data;
         },
 
     },

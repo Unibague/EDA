@@ -20,24 +20,40 @@ class FunctionaryProfile extends Model
         return $this->belongsTo(User::class);
     }
 
-    public static function getFunctionariesAssessments(string $dependencyIdentifier)
+    public static function getFunctionariesAssessments($dependencyIdentifier = null)
     {
+
         $activeAssessmentPeriodId = AssessmentPeriod::getActiveAssessmentPeriod()->id;
         $dataFromFunctionaries = [];
-        $functionariesFromDependency = DB::table('assessments as a')->select(['a.evaluated_id as id', 'fp.id as functionary_profile_id', 'fp.name as name', 'fp.job_title as job_title'])
+
+        // Construimos la consulta base
+        $query = DB::table('assessments as a')
+            ->select(['a.evaluated_id as id', 'fp.id as functionary_profile_id', 'fp.name as name', 'fp.job_title as job_title'])
             ->where('a.assessment_period_id', '=', $activeAssessmentPeriodId)
             ->join('functionary_profiles as fp','a.evaluated_id', '=', 'fp.user_id')
-            ->where('fp.assessment_period_id', '=', $activeAssessmentPeriodId)
-            ->where('a.dependency_identifier', '=', $dependencyIdentifier)->distinct()->get();
+            ->where('fp.assessment_period_id', '=', $activeAssessmentPeriodId);
+
+        // Aplicamos condicionalmente el filtro por dependencia
+        if (!is_null($dependencyIdentifier)) {
+            $query->where('a.dependency_identifier', '=', $dependencyIdentifier);
+        }
+
+        $functionariesFromDependency = $query->distinct()->get()->sortBy('name');
 
         foreach ($functionariesFromDependency as $functionaryFromDependency){
-            $functionaryAssessments = (object) ['id' => $functionaryFromDependency->id, 'functionary_profile_id' => $functionaryFromDependency->functionary_profile_id,
-                'name' => $functionaryFromDependency->name, 'job_title' => $functionaryFromDependency->job_title];
+            $functionaryAssessments = (object) [
+                'id' => $functionaryFromDependency->id,
+                'functionary_profile_id' => $functionaryFromDependency->functionary_profile_id,
+                'name' => $functionaryFromDependency->name,
+                'job_title' => $functionaryFromDependency->job_title
+            ];
 
-            $assessmentsFromFunctionary = DB::table('assessments as a')->select(['u.name as name', 'a.role as role', 'a.pending'])
+            $assessmentsFromFunctionary = DB::table('assessments as a')
+                ->select(['u.name as name', 'a.role as role', 'a.pending'])
                 ->where('a.evaluated_id', '=', $functionaryFromDependency->id)
                 ->where('a.assessment_period_id', '=', $activeAssessmentPeriodId)
-                ->join('users as u','a.evaluator_id', '=', 'u.id')->get();
+                ->join('users as u','a.evaluator_id', '=', 'u.id')
+                ->get();
 
             foreach($assessmentsFromFunctionary as $assessmentFromFunctionary){
                 if($assessmentFromFunctionary->role === "jefe"){
@@ -56,7 +72,8 @@ class FunctionaryProfile extends Model
                     $functionaryAssessments->autoPending = $assessmentFromFunctionary->pending;
                 }
             }
-            $dataFromFunctionaries [] = $functionaryAssessments;
+
+            $dataFromFunctionaries[] = $functionaryAssessments;
         }
 
         return $dataFromFunctionaries;

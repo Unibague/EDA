@@ -33,12 +33,8 @@ class FunctionaryProfileController extends Controller
         if ($assessmentPeriodId === null){
             $assessmentPeriodId = AssessmentPeriod::getActiveAssessmentPeriod()->id;
         }
-        $dependency = $request->input('dependency');
-        $functionaryProfile = $request->input('functionaryProfile');
 
-        if ($dependency !== null){
-            return response()->json(FunctionaryProfile::getFunctionariesAssessments($dependency['identifier']));
-        }
+        $functionaryProfile = $request->input('functionaryProfile');
 
         if ($functionaryProfile !== null){
             return response()->json(FunctionaryProfile::where('assessment_period_id', '=', $assessmentPeriodId)->where('user_id', '!=', $functionaryProfile['user_id'])

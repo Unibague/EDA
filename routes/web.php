@@ -25,6 +25,9 @@ use Laravel\Socialite\Facades\Socialite;
 Route::resource('api/assessments', \App\Http\Controllers\AssessmentController::class, [
     'as' => 'api'
 ])->middleware('auth');
+Route::get('/api/dependencies/assessmentStatus', [\App\Http\Controllers\AssessmentController::class, 'dependencyAssessmentStatus'])
+    ->middleware(['auth', 'isAdminOrDependencyAdmin'])->name('api.dependencies.assessmentStatus');
+
 
 
 /* >>>>>>>>>>>>>>>>>>>>>>>  Assessment Periods routes >>>>>>>><<<<<< */
@@ -84,8 +87,10 @@ Route::resource('api/dependencies', \App\Http\Controllers\DependencyController::
     'as' => 'api'])->middleware('auth');
 Route::get('/api/dependencies/{dependency}', [\App\Http\Controllers\DependencyController::class, 'edit'])->middleware(['auth', 'isAdmin'])
     ->name('api.dependencies.edit');
-Route::get('/api/dependencies/{dependency}/assessmentStatus', [\App\Http\Controllers\DependencyController::class, 'assessmentStatus'])
-    ->middleware(['auth', 'isAdminOrDependencyAdmin'])->name('api.dependencies.assessmentStatus');
+Route::get('/dependencies/assessmentStatus', [\App\Http\Controllers\DependencyController::class, 'assessmentStatusView'])
+    ->middleware(['auth', 'isAdminOrDependencyAdmin'])->name('api.dependencies.all.assessmentStatus.view');
+Route::get('/dependencies/{dependency}/assessmentStatus', [\App\Http\Controllers\DependencyController::class, 'assessmentStatusView'])
+    ->middleware(['auth', 'isAdminOrDependencyAdmin'])->name('api.dependencies.assessmentStatus.view');
 Route::post('/api/dependencies/sync', [\App\Http\Controllers\DependencyController::class, 'sync'])->middleware(['auth', 'isAdmin'])
     ->name('api.dependencies.sync');
 Route::get('/api/dependencies/{dependency}/admins', [\App\Http\Controllers\DependencyController::class, 'getAdmins'])->middleware(['auth'])

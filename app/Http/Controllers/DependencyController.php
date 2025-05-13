@@ -11,6 +11,7 @@ use App\Models\Unit;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
+use Inertia\Response;
 
 class DependencyController extends Controller
 {
@@ -101,9 +102,16 @@ class DependencyController extends Controller
         return Inertia::render('Dependencies/ManageDependency', ['dependency' => $dependency]);
     }
 
-    public function assessmentStatus(Dependency $dependency)
+    public function assessmentStatusView(Request $request, $dependency = null): Response
     {
-        return Inertia::render('Dependencies/AssessmentStatus', ['dependency' => $dependency]);
+
+        if($dependency){
+            $dependency = Dependency::where('identifier',$dependency)->first();
+        }
+
+        return Inertia::render('Dependencies/AssessmentStatus', [
+            'dependency' => $dependency
+        ]);
     }
     /**
      * Update the specified resource in storage.

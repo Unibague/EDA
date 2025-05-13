@@ -8,7 +8,7 @@
                 <h2 class="align-self-start" > {{this.dependency.name}} </h2>
 
                 <div>
-                    <InertiaLink :href="route('api.dependencies.assessmentStatus',{dependency:this.dependency.identifier})"
+                    <InertiaLink :href="route('api.dependencies.assessmentStatus.view',{dependency:this.dependency.identifier})"
                     class="grey--text text--lighten-4">
                         <v-btn>
                             Estado de la evaluación
@@ -214,15 +214,15 @@ export default {
     },
 
     async created() {
-        await this.getFunctionariesFromDependency();
+        await this.getFunctionariesAssessmentsFromDependency();
         await this.getDependencyAdmins();
         await this.getAllFunctionaries();
     },
 
     methods:{
 
-        async getFunctionariesFromDependency() {
-            let request = await axios.get(route('api.functionaries.index', {dependency:this.dependency}));
+        async getFunctionariesAssessmentsFromDependency() {
+            let request = await axios.get(route('api.dependencies.assessmentStatus', {dependency:this.dependency}));
             this.functionaries = request.data;
         },
 

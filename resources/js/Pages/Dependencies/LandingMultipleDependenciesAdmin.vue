@@ -89,7 +89,7 @@ export default {
                 showSnackbar(this.snackbar, 'Por favor, selecciona una dependencia de la lista', 'red');
                 return;
             }
-            const url = route('api.dependencies.assessmentStatus', {dependency: this.selectedDependencyIdentifier});
+            const url = route('api.dependencies.assessmentStatus.view', {dependency: this.selectedDependencyIdentifier});
             try {
                 window.location.href = url;
             } catch (e) {
