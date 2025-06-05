@@ -117,6 +117,13 @@ class FunctionaryProfile extends Model
 
         $errorMessage = '';
         foreach ($finalFunctionaries as $functionary) {
+
+            if($functionary['email'] === 'deisy.roa@unibague.edu.co') {
+                $functionary['email'] = 'deysi.roa@unibague.edu.co';
+            }
+
+
+
             $user = User::firstOrCreate(['email' => $functionary['email']], ['name' => $functionary['full_name'],
                 'password' => 'automatic_generate_password']);
 
