@@ -52,6 +52,7 @@ class FormAnswersController extends Controller
         if($assessmentPeriodId === null){
             $assessmentPeriodId = AssessmentPeriod::getActiveAssessmentPeriod()->id;
         }
+
         return DB::table('aggregate_assessment_results as ar')
             ->select(['ar.updated_at as submitted_at', 'ar.role', 'ar.dependency_identifier', 'u.id as user_id','u.name' , 'd.name as dependency_name', 'p.name as position_name',
                 'ar.first_competence as c1','ar.second_competence as c2','ar.third_competence as c3','ar.fourth_competence as c4', 'ar.fifth_competence as c5',
@@ -59,9 +60,12 @@ class FormAnswersController extends Controller
             ->join('users as u', 'ar.user_id', '=', 'u.id')
             ->join('dependencies as d', 'ar.dependency_identifier','=','d.identifier')
             ->join('position_user as pu','u.id','=','pu.user_id')
-            ->join('positions as p','p.id','=','pu.position_id')
             ->where('pu.assessment_period_id','=',$assessmentPeriodId)
+            ->join('positions as p','p.id','=','pu.position_id')
+            ->where('d.assessment_period_id','=',$assessmentPeriodId)
             ->where('ar.assessment_period_id', '=', $assessmentPeriodId)->get();
+
+
     }
 
     public function getOpenAnswers (Request $request)

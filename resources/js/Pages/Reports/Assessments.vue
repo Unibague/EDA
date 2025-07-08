@@ -326,12 +326,6 @@ export default {
         await this.checkUser();
         await this.getTableHeaders();
         await this.getAssessmentPeriods();
-        await this.getDependencies();
-        await this.getFunctionaries();
-        await this.getRoles();
-        await this.getResponseIdeals();
-        await this.getIndividualGrades();
-        await this.getAggregateGrades();
         this.isLoading = false;
     },
 
@@ -768,11 +762,11 @@ export default {
 
     watch:{
         async assessmentPeriod(){
-            await this.getAssessmentPeriods();
             await this.getDependencies();
             await this.getFunctionaries();
             await this.getRoles();
             await this.getIndividualGrades();
+            await this.getResponseIdeals();
             await this.getAggregateGrades();
         }
     }
