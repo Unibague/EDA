@@ -35,7 +35,7 @@ class FormAnswersController extends Controller
             ->join('dependencies as d', 'a.dependency_identifier','=','d.identifier')
             ->join('position_user as pu','u.id','=','pu.user_id')
             ->join('positions as p','p.id','=','pu.position_id')
-            ->where('f.creation_assessment_period_id', '=', $assessmentPeriodId)
+            ->where('f.assessment_period_id', '=', $assessmentPeriodId)
             ->where('pu.assessment_period_id','=',$assessmentPeriodId)
             ->get();
 
