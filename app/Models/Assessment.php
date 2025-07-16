@@ -42,6 +42,8 @@ class Assessment extends Model
         $user = auth()->user();
 
         if($user->role()->name == "funcionario" || $user->role()->name == "cliente externo") {
+
+            //Criterio para saber si se muestran las evaluaciones al funcionario
             $validDate = DB::table('assessment_periods as ap')->where('ap.active','=',1)
                 ->where('ap.assessment_start_date','<=',$date)->where('ap.assessment_end_date','>=',$date)->first();
 

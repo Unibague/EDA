@@ -47,9 +47,9 @@ class UpdateAggregateAssessmentResultsReminder extends Command
         $now = Carbon::now();
         $date = $now->toDateString();
         $inRangeOfSuitableDates = DB::table('assessment_periods as ap')->where('active','=',1)
-            ->where('assessment_end_date','<=',$date)->where('commitment_start_date','>=',$date)->first();
+            ->where('assessment_end_date','<',$date)->first();
 
-        if($inRangeOfSuitableDates){
+        if(!$inRangeOfSuitableDates){
             $activeAssessmentPeriodId = AssessmentPeriod::getActiveAssessmentPeriod()->id;
 
             //First retrieve all the form_answers
@@ -64,9 +64,14 @@ class UpdateAggregateAssessmentResultsReminder extends Command
 
             //Now iterate over every evaluatedId and filter the $formAnswers array and do the calculations
             foreach ($evaluatedIds as $evaluatedId){
+
+
+
                 $userFormAnswers = array_filter($formAnswers, function ($formAnswer) use($evaluatedId){
                     return $formAnswer->evaluated_id === $evaluatedId;
                 });
+
+
 
                 //In order to calculate the final aggregate results, AT LEAST 3 user's actors have to submit the answer
                 if(count($userFormAnswers) > 2){
