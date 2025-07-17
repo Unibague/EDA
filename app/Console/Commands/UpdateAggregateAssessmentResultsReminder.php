@@ -49,7 +49,7 @@ class UpdateAggregateAssessmentResultsReminder extends Command
         $inRangeOfSuitableDates = DB::table('assessment_periods as ap')->where('active','=',1)
             ->where('assessment_end_date','<',$date)->first();
 
-        if(!$inRangeOfSuitableDates){
+        if($inRangeOfSuitableDates){
             $activeAssessmentPeriodId = AssessmentPeriod::getActiveAssessmentPeriod()->id;
 
             //First retrieve all the form_answers
