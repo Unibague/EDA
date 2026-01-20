@@ -136,7 +136,6 @@ export default {
                 {text: 'Nombre', value: 'name', align: 'center'},
                 {text: 'Jefe', value: 'boss'},
                 {text: 'Par', value: 'peer'},
-                {text: 'Cliente Interno / Externo', value: 'client'},
                 {text: 'Autoevaluación', value: 'auto'}
             ],
             assessments: [],

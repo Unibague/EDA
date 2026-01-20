@@ -32,8 +32,6 @@ export default class Form {
             {name: 'jefe', value: 'jefe'},
             {name: 'par', value: 'par'},
             {name: 'autoevaluación',value: 'autoevaluación'},
-            {name: 'cliente interno',value: 'cliente interno'},
-            {name: 'cliente externo',value: 'cliente externo'}
         ];
     }
 

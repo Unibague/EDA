@@ -85,10 +85,11 @@ class User extends Authenticatable
 //            return $userRoles[0];
 //        }
 
-        return (object)[
-            'name' => 'cliente externo',
-            'customId' => 1
-        ];
+return (object)[
+    'name' => 'funcionario',
+    'customId' => 1
+];
+
     }
 
     public function hasOneRole(): bool

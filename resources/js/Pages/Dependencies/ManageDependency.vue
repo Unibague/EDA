@@ -194,7 +194,6 @@ export default {
                 {text: 'Cargo', value: 'job_title'},
                 {text: 'Jefe', value: 'boss'},
                 {text: 'Par', value: 'peer'},
-                {text: 'Cliente Interno/Externo', value: 'client'},
                 {text: 'Asignaciones del funcionario', value: 'actions', width: '10%', sortable: false},
             ],
             //Snackbars

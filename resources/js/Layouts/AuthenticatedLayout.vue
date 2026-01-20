@@ -15,73 +15,87 @@
         </form>
 
         <template v-slot:custom-v-app-bar-icon>
-            <v-app-bar-nav-icon @click="drawer = true" class="white--text"></v-app-bar-nav-icon>
+            <v-app-bar-nav-icon @click="drawer = true" class="white--text" />
         </template>
 
         <template v-slot:app-bar-content>
-            <template v-for="menuItem in menu"
-                      v-if="$page.props.user.customRoleId >= menuItem.role">
-
-                <Link as="v-btn" text v-if="!menuItem.method" :key="menuItem.title"
-                      class="d-none d-md-block"
-                      :class="{
-                        'active-button':route().current(menuItem.routeName),
-                        'normal-button':!(route().current(menuItem.routeName))
-                        }"
-                      :href="menuItem.href">
+            <!-- MENÚ SUPERIOR -->
+            <div
+                v-for="menuItem in menu"
+                :key="`menu-${menuItem.name}`"
+                v-if="$page.props.user.customRoleId >= menuItem.role"
+            >
+                <Link
+                    v-if="!menuItem.method"
+                    as="v-btn"
+                    text
+                    class="d-none d-md-block"
+                    :class="{
+                        'active-button': route().current(menuItem.routeName),
+                        'normal-button': !route().current(menuItem.routeName)
+                    }"
+                    :href="menuItem.href"
+                >
                     {{ menuItem.name }}
                 </Link>
 
-                <v-btn text v-else
-                       :key="menuItem.title"
-                       class="d-none d-md-block"
-                       :class="{
-                        'active-button':route().current(menuItem.routeName),
-                        'normal-button':!(route().current(menuItem.routeName))
-                        }"
-                       @click="triggerFunction(menuItem.method)">
+                <v-btn
+                    v-else
+                    text
+                    class="d-none d-md-block"
+                    :class="{
+                        'active-button': route().current(menuItem.routeName),
+                        'normal-button': !route().current(menuItem.routeName)
+                    }"
+                    @click="triggerFunction(menuItem.method)"
+                >
                     {{ menuItem.name }}
                 </v-btn>
-            </template>
+            </div>
 
-            <template
+            <!-- DROPDOWNS SUPERIORES -->
+            <div
                 v-for="dropdown in dropdowns"
-                v-if="$page.props.user.customRoleId === dropdown.role">
-                <v-menu
-                    bottom
-                    origin="center center"
-                >
+                :key="`dropdown-top-${dropdown.name}`"
+                v-if="$page.props.user.customRoleId === dropdown.role"
+            >
+                <v-menu bottom origin="center center">
                     <template v-slot:activator="{ on, attrs }">
-                        <v-btn text
-                               v-bind="attrs"
-                               v-on="on"
-                               class="d-none d-md-block normal-button mr-3">
+                        <v-btn
+                            text
+                            v-bind="attrs"
+                            v-on="on"
+                            class="d-none d-md-block normal-button mr-3"
+                        >
                             {{ dropdown.name }}
                         </v-btn>
                     </template>
 
                     <v-list>
-                        <Link as="v-list-item"
-                              v-if="!item.method"
-                              :href="item.href"
-                              v-for="item in dropdown.items"
-                              :key="item.name"
+                        <div
+                            v-for="item in dropdown.items"
+                            :key="`dropdown-item-${item.name}`"
                         >
-                            <v-list-item-title>{{ item.name }}</v-list-item-title>
-                        </Link>
+                            <Link
+                                v-if="!item.method"
+                                as="v-list-item"
+                                :href="item.href"
+                            >
+                                <v-list-item-title>{{ item.name }}</v-list-item-title>
+                            </Link>
 
-                        <v-list-item
-                            v-else
-                            :key="item.name"
-                            @click="triggerFunction(item.method)"
-                        >
-                            <v-list-item-title>{{ item.name }}</v-list-item-title>
-                        </v-list-item>
+                            <v-list-item
+                                v-else
+                                @click="triggerFunction(item.method)"
+                            >
+                                <v-list-item-title>{{ item.name }}</v-list-item-title>
+                            </v-list-item>
+                        </div>
                     </v-list>
                 </v-menu>
-            </template>
+            </div>
 
-
+            <!-- AVATAR -->
             <v-menu left bottom>
                 <template v-slot:activator="{ on, attrs }">
                     <v-avatar
@@ -101,13 +115,13 @@
                         </v-list-item-title>
                     </v-list-item>
                     <v-list-item class="cursor-pointer" @click="logout">
-                        <v-list-item-title>Cerrar sesion</v-list-item-title>
+                        <v-list-item-title>Cerrar sesión</v-list-item-title>
                     </v-list-item>
                 </v-list>
             </v-menu>
         </template>
 
-        <!--Barra lateral-->
+        <!-- DRAWER -->
         <template v-slot:custom-navigation-drawer>
             <v-navigation-drawer
                 v-model="drawer"
@@ -115,78 +129,72 @@
                 temporary
                 bottom
             >
-                <v-list
-                    nav
-                    dense
-                >
+                <v-list nav dense>
                     <v-list-item-group
                         v-model="group"
                         active-class="deep-purple--text text--accent-4"
                     >
-                        <template v-for="item in menu"
-                                  v-if="$page.props.user.customRoleId >= item.role">
-
-                            <!-- LINKS DE MENU INDIVIDUALES-->
-
-                            <Link as="v-list-item" :key="menu.name" :href="item.href"
-                                  v-if="!item.method">
+                        <div
+                            v-for="item in menu"
+                            :key="`drawer-menu-${item.name}`"
+                            v-if="$page.props.user.customRoleId >= item.role"
+                        >
+                            <Link
+                                v-if="!item.method"
+                                as="v-list-item"
+                                :href="item.href"
+                            >
                                 <v-list-item-icon>
                                     <v-icon>{{ item.icon }}</v-icon>
                                 </v-list-item-icon>
                                 <v-list-item-title>{{ item.name }}</v-list-item-title>
                             </Link>
 
-                            <v-list-item :key="menu.name" @click="triggerFunction(item.method)"
-                                         v-else>
+                            <v-list-item
+                                v-else
+                                @click="triggerFunction(item.method)"
+                            >
                                 <v-list-item-icon>
                                     <v-icon>{{ item.icon }}</v-icon>
                                 </v-list-item-icon>
                                 <v-list-item-title>{{ item.name }}</v-list-item-title>
                             </v-list-item>
-                        </template>
+                        </div>
 
-
-                        <!-- LINKS DE DROPDOWNS-->
+                        <!-- DROPDOWNS DRAWER -->
                         <v-list-group
                             v-for="dropdown in dropdowns"
-                            :key="dropdown.title"
+                            :key="`drawer-dropdown-${dropdown.name}`"
                             v-model="dropdown.active"
                             :prepend-icon="dropdown.icon"
                             no-action
                             v-if="$page.props.user.customRoleId === dropdown.role"
-
                         >
-                            <!-- activator -->
                             <template v-slot:activator>
                                 <v-list-item-content>
-                                    <v-list-item-title v-text="dropdown.name"></v-list-item-title>
+                                    <v-list-item-title>
+                                        {{ dropdown.name }}
+                                    </v-list-item-title>
                                 </v-list-item-content>
                             </template>
 
-
-                            <template v-for="dropdownItem in dropdown.items"
-                                      v-if="$page.props.user.customRoleId === dropdownItem.role">
-
-                                <Link as="v-list-item"
-                                      v-if="!dropdownItem.method"
-                                      :key="dropdownItem.name"
-                                      :href="dropdownItem.href"
+                            <div
+                                v-for="dropdownItem in dropdown.items"
+                                :key="`drawer-item-${dropdownItem.name}`"
+                                v-if="$page.props.user.customRoleId === dropdownItem.role"
+                            >
+                                <Link
+                                    v-if="!dropdownItem.method"
+                                    as="v-list-item"
+                                    :href="dropdownItem.href"
                                 >
                                     <v-list-item-content>
-                                        <v-list-item-title v-text="dropdownItem.name"></v-list-item-title>
+                                        <v-list-item-title>
+                                            {{ dropdownItem.name }}
+                                        </v-list-item-title>
                                     </v-list-item-content>
                                 </Link>
-
-<!--                                <v-list-item
-                                    @click="triggerFunction(dropdownItem.method)"
-                                    :key="dropdownItem.name"
-                                >
-                                    <v-list-item-content  >
-                                        <v-list-item-title v-text="dropdownItem.name"></v-list-item-title>
-                                    </v-list-item-content>
-                                </v-list-item>-->
-                            </template>
-
+                            </div>
                         </v-list-group>
                     </v-list-item-group>
                 </v-list>
@@ -197,18 +205,16 @@
                     </p>
                     <div class="pa-2">
                         <v-btn block @click="logout" color="grey darken-4">
-                             <span class="grey--text text--lighten-1">
+                            <span class="grey--text text--lighten-1">
                                 Cerrar sesión
-                             </span>
+                            </span>
                         </v-btn>
                     </div>
                 </template>
             </v-navigation-drawer>
         </template>
-        <!--This is the main slot, it will contain all application content-->
-        <slot></slot>
 
-
+        <slot />
     </GeneralLayout>
 </template>
 
@@ -279,12 +285,6 @@ export default {
                     {
                         name: 'Asignación de Cargos a Posiciones',
                         href: route('positions.assignment.index.view'),
-                        role: 10,
-                        icon: 'mdi-account-cog'
-                    },
-                    {
-                        name: 'Clientes Externos',
-                        href: route('externalClients.index.view'),
                         role: 10,
                         icon: 'mdi-account-cog'
                     },

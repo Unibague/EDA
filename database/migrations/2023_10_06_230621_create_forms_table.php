@@ -17,7 +17,7 @@ class CreateFormsTable extends Migration
             $table->id();
             $table->string('name');
             $table->text('description')->nullable();
-            $table->enum('dependency_role', ['jefe', 'par', 'autoevaluación', 'cliente interno', 'cliente externo'])->nullable();
+            $table->enum('dependency_role', ['jefe', 'par', 'autoevaluación'])->nullable();
             $table->string('position')->nullable();
             $table->json('questions')->nullable();
             $table->foreignId('assessment_period_id')->nullable()->constrained();

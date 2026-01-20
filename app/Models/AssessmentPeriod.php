@@ -218,7 +218,7 @@ class AssessmentPeriod extends Model
             ->where('assessment_period_id', $activeAssessmentPeriodId)
             ->get();
 
-        $allowedRoles = ['jefe', 'par', 'cliente interno', 'cliente externo'];
+        $allowedRoles = ['jefe', 'par'];
         $assessmentsToInsert = [];
 
         foreach ($assessments as $assessment) {
@@ -249,7 +249,7 @@ class AssessmentPeriod extends Model
             }
 
             // Insertar si cumple todas las condiciones
-            if (in_array($role, ['jefe', 'par', 'cliente interno'])) {
+            if (in_array($role, ['jefe', 'par'])) {
                 $assessmentsToInsert[] = [
                     'evaluated_id' => $assessment->evaluated_id,
                     'evaluator_id' => $evaluatorInProfile ? $assessment->evaluator_id : null,
@@ -263,19 +263,6 @@ class AssessmentPeriod extends Model
                 ];
             }
 
-            if ($role === 'cliente externo') {
-                $assessmentsToInsert[] = [
-                    'evaluated_id' => $assessment->evaluated_id,
-                    'evaluator_id' => $assessment->evaluator_id,
-                    'role' => $assessment->role,
-                    'pending' => 1,
-                    'assessment_period_id' => $createdAssessmentPeriod->id,
-                    'dependency_identifier' => $newDependencyIdentifier,
-                    'form_answer_id' => null,
-                    'created_at' => $now,
-                    'updated_at' => $now,
-                ];
-            }
         }
 
 // 3. Insertar los registros válidos

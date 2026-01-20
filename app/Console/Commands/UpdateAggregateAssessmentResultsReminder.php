@@ -88,9 +88,7 @@ class UpdateAggregateAssessmentResultsReminder extends Command
                     $peerWeight = $weights->where('name', '=', 'par')->first()->value;
 
                     foreach ($userFormAnswers as $formAnswer) {
-                        if ($formAnswer->role === "cliente interno" || $formAnswer->role === "cliente externo") {
-                            $formAnswer->role = "cliente";
-                        }
+                       
                         //Depending on the assessment role, then we get the assessment weight
                         $assessmentWeight = $weights->where('name', '=', $formAnswer->role)->first()->value;
 

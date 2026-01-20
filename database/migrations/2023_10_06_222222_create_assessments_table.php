@@ -19,7 +19,7 @@ class CreateAssessmentsTable extends Migration
             $table->foreign('evaluated_id')->references('id')->on('users');
             $table->foreignId('evaluator_id');
             $table->foreign('evaluator_id')->references('id')->on('users');
-            $table->enum('role',['jefe','par','cliente interno', 'cliente externo', 'autoevaluación']);
+            $table->enum('role',['jefe','par', 'autoevaluación']);
             $table->boolean('pending');
             $table->foreignId('assessment_period_id')->constrained();
             $table->string('dependency_identifier');

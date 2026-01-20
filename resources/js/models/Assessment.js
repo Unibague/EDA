@@ -17,8 +17,6 @@ export default class Assessment{
         return [
             {name: 'jefe', value: 'jefe'},
             {name: 'par', value: 'par'},
-            {name: 'cliente interno', value: 'cliente interno'},
-            {name: 'cliente externo', value: 'cliente externo'},
         ];
     }
 

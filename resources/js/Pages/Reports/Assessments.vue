@@ -311,7 +311,7 @@ export default {
 
             //Graph data
             chartColors: [{role: 'autoevaluación', name: 'blue'}, {role: 'jefe', name: 'red'}, {role: 'par', name: 'green'},
-                {role: 'cliente interno', name: 'purple'}, {role: 'cliente externo', name: '#00BFA5'}, {role: 'promedio final', name: 'black'}],
+              {role: 'promedio final', name: 'black'}],
             datasets:[]
         }
     },
@@ -594,7 +594,6 @@ export default {
         getRoles (){
             this.roles = [{id:  'Todos los roles', name: ''},{id: 'jefe', name: 'jefe'},
                 {id: 'par', name: 'par'}, {id: 'autoevaluación', name: 'autoevaluación'},
-                {id: 'cliente interno', name: 'cliente interno'}, {id: 'cliente externo', name: 'cliente externo'},
                 {id: 'promedio final', name:'promedio final'}]
         },
 

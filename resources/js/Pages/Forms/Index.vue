@@ -174,7 +174,7 @@
                     <v-card-title>
                         <span>
                         </span>
-                        <span class="text-h5">Crear un nuevo formulario  (par, jefe, autoevaluación y clientes internos/externos)</span>
+                        <span class="text-h5">Crear un nuevo formulario  (par, jefe, autoevaluación)</span>
                     </v-card-title>
                     <v-card-text>
                         <v-container>

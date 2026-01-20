@@ -64,10 +64,7 @@ class FunctionaryProfile extends Model
                     $functionaryAssessments->peer = $assessmentFromFunctionary->name;
                     $functionaryAssessments->peerPending = $assessmentFromFunctionary->pending;
                 }
-                if($assessmentFromFunctionary->role === "cliente interno" || $assessmentFromFunctionary->role === "cliente externo"){
-                    $functionaryAssessments->client = $assessmentFromFunctionary->name;
-                    $functionaryAssessments->clientPending = $assessmentFromFunctionary->pending;
-                }
+               
                 if($assessmentFromFunctionary->role === "autoevaluación"){
                     $functionaryAssessments->autoPending = $assessmentFromFunctionary->pending;
                 }

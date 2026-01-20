@@ -28,7 +28,7 @@ class UpdateFormRequest extends FormRequest
             'name' => 'String',
             'assessment_period_id' => 'Integer',
             'dependencies' => 'Array|min:1',
-            'dependency_role' => [Rule::in([null, 'jefe', 'par', 'autoevaluación', 'cliente interno', 'cliente externo'])],
+            'dependency_role' => [Rule::in([null, 'jefe', 'par', 'autoevaluación'])],
         ];
     }
 }

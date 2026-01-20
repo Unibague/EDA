@@ -97,34 +97,17 @@
                                     ></v-autocomplete>
                                 </v-col>
                                 <v-col cols="6">
-                                    <v-autocomplete
-                                        v-if="$data[createOrEditDialog.model].role === 'jefe'
-                                        || $data[createOrEditDialog.model].role === 'cliente interno'"
-                                        label="Nombre del funcionario asignado para evaluar"
-                                        :items="functionariesAndExternalClients"
-                                        required
-                                        :item-text="(functionary)=> functionary.name"
-                                        :item-value="(functionary)=>functionary.user_id"
-                                        v-model="$data[createOrEditDialog.model].evaluator_id"
-                                    ></v-autocomplete>
-                                    <v-autocomplete
-                                        v-if="$data[createOrEditDialog.model].role === 'par'"
-                                        label="Nombre del funcionario asignado para evaluar"
-                                        :items="functionariesAndExternalClients"
-                                        required
-                                        :item-text="(functionary)=> functionary.name"
-                                        :item-value="(functionary)=>functionary.user_id"
-                                        v-model="$data[createOrEditDialog.model].evaluator_id"
-                                    ></v-autocomplete>
-                                    <v-autocomplete
-                                        v-if="$data[createOrEditDialog.model].role === 'cliente externo'"
-                                        label="Nombre del cliente externo"
-                                        :items="externalClients"
-                                        required
-                                        :item-text="(externalClient)=> externalClient.name"
-                                        :item-value="(externalClient)=>externalClient.id"
-                                        v-model="$data[createOrEditDialog.model].evaluator_id"
-                                    ></v-autocomplete>
+                                   <v-autocomplete
+    v-if="$data[createOrEditDialog.model].role === 'jefe'
+        || $data[createOrEditDialog.model].role === 'par'"
+    label="Nombre del funcionario asignado para evaluar"
+    :items="functionaries"
+    required
+    :item-text="(functionary)=> functionary.name"
+    :item-value="(functionary)=>functionary.user_id"
+    v-model="$data[createOrEditDialog.model].evaluator_id"
+/>
+
                                 </v-col>
                             </v-row>
                         </v-container>

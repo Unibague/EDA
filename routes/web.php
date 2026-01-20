@@ -104,14 +104,6 @@ Route::inertia('/assessmentStatus', 'Dependencies/AssessmentStatus')->middleware
 Route::resource('api/{dependency}/dependencyAdmins', \App\Http\Controllers\DependencyAdminController::class, [
     'as' => 'api'])->middleware(['auth', 'isAdmin']);
 
-/* >>>>>>>>>>>>>>>>>>>>>>>  ExternalClients routes >>>>>>>><<<<<< */
-Route::inertia('/externalClients', 'ExternalClients/Index')->middleware(['auth', 'isAdmin'])->name('externalClients.index.view');
-Route::resource('api/externalClients', \App\Http\Controllers\ExternalClientController::class, [
-    'as' => 'api'
-])->middleware('auth');
-Route::post('/api/externalClient/updatePassword', [\App\Http\Controllers\ExternalClientController::class, 'updatePassword'])->middleware(['auth', 'isAdmin'])
-    ->name('api.externalClients.updatePassword');
-
 
 /* >>>>>>>>>>>>>>>>>>>>>>>  Files routes >>>>>>>><<<<<< */
 Route::post('/file/upload', [\App\Http\Controllers\ExternalClientController::class, 'uploadFile'])->middleware(['auth'])
@@ -276,9 +268,7 @@ Route::get('/realTest', function (){
                 $peerWeight = $weights->where('name', '=', 'par')->first()->value;
 
                 foreach ($userFormAnswers as $formAnswer) {
-                    if ($formAnswer->role === "cliente interno" || $formAnswer->role === "cliente externo") {
-                        $formAnswer->role = "cliente";
-                    }
+                    
                     //Depending on the assessment role, then we get the assessment weight
                     $assessmentWeight = $weights->where('name', '=', $formAnswer->role)->first()->value;
 
@@ -334,7 +324,6 @@ Route::get('/realTest', function (){
 
 /* >>>>>>>>>>>>>>>>>>>>>>>>>>>> Auth routes <<<<<<<<<<<<<<<<<<<<<<<< */
 Route::get('/login', [\App\Http\Controllers\AuthController::class, 'landing'])->name('login');
-Route::post('/loginExternal', [\App\Http\Controllers\AuthController::class, 'externalClientLogin'])->name('externalClient.login');
 Route::get('/', [\App\Http\Controllers\AuthController::class, 'handleRoleRedirect'])->middleware(['auth'])->name('redirect');
 Route::get('/googleLogin', [\App\Http\Controllers\AuthController::class, 'redirectGoogleLogin'])->name('googleLogin');
 Route::post('/logout', [\App\Http\Controllers\AuthController::class, 'logout'])->name('logout');
