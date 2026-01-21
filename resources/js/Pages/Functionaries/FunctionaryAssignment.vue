@@ -179,8 +179,6 @@ export default {
             //Table info
             assessments: [],
             functionaries: [],
-            externalClients: [],
-            functionariesAndExternalClients:[],
             roles:[],
             headers: [
                 {text: 'Asignación', value: 'role'},
@@ -213,8 +211,6 @@ export default {
     async created() {
         await this.getFunctionaryAssessments();
         await this.getPossibleEvaluators();
-        await this.getExternalClients();
-        this.mapFunctionariesAndExternalClientsArray();
         this.getRoles();
     },
 
@@ -228,18 +224,7 @@ export default {
             console.log(this.assessments, 'assessments del funcionario');
         },
 
-        async getExternalClients(){
-            let request = await axios.get(route('api.externalClients.index'));
-            this.externalClients = request.data;
-            console.log(this.externalClients, 'External Clients');
-        },
-
-        mapFunctionariesAndExternalClientsArray(){
-            this.functionariesAndExternalClients = this.functionaries.concat(this.externalClients);
-            console.log(this.functionariesAndExternalClients, 'mixed array');
-
-        },
-
+     
         async getPossibleEvaluators() {
             let request = await axios.get(route('api.functionaries.index', {functionaryProfile: this.functionary}));
             this.functionaries = request.data;
