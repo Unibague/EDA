@@ -400,7 +400,7 @@ export default {
         },
 
         migrateForms: async function (assessmentPeriod) {
-            let request = await axios.get(route('api.forms.copyFromPeriod', {assessmentPeriod}));
+            let request = await axios.get(route('api.forms.copyFromPeriod', {assessmentPeriod: assessmentPeriod.id}));
             await this.getAllForms();
             this.migrateFormsDialog = false;
             showSnackbar(this.snackbar, 'Se han cargado los formularios del periodo de evaluación seleccionado', 'success');

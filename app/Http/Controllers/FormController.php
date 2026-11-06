@@ -6,11 +6,21 @@ use App\Http\Requests\CopyFormRequest;
 use App\Http\Requests\DestroyFormRequest;
 use App\Http\Requests\UpdateFormRequest;
 use App\Models\Form;
+use App\Services\FormService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use InvalidArgumentException;
 
 class FormController extends Controller
 {
+    /** @var FormService */
+    private $formService;
+
+    public function __construct(FormService $formService)
+    {
+        $this->formService = $formService;
+    }
+
     /**
      * Display a listing of the resource.
      *
@@ -23,9 +33,7 @@ class FormController extends Controller
 
     public function copy(CopyFormRequest $request, Form $form): JsonResponse
     {
-        $newForm = $form->replicate(['name']);
-        $newForm->name = 'Copia de ' . $form->name;
-        $newForm->save();
+        $this->formService->copyForm($form);
 
         return response()->json(['message' => 'Formulario copiado exitosamente']);
     }
@@ -95,11 +103,25 @@ class FormController extends Controller
      */
     public function destroy(DestroyFormRequest $request, Form $form): JsonResponse
     {
-        if (count($form->formAnswers) !== 0) {
-            return response()->json(['message' => 'No puedes borrar un formulario con respuestas'],400);
+        if (! $this->formService->deleteForm($form)) {
+            return response()->json(['message' => 'No puedes borrar un formulario con respuestas'], 400);
         }
-        $form->delete();
+
         return response()->json(['message' => 'Formulario borrado exitosamente']);
+    }
+
+    /**
+     * Copy the forms of a previous assessment period into the active one.
+     */
+    public function copyFromPeriod(int $assessmentPeriod): JsonResponse
+    {
+        try {
+            $copied = $this->formService->copyFormsFromPeriod($assessmentPeriod);
+        } catch (InvalidArgumentException $e) {
+            return response()->json(['message' => $e->getMessage()], 400);
+        }
+
+        return response()->json(['message' => "Se copiaron $copied formularios al periodo activo"]);
     }
 
     public static function getWithoutQuestions(): JsonResponse

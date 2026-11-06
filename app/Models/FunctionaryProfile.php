@@ -130,6 +130,16 @@ class FunctionaryProfile extends Model
 
             $dependencyIdentifier = $functionary['dep_code'] . '-' . $assessmentPeriodAsString;
             try {
+                // Some functionaries (e.g. pensioners) belong to a dep_code that is not in the dependencies chart,
+                // so the dependency row must exist before dependency_user references it.
+                DB::table('dependencies')->insertOrIgnore([
+                    'identifier' => $dependencyIdentifier,
+                    'code' => $functionary['dep_code'],
+                    'name' => $functionary['faculty'],
+                    'is_custom' => 0,
+                    'assessment_period_id' => $assessmentPeriodId,
+                ]);
+
                 self::updateOrCreate(
                     [
                         'identification_number' => $functionary['identification'],

@@ -311,7 +311,8 @@ export default {
 
             //Graph data
             chartColors: [{role: 'autoevaluación', name: 'blue'}, {role: 'jefe', name: 'red'}, {role: 'par', name: 'green'},
-              {role: 'promedio final', name: 'black'}],
+              {role: 'promedio final', name: 'black'}, {role: 'cliente interno', name: 'purple'},
+              {role: 'cliente externo', name: 'brown'}],
             datasets:[]
         }
     },
@@ -468,12 +469,15 @@ export default {
         downloadExcel (){
             if (this.filteredGrades.length === 0){
                 showSnackbar(this.snackbar, "No hay datos para guardar", 'alert');
+                return;
             }
 
             let excelInfo = this.filteredGrades.map(item =>{
                 let competencesData = {}
                 this.competences.forEach((competence, index) =>{
-                    competencesData[competence.name] = item[`c${competence.position}`].toLocaleString("pt-BR")
+                    let value = item[`c${competence.position}`];
+                    // Some evaluations have no score for a competence; leave that cell empty.
+                    competencesData[competence.name] = (value === null || value === undefined) ? '' : value.toLocaleString("pt-BR")
                 })
                 return {
                     Funcionario :item.name,
@@ -645,6 +649,11 @@ export default {
             let positionResponseIdeal = this.responseIdeals.filter(responseIdeal =>{
                 return responseIdeal.name === functionary.position_name;
             })[0];
+
+            // The position may have no response ideal in the active period; skip the expected-level line in that case.
+            if (positionResponseIdeal === undefined) {
+                return;
+            }
 
             this.datasets.unshift({
                 label: `Nivel Esperado (${functionary.position_name})`,
